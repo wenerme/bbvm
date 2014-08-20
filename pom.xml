@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>me.wener.bbvm</groupId>
+    <artifactId>bbvm</artifactId>
+    <version>${bbvm.version}</version>
+    <modules>
+        <module>bbvm-core</module>
+    </modules>
+    <packaging>pom</packaging>
+
+    <properties>
+        <!--程序的主要配置-->
+        <app.start.class>me.wener.ptj.mtlauncher.App</app.start.class>
+
+        <bbvm.version>0.1.0</bbvm.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.6</java.version>
+
+        <!--外围配置-->
+        <c3p0.version>0.9.5-pre8</c3p0.version>
+        <gson.version>2.2.4</gson.version>
+        <guava.version>17.0</guava.version>
+        <guice.version>4.0-beta</guice.version>
+        <hibernate.version>4.3.5.Final</hibernate.version>
+        <jetty.version>8.1.14.v20131031</jetty.version>
+        <joda-time.version>2.3</joda-time.version>
+        <jodd.version>3.5.2</jodd.version>
+        <junit.version>4.11</junit.version>
+        <logback.version>1.1.2</logback.version>
+        <lombok.version>1.12.6</lombok.version>
+        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <mybatis.version>3.2.7</mybatis.version>
+        <mysql-connector.version>5.1.29</mysql-connector.version>
+        <ormlite-core.version>4.48</ormlite-core.version>
+        <querydsl.version>3.3.4</querydsl.version>
+        <servlet-api.version>3.0.1</servlet-api.version>
+        <slf4j.version>1.7.7</slf4j.version>
+        <spring.version>4.0.3.RELEASE</spring.version>
+        <spring-boot-starter.version>1.0.2.RELEASE</spring-boot-starter.version>
+        <spring-data-jpa.version>1.5.2.RELEASE</spring-data-jpa.version>
+        <jedis.version>2.5.1</jedis.version>
+        <pdfbox.version>1.8.5</pdfbox.version>
+        <jsr305.version>2.0.3</jsr305.version>
+        <commons-httpclient.version>3.1</commons-httpclient.version>
+        <cxf.version>3.0.1</cxf.version>
+        <httpclient.version>4.3.4</httpclient.version>
+    </properties>
+
+</project>

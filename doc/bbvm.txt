@@ -1,0 +1,76 @@
+java.io.DataInputStream
+ByteBuffer
+http://slick.ninjacave.com/
+https://github.com/preon/preon
+
+Preon aims to provide a framework for dealing with binary encoded data; or more specifically, it aims to deal with situations in which bytes are considered to be overkill. The project is named after the "point-like" particles, conceived to be subcomponents of quarks and leptons. Let's just say very small particles that you don't see with the naked eye, but you probably rely on them without knowing.
+
+Preon is to bitstream encoded content what JAXB is to XML, or Hibernate to relational databases. You define your in memory representation of the data structure in Java classes, and add annotations to 'tell' how it should be mapped onto a bitstream encoded representation. Preon takes care of the rest: it will give you a decoder, hyperlinked documentation on the encoding format, and - if you want - annotated hexdumps explaining you exactly what you're looking at.
+
+http://jparsec.codehaus.org/
+
+Jparsec is a recursive-desent parser combinator framework written for Java. It constructs parsers in native Java language only.
+
+Why yet another parser framework?
+---------------------------------
+Jparsec stands out for its combinator nature. It is no parser generator like YACC or ANTLR. No extra grammar file is required. Grammar is written in native Java /C# language, which also means you can utilize all the utilities in the Java/.Net community to get your parser fancy.
+
+What does "jparsec" stand for?
+-------------------------------
+Jparsec is an implementation of Haskell Parsec on the Java platform.
+
+Feature highlights.
+-------------------
+* operator precendence grammar.
+* accurate error location and customizable error message.
+* rich set of pre-defined reusable combinator functions.
+* declarative API that resembles BNF.
+
+https://code.google.com/p/java-binary-block-parser/
+
+Introduction
+-------------
+Sometime it is very important to parse in Java some binary block data, may be not in very fast way but structures can be complicated and byte and bit orders can be very different. In Python we have the Struct package for operations to parse binary blocks but in Java such operations look a bit verbose and take some time to be programmed, so that I decided during my vacation to develop a framework which would decrease verbosity for such operations in Java and will decrease my work in future because I am too lazy to write a lot of code.
+
+Java support
+------------
+The Framework developed to support Java platform since Java SE 1.5+, its inside mapping has been developed in such manner to support work under the Android platform so that the framework is an Android compatible one. It doesn't use any NIO and usage of the non-standard sun.misc.unsafe class is isolated with reflection.
+
+
+
+
+
+
+
+
+
+
+
+
+构架
+BBVm
+需要读取bin文件
+需要针对每个指令解析,然后使用每个指令进行相应操作
+需要记录寄存器值
+读取bin的时候 需要能够随时跳转
+提供gui操作接口
+Image操作接口
+抽象BB里的一些概念
+	屏幕
+	读pixel
+	写pixel
+	图像资源集合
+	切换屏幕
+	IO
+
+
+
+
+
+
+
+
+
+
+
+
