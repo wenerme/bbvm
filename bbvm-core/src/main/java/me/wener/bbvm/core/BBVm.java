@@ -2,8 +2,63 @@ package me.wener.bbvm.core;
 
 import me.wener.bbvm.utils.Bins;
 
+/*
+//
+//                       _oo0oo_
+//                      o8888888o
+//                      88" . "88
+//                      (| -_- |)
+//                      0\  =  /0
+//                    ___/`---'\___
+//                  .' \\|     |// '.
+//                 / \\|||  :  |||// \
+//                / _||||| -:- |||||- \
+//               |   | \\\  -  /// |   |
+//               | \_|  ''\---/''  |_/ |
+//               \  .-\__  '-'  ___/-. /
+//             ___'. .'  /--.--\  `. .'___
+//          ."" '<  `.___\_<|>_/___.' >' "".
+//         | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+//         \  \ `_.   \_ __\ /__ _/   .-` /  /
+//     =====`-.____`.___ \_____/___.-`___.-'=====
+//                       `=---='
+//
+//
+//     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//
+//               佛祖保佑         永无BUG
+//
+//
+//   █████▒█    ██  ▄████▄   ██ ▄█▀       ██████╗ ██╗   ██╗ ██████╗
+// ▓██   ▒ ██  ▓██▒▒██▀ ▀█   ██▄█▒        ██╔══██╗██║   ██║██╔════╝
+// ▒████ ░▓██  ▒██░▒▓█    ▄ ▓███▄░        ██████╔╝██║   ██║██║  ███╗
+// ░▓█▒  ░▓▓█  ░██░▒▓▓▄ ▄██▒▓██ █▄        ██╔══██╗██║   ██║██║   ██║
+// ░▒█░   ▒▒█████▓ ▒ ▓███▀ ░▒██▒ █▄       ██████╔╝╚██████╔╝╚██████╔╝
+//  ▒ ░   ░▒▓▒ ▒ ▒ ░ ░▒ ▒  ░▒ ▒▒ ▓▒       ╚═════╝  ╚═════╝  ╚═════╝
+//  ░     ░░▒░ ░ ░   ░  ▒   ░ ░▒ ▒░
+//  ░ ░    ░░░ ░ ░ ░        ░ ░░ ░
+//           ░     ░ ░      ░  ░
+//                 ░
+//
+// WRITTEN BY
+//  __  _  __ ____   ____   ___________
+//  \ \/ \/ // __ \ /    \_/ __ \_  __ \
+//   \     /\  ___/|   |  \  ___/|  | \/
+//    \/\_/  \___  >___|  /\___  >__|
+//               \/     \/     \/
+*/
 public abstract class BBVm
 {
+    private final Device device;
+    private final DeviceFunction deviceFunction;
+
+    protected BBVm(Device device)
+    {
+
+        this.device = device;
+        deviceFunction = device.getFunction();
+    }
+
     public void load(byte[] bytes)
     {
         memory = bytes;
@@ -17,7 +72,7 @@ public abstract class BBVm
     private final Reg r1 = new Reg();
     private final Reg r2 = new Reg();
     private final Reg r3 = new Reg();
-
+    private final byte[] stack = new byte[1024];
     private byte[] memory;
     private int pc = 0;
 

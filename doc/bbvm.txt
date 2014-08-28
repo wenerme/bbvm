@@ -64,9 +64,13 @@ Image操作接口
 	IO
 
 
-
-
-
+Device<PAGE extends Page, PIC extends Pic>
+	设备需要提供 page 句柄和 图片资源句柄
+	HandlerPool<PAGE>
+	HandlerPool<PIC>
+	
+Page 需要封装和具体平台相关的显示的东西
+	
 
 
 

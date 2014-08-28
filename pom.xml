@@ -9,6 +9,7 @@
     <version>${bbvm.version}</version>
     <modules>
         <module>bbvm-core</module>
+        <module>bbvm-swing</module>
     </modules>
     <packaging>pom</packaging>
 

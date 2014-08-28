@@ -2,9 +2,16 @@ package me.wener.bbvm.utils;
 
 import java.nio.charset.Charset;
 
+/**
+ * 参考实现 {@link java.nio.Bits}, 和 Netty 的ByteBuf 和 ByteBuffer
+ */
 @SuppressWarnings("unused")
 public class Bins
 {
+    public static void int8(byte[] bytes, int offset, byte v)
+    {
+        bytes[offset] = v;
+    }
     public static byte int8(byte[] bytes, int offset)
     {
         return bytes[offset];
@@ -22,7 +29,17 @@ public class Bins
     {
         return (char)int16(bytes, offset);
     }
+    public static void char16(byte[] bytes, int offset, char v)
+    {
+        bytes[offset+0] = char0(v);
+        bytes[offset+1] = char1(v);
+    }
 
+    public static void int16(byte[] bytes, int offset, short v)
+    {
+        bytes[offset+0] = short0(v);
+        bytes[offset+1] = short1(v);
+    }
     public static short int16(byte[] bytes, int offset)
     {
         return (short) (bytes[offset] << 8 | bytes[offset + 1] & 0xFF);
@@ -50,6 +67,13 @@ public class Bins
                 bytes[offset + 2] & 0xff;
     }
 
+    public static void int32(byte[] bytes, int offset, int v)
+    {
+        bytes[offset+0] = int0(v);
+        bytes[offset+1] = int1(v);
+        bytes[offset+2] = int2(v);
+        bytes[offset+3] = int3(v);
+    }
     public static int int32(byte[] bytes, int offset)
     {
         return (bytes[offset] & 0xff) << 24 |
@@ -68,16 +92,27 @@ public class Bins
         return int32(bytes, offset) & 0xFFFFFFFFL;
     }
 
+    public static void int64(byte[] bytes, int offset, long v)
+    {
+        bytes[offset+0] = long0(v);
+        bytes[offset+1] = long1(v);
+        bytes[offset+2] = long2(v);
+        bytes[offset+3] = long3(v);
+        bytes[offset+4] = long4(v);
+        bytes[offset+5] = long5(v);
+        bytes[offset+6] = long6(v);
+        bytes[offset+7] = long7(v);
+    }
     public static long int64(byte[] bytes, int offset)
     {
-        return ((long) bytes[offset] & 0xff) << 56 |
+        return  ((long) bytes[offset + 0] & 0xff) << 56 |
                 ((long) bytes[offset + 1] & 0xff) << 48 |
                 ((long) bytes[offset + 2] & 0xff) << 40 |
                 ((long) bytes[offset + 3] & 0xff) << 32 |
                 ((long) bytes[offset + 4] & 0xff) << 24 |
                 ((long) bytes[offset + 5] & 0xff) << 16 |
                 ((long) bytes[offset + 6] & 0xff) << 8 |
-                (long) bytes[offset + 7] & 0xff;
+                ((long) bytes[offset + 7] & 0xff);
     }
 
     public static long uint64(byte[] bytes, int offset) { return 0;}
@@ -86,13 +121,17 @@ public class Bins
     {
         return float32(int32(bytes, offset));
     }
+    public static void float32(byte[] bytes, int offset, float v)
+    {
+        int32(bytes,offset,int32(v));
+    }
 
     public static float float32(int v)
     {
         return Float.intBitsToFloat(v);
     }
 
-    public static long int64(long v)
+    public static long int64(double v)
     {
         return Double.doubleToRawLongBits(v);
     }
@@ -100,6 +139,35 @@ public class Bins
     public static double double64(byte[] bytes, int offset)
     {
         return Double.longBitsToDouble(int64(bytes, offset));
+    }
+    public static void double64(byte[] bytes, int offset, double v)
+    {
+        int64(bytes,offset,int64(v));
+    }
+
+    /**
+     * 读取以0结尾的字符,使用指定编码将其转换为字符串
+     */
+    public static String zString(byte[] bytes, int offset, Charset charset)
+    {
+        return string(zByte(bytes, offset),charset);
+    }
+
+    /**
+     * 返回byte数组,从bytes中读取,知道遇到0
+     */
+    public static byte[] zByte(byte[] bytes, int offset)
+    {
+        int len = 0;
+        for (int i = offset; i < bytes.length; i++)
+        {
+            if (bytes[i] == 0)
+                break;
+            len ++;
+        }
+        byte[] out = new byte[len];
+        rBytes(bytes,offset,out,0,len);
+        return out;
     }
 
     public static void rBytes(byte[] bytes, int offset, byte[] to, int toOffset, int len)
@@ -136,6 +204,7 @@ public class Bins
         return new String(bytes, charset);
     }
 
+    //region 位逆序操作
     public static short reverse(short x)
     {
         return Short.reverseBytes(x);
@@ -155,4 +224,27 @@ public class Bins
     {
         return Long.reverseBytes(x);
     }
+
+    //endregion
+
+
+    //region 基本类型的byte获取操作
+    public static byte int3(int x) { return (byte)(x >> 24); }
+    public static byte int2(int x) { return (byte)(x >> 16); }
+    public static byte int1(int x) { return (byte)(x >>  8); }
+    public static byte int0(int x) { return (byte)(x      ); }
+    public static byte long7(long x) { return (byte)(x >> 56); }
+    public static byte long6(long x) { return (byte)(x >> 48); }
+    public static byte long5(long x) { return (byte)(x >> 40); }
+    public static byte long4(long x) { return (byte)(x >> 32); }
+    public static byte long3(long x) { return (byte)(x >> 24); }
+    public static byte long2(long x) { return (byte)(x >> 16); }
+    public static byte long1(long x) { return (byte)(x >>  8); }
+    public static byte long0(long x) { return (byte)(x      ); }
+
+    public static byte char1(char x) { return (byte)(x >> 8); }
+    public static byte char0(char x) { return (byte)(x     ); }
+    public static byte short1(short x) { return (byte)(x >> 8); }
+    public static byte short0(short x) { return (byte)(x     ); }
+    //endregion
 }

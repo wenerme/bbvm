@@ -5,23 +5,27 @@ import me.wener.bbvm.utils.Bins;
 public class Reg
 {
     private int value;
+    private byte[] internal = new byte[8];
 
     public int getInt()
     {
-        return value;
+        return Bins.int32(internal, 0);
     }
+
     public Reg setInt(int v)
     {
-        value = v;
+        Bins.int32(internal, 0, v);
         return this;
     }
-    public Reg setFloat(float v)
-    {
-        value = Bins.int32(v);
-        return this;
-    }
+
     public float getFloat()
     {
-        return Bins.float32(value);
+        return Bins.float32(internal, 0);
+    }
+
+    public Reg setFloat(float v)
+    {
+        Bins.float32(internal, 0, v);
+        return this;
     }
 }
