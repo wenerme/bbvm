@@ -1,5 +1,7 @@
 package me.wener.bbvm.core;
 
+import me.wener.bbvm.core.constant.Device;
+
 public abstract class AbstractDevice<SCR extends Screen<PAGE>,PAGE extends Page,PIC extends Picture> implements Device
 {
     public abstract AbstractHandlePool<PAGE> getPagePool();

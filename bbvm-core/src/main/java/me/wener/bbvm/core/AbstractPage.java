@@ -1,5 +1,8 @@
 package me.wener.bbvm.core;
 
+import me.wener.bbvm.core.constant.FontType;
+import me.wener.bbvm.core.constant.PenStyle;
+
 public abstract class AbstractPage<P extends Page> implements Page
 {
     protected FontType fontType = FontType.FONT_12SONG;

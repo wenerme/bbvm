@@ -149,4 +149,23 @@ public class Colour
     {
         return getClass().getName() + "[r=" + getRed() + ",g=" + getGreen() + ",b=" + getBlue() + "]";
     }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (!(o instanceof Colour)) return false;
+
+        Colour colour = (Colour) o;
+
+        if (value != colour.value) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return value;
+    }
 }

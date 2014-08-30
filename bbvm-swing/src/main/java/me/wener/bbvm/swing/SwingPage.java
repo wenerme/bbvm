@@ -5,7 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import me.wener.bbvm.core.AbstractPage;
 import me.wener.bbvm.core.Colour;
-import me.wener.bbvm.core.DrawMode;
+import me.wener.bbvm.core.constant.DrawMode;
 import me.wener.bbvm.core.Page;
 import me.wener.bbvm.core.Picture;
 

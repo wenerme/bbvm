@@ -1,5 +1,9 @@
 package me.wener.bbvm.core;
 
+import me.wener.bbvm.core.constant.DrawMode;
+import me.wener.bbvm.core.constant.FontType;
+import me.wener.bbvm.core.constant.PenStyle;
+
 public interface Page
 {
     void pen(PenStyle penStyle, int width, Colour color);

@@ -1,7 +1,7 @@
 package me.wener.bbvm.swing;
 
 import java.awt.Image;
-import me.wener.bbvm.core.Device;
+import me.wener.bbvm.core.constant.Device;
 import me.wener.bbvm.core.DeviceFunction;
 
 public class DeviceSwingBackend implements Device

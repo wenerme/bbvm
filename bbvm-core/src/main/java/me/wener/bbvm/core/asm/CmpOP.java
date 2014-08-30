@@ -1,4 +1,6 @@
-package me.wener.bbvm.core;
+package me.wener.bbvm.core.asm;
+
+import me.wener.bbvm.core.IsValue;
 
 /**
  * Z    | 0x1 | 等于

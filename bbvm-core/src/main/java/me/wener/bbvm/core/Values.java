@@ -2,6 +2,7 @@ package me.wener.bbvm.core;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import me.wener.bbvm.core.asm.Instruction;
 
 public class Values
 {

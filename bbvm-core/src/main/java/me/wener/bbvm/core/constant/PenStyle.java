@@ -1,4 +1,6 @@
-package me.wener.bbvm.core;
+package me.wener.bbvm.core.constant;
+
+import me.wener.bbvm.core.IsValue;
 
 public enum PenStyle implements IsValue<Integer>
 {

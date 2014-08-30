@@ -1,9 +1,11 @@
-package me.wener.bbvm.core;
+package me.wener.bbvm.core.asm;
+
+import me.wener.bbvm.core.IsValue;
 
 /**
  * 算数操作符
  */
-public enum MathOP implements IsValue<Integer>
+public enum CalOP implements IsValue<Integer>
 {
     ADD(0x0),
     SUB(0x1),
@@ -13,7 +15,7 @@ public enum MathOP implements IsValue<Integer>
 
     private final int value;
 
-    MathOP(int value)
+    CalOP(int value)
     {
         this.value = value;
     }
