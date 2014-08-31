@@ -9,6 +9,36 @@ import java.nio.charset.Charset;
 @SuppressWarnings("unused")
 public class Bins
 {
+    public static void main(String[] args)
+    {
+        int i = 0x12345678;
+        assert Bins.int4(i, 0) == 8;
+        assert Bins.int4(i, 1) == 7;
+        assert Bins.int4(i, 2) == 6;
+        assert Bins.int4(i, 3) == 5;
+        assert Bins.int4(i, 4) == 4;
+        assert Bins.int4(i, 5) == 3;
+        assert Bins.int4(i, 6) == 2;
+        assert Bins.int4(i, 7) == 1;
+        assert Bins.int4(i, 8) == 8;
+
+        assert 1 == 2;
+    }
+    /**
+     * 返回一个范围在 0xf 内的值
+     * @param i 索引, 从右到左, 该索引会mod到8
+     */
+    public static byte int4(int v, int i)
+    {
+        i %= 8;
+        return (byte) (v >> (i * 4) & 0xf);
+    }
+    public static byte int4(long v, int i)
+    {
+        i %= 16;
+        return (byte) (v >> (i * 4) & 0xf);
+    }
+
     public static void int8(byte[] bytes, int offset, byte v)
     {
         bytes[offset] = v;

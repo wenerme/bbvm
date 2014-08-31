@@ -48,7 +48,7 @@ public enum Instruction implements IsValue<Integer>
         length.put(POP, 5);
         length.put(IN, 10);
         length.put(OUT, 10);
-        length.put(JMP, 6);
+        length.put(JMP, 5);
         length.put(JPC, 6);
         length.put(CALL, 5);
         length.put(RET, 1);

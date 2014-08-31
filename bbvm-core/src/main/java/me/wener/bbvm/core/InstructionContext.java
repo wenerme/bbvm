@@ -14,6 +14,7 @@ class InstructionContext
     private DataType dataType;
     private int specialByte;
     private int addressingType;
+    private int firstByte;
 
     InstructionContext(BBVm vm)
     {
@@ -53,14 +54,19 @@ class InstructionContext
         return addressingType;
     }
 
+    public int getFirstByte()
+    {
+        return firstByte;
+    }
+
     void read(int pc)
     {
        /*
             指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
          0x 0        0          0             0          0000           0000
         */
-        int code = Bins.uint16b(memory, pc);
-        int opcode = code >> 12;// 指令码
+        firstByte = Bins.uint16b(memory, pc);
+        int opcode = firstByte >> 12;// 指令码
         instruction = Values.fromValue(Instruction.class, opcode);
         Integer length = Instruction.length(instruction);
 
@@ -68,12 +74,12 @@ class InstructionContext
         {
             dataType = null;
             specialByte = 0;
-            addressingType = (code & 0x0F00) >> 8;
-        }else if (length > 1)
+            addressingType = (firstByte & 0x0F00) >> 8;
+        } else if (length > 1)
         {
-            specialByte = (code & 0x00F0) >> 4;
-            addressingType = code & 0x000F;
-            dataType = Values.fromValue(DataType.class, (code & 0x0F00) >> 8);
+            specialByte = (firstByte & 0x00F0) >> 4;
+            addressingType = firstByte & 0x000F;
+            dataType = Values.fromValue(DataType.class, (firstByte & 0x0F00) >> 8);
         }
 
         op1 = op2 = Operand.INVALID;
@@ -84,7 +90,7 @@ class InstructionContext
             // 双操作数
             op1t = addressingType / 4;
             op2t = addressingType % 4;
-        }else
+        } else
         {
             // 单操作数
             op1t = addressingType % 4;
@@ -111,14 +117,17 @@ class InstructionContext
     {
         addressingType = (code & 0x0F00) >> 8;
     }
+
     void read5()
     {
 
     }
+
     void read6()
     {
 
     }
+
     void read10()
     {
 

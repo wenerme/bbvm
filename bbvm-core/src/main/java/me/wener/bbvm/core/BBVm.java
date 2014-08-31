@@ -1,7 +1,8 @@
 package me.wener.bbvm.core;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import me.wener.bbvm.core.asm.CalOP;
 import me.wener.bbvm.core.asm.CmpOP;
 import me.wener.bbvm.core.asm.DataType;
@@ -58,6 +59,8 @@ import me.wener.bbvm.utils.Bins;
 public class BBVm
 {
     private final Device device;
+    private final Logger log = Logger.getLogger(BBVm.class.toString());
+    private final boolean logInst = log.getLevel() == Level.INFO;
     private final DeviceFunction deviceFunction;
     private final byte[] stack = new byte[1024];
     private final Reg rp = new Reg("rp");
@@ -154,8 +157,12 @@ public class BBVm
         switch (instruction)
         {
             case NOP:
+                if (logInst)
+                    log(instruction);
                 break;
             case LD:
+                if (logInst)
+                    log(instruction, dataType, op1, op2);
                 switch (dataType)
                 {
                     case T_DWORD:
@@ -174,34 +181,54 @@ public class BBVm
                 }
                 break;
             case PUSH:
+                if (logInst)
+                    log(instruction, op1);
+
                 push(op1.get());
                 break;
             case POP:
+                if (logInst)
+                    log(instruction, op1);
+
                 op1.set(pop());
                 break;
             case IN:
+                if (logInst)
+                    log(instruction, op1, op2);
+
                 in(ctx);
                 break;
             case OUT:
+                if (logInst)
+                    log(instruction, op1, op2);
+
                 out(ctx);
                 break;
             case JMP:
+                if (logInst)
+                    log(instruction, op1);
+
                 rp.set(op1.get());
                 break;
             case JPC:
             {
-                CmpOP org = Values.fromValue(CmpOP.class, ctx.getSpecialByte());
+                // JPC 的数据类型为比较操作
+                CmpOP org = Values.fromValue(CmpOP.class, (int) Bins.int4(ctx.getFirstByte(), 2));
                 CmpOP flag = Values.fromValue(CmpOP.class, rf.get());
                 boolean valid = false;
+
+                if (logInst)
+                    log(instruction, org, op1);
+
 
                 switch (flag)
                 {
                     case A:
-                        if (org == CmpOP.AE || org == CmpOP.A)
+                        if (org == CmpOP.AE || org == CmpOP.A || org == CmpOP.NZ)
                             valid = true;
                         break;
                     case B:
-                        if (org == CmpOP.BE || org == CmpOP.B)
+                        if (org == CmpOP.BE || org == CmpOP.B || org == CmpOP.NZ)
                             valid = true;
                         break;
                     case Z:
@@ -218,14 +245,24 @@ public class BBVm
             }
             break;
             case CALL:
-                push(rp.get());
+                if (logInst)
+                    log(instruction, op1);
+
+                // 设置返回位置为下一句的开始
+                push(rp.get() + Instruction.length(instruction));
                 rp.set(opv1);
                 break;
             case RET:
+                if (logInst)
+                    log(instruction);
+
                 rp.set(pop());
                 break;
             case CMP:
             {
+                if (logInst)
+                    log(instruction, dataType, op1, op2);
+
                 float a = opv1;
                 float b = opv2;
                 if (dataType == DataType.T_FLOAT)
@@ -244,6 +281,9 @@ public class BBVm
             break;
             case CAL:
             {
+                if (logInst)
+                    log(instruction, op1);
+
                 CalOP op = Values.fromValue(CalOP.class, this.context.getSpecialByte());
                 // 返回结果为 r0
                 double a = opv1;
@@ -292,6 +332,9 @@ public class BBVm
             }
             break;
             case EXIT:
+                if (logInst)
+                    log(instruction);
+
                 exit();
                 break;
             default:
@@ -312,18 +355,19 @@ public class BBVm
     protected void push(int v)
     {
         Bins.int32l(memory, rs.get(), v);
-        rs.set(rs.get()-4);
+        rs.set(rs.get() - 4);
     }
 
     protected int pop()
     {
-        rs.set(rs.get()+4);
+        rs.set(rs.get() + 4);
         return Bins.int32l(memory, rs.get());
     }
 
     /**
      * 处理 out 端口操作
-     * @return 如果被处理了,返回 true 否则 false
+     *
+     * @return 如果被处理了, 返回 true 否则 false
      */
     protected boolean out(InstructionContext ctx)
     {
@@ -356,16 +400,39 @@ public class BBVm
 
     /**
      * 获取内存中的字符串
-     * @param offset
-     * @return
+     *
+     * @param offset 字符串偏移量
      */
     protected String string(Integer offset)
     {
         return Bins.zString(memory, offset, Charset.forName("GBK"));
     }
+
+    protected void log(Object... objects)
+    {
+        System.out.println(logString(objects));
+    }
+
+    protected String logString(Object... objects)
+    {
+        StringBuilder builder = new StringBuilder();
+        boolean lastIsOperand = false;
+        for (Object object : objects)
+        {
+            if (lastIsOperand)
+            {
+                builder.append(", ");
+            }
+            builder.append(object).append(" ");
+            lastIsOperand = object instanceof Operand;
+        }
+        return builder.toString();
+    }
+
     /**
      * 处理 in 端口操作
-     * @return 如果被处理了,返回 true 否则 false
+     *
+     * @return 如果被处理了, 返回 true 否则 false
      */
     protected boolean in(InstructionContext ctx)
     {
