@@ -4,6 +4,7 @@ import me.wener.bbvm.core.asm.CalOP;
 import me.wener.bbvm.core.asm.CmpOP;
 import me.wener.bbvm.core.asm.DataType;
 import me.wener.bbvm.core.asm.Instruction;
+import me.wener.bbvm.core.asm.RegType;
 import me.wener.bbvm.core.constant.Device;
 import me.wener.bbvm.utils.Bins;
 
@@ -52,49 +53,81 @@ import me.wener.bbvm.utils.Bins;
 //    \/\_/  \___  >___|  /\___  >__|
 //               \/     \/     \/
 */
-public abstract class BBVm
+public class BBVm
 {
     private final Device device;
     private final DeviceFunction deviceFunction;
     private final byte[] stack = new byte[1024];
+    private final Reg rp = new Reg("rp");
+    private final Reg rb = new Reg("rb");
+    private final Reg rs = new Reg("rs");
+    private final Reg rf = new Reg("rf");
+    private final Reg r0 = new Reg("r0");
+    private final Reg r1 = new Reg("r1");
+    private final Reg r2 = new Reg("r2");
+    private final Reg r3 = new Reg("r3");
     private byte[] memory;
-    InstructionContext ctx = new InstructionContext(memory);
-    private Reg rp = new Reg("rp");
-    private Reg rb = new Reg("rb");
-    private Reg rs = new Reg("rs");
-    private Reg rf = new Reg("rf");
-    private Reg r0 = new Reg("r0");
-    private Reg r1 = new Reg("r1");
-    private Reg r2 = new Reg("r2");
-    private Reg r3 = new Reg("r3");
+    private InstructionContext context;
+    private int stackSize = 1000;
 
+    static
+    {
+        Values.cache(CalOP.class);
+        Values.cache(CmpOP.class);
+        Values.cache(DataType.class);
+        Values.cache(Instruction.class);
+        Values.cache(RegType.class);
+    }
 
     protected BBVm(Device device)
     {
 
         this.device = device;
-        deviceFunction = device.getFunction();
+        deviceFunction = null;
+        //deviceFunction = device.getFunction();
+    }
+
+    byte[] getMemory()
+    {
+        return memory;
     }
 
     public void load(byte[] bytes)
     {
-        memory = bytes;
+        memory = new byte[bytes.length + stackSize];
+        System.arraycopy(bytes, 0, memory, 0, bytes.length);
     }
 
     public void reset()
     {
+        context = new InstructionContext(this);
+        rp.set(0);
+        rb.set(memory.length - stackSize - 4);
+        rs.set(memory.length - 4);
+        rf.set(0);
+        r0.set(0);
+        r1.set(0);
+        r2.set(0);
+        r3.set(0);
+    }
+
+    public void start()
+    {
 
     }
 
-    private void loop()
+    boolean loop()
     {
         final int pc = rp.get();// 记录位置
 
-        ctx.read(pc);
+        if (pc >= memory.length)
+            return false;
+
+        context.read(pc);
 
         try
         {
-            doInstruction(ctx);
+            doInstruction(context);
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -102,17 +135,19 @@ public abstract class BBVm
 
         // 如果 rp 没变,则自增
         if (pc == rp.get())
-            rp.set(pc + Instruction.length(ctx.instruction));
+            rp.set(pc + Instruction.length(context.getInstruction()));
+
+        return true;
     }
 
     protected void doInstruction(InstructionContext ctx)
     {
-        final Operand op1 = ctx.op1;
-        final Operand op2 = ctx.op2;
-        final Integer opv1 = ctx.op1.get();
-        final Integer opv2 = ctx.op2.get();
-        final DataType dataType = ctx.dataType;
-        final Instruction instruction = ctx.instruction;
+        final Operand op1 = ctx.getOp1();
+        final Operand op2 = ctx.getOp2();
+        final Integer opv1 = op1.get();
+        final Integer opv2 = op2.get();
+        final DataType dataType = ctx.getDataType();
+        final Instruction instruction = ctx.getInstruction();
 
         switch (instruction)
         {
@@ -207,7 +242,7 @@ public abstract class BBVm
             break;
             case CAL:
             {
-                CalOP op = Values.fromValue(CalOP.class, this.ctx.specialByte);
+                CalOP op = Values.fromValue(CalOP.class, this.context.getSpecialByte());
                 // 返回结果为 r0
                 double a = opv1;
                 double b = opv2;
@@ -272,18 +307,34 @@ public abstract class BBVm
     }
 
     protected void push(int v)
-    {}
+    {
+        Bins.int32l(memory, rs.get(), v);
+        rs.set(rs.get()-4);
+    }
 
     protected int pop()
     {
-        return 0;
+        rs.set(rs.get()+4);
+        return Bins.int32l(memory, rs.get());
     }
 
-    protected void out(InstructionContext port)
-    {}
+    protected void out(InstructionContext ctx)
+    {
+        switch (ctx.getOp1().get())
+        {
+            case 3:
+                System.out.printf("%s",ctx.getOp2().get());
+                break;
+            case 0:
+                System.out.println(ctx.getOp2().get());
+                break;
+        }
+    }
 
-    protected void in(InstructionContext port)
-    {}
+    protected void in(InstructionContext ctx)
+    {
+
+    }
 
     private void exit()
     {
@@ -305,115 +356,28 @@ public abstract class BBVm
      */
     IntHolder register(int reg)
     {
-        switch (reg)
+        RegType r = Values.fromValue(RegType.class, reg);
+        switch (r)
         {
-            case 0:
+            case rp:
                 return rp;
-            case 1:
+            case rf:
                 return rf;
-            case 2:
+            case rs:
                 return rs;
-            case 3:
+            case rb:
                 return rb;
-            case 4:
+            case r0:
                 return r0;
-            case 5:
+            case r1:
                 return r1;
-            case 6:
+            case r2:
                 return r2;
-            case 7:
+            case r3:
                 return r3;
             default:
                 throw new IllegalArgumentException("未知的寄存器 :" + reg);
         }
     }
 
-    class InstructionContext
-    {
-        private final byte[] memory;
-        private Instruction instruction;
-        private Operand op1;
-        private Operand op2;
-        private DataType dataType;
-        private int specialByte;
-        private int addressingType;
-
-        InstructionContext(byte[] memory) {this.memory = memory;}
-
-        public Instruction getInstruction()
-        {
-
-            return instruction;
-        }
-
-        public Operand getOp1()
-        {
-            return op1;
-        }
-
-        public Operand getOp2()
-        {
-            return op2;
-        }
-
-        public DataType getDataType()
-        {
-            return dataType;
-        }
-
-        public int getSpecialByte()
-        {
-            return specialByte;
-        }
-
-        public int getAddressingType()
-        {
-            return addressingType;
-        }
-
-        void read(int pc)
-        {
-           /*
-                指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
-             0x 0        0          0             0          0000           0000
-            */
-            int code = Bins.uint16(memory, pc);
-            int opcode = code >> 12;// 指令码
-            //dataType = (code & 0x0F00) >> 8;
-            dataType = Values.fromValue(DataType.class, (code & 0x0F00) >> 8);
-
-            specialByte = (code & 0x00F0) >> 4;
-            addressingType = code & 0x000F;
-            instruction = Values.fromValue(Instruction.class, opcode);
-
-            op1 = operand(addressingType % 4, Bins.int32(memory, pc + 2));
-            op2 = operand(addressingType / 4, Bins.int32(memory, pc + 6));
-        }
-
-        /**
-         * <pre>
-         * rx		| 0x0 | 寄存器寻址
-         * [rx]	| 0x1 | 寄存器间接寻址
-         * n		| 0x2 | 立即数寻址
-         * [n]	| 0x3 | 间接寻址
-         * </pre>
-         */
-        private Operand operand(int type, int op)
-        {
-            switch (type)
-            {
-                case 0:
-                    return Operand.holder(register(op));
-                case 1:
-                    return Operand.indirect(register(op), memory);
-                case 2:
-                    return Operand.value(op);
-                case 3:
-                    return Operand.address(op, memory);
-                default:
-                    throw unsupport("未知的寻址类型: %s 操作数为: %s", type, op);
-            }
-        }
-
-    }
 }

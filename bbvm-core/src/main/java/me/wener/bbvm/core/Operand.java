@@ -2,8 +2,9 @@ package me.wener.bbvm.core;
 
 import me.wener.bbvm.utils.Bins;
 
-public class Operand implements IntHolder
+public abstract class Operand implements IntHolder
 {
+    public final static Operand INVALID = new InvalidOperand();
     /**
      * 获取地址相关的操作数
      */
@@ -26,6 +27,10 @@ public class Operand implements IntHolder
     public static Operand holder(IntHolder v)
     {
         return new HolderOperand(v);
+    }
+    public static Operand invalid()
+    {
+        return INVALID;
     }
     /**
      * 包装一个间接寻址
@@ -50,6 +55,20 @@ public class Operand implements IntHolder
         throw new UnsupportedOperationException();
     }
 
+    private static class InvalidOperand extends Operand
+    {
+        @Override
+        public Integer get()
+        {
+            return 0;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "invalid";
+        }
+    }
     private static class HolderOperand extends Operand
     {
         private final IntHolder value;
@@ -114,13 +133,13 @@ public class Operand implements IntHolder
         @Override
         public Integer get()
         {
-            return Bins.int32(memory, address);
+            return Bins.int32l(memory, address);
         }
 
         @Override
         public void set(Integer v)
         {
-            Bins.int32(memory, address, v);
+            Bins.int32l(memory, address, v);
         }
 
         @Override

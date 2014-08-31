@@ -42,19 +42,19 @@ public enum Instruction implements IsValue<Integer>
     static
     {
         length = Maps.newEnumMap(Instruction.class);
-        length.put(NOP, 2);
+        length.put(NOP, 1);
         length.put(LD, 10);
-        length.put(PUSH, 6);
-        length.put(POP, 6);
+        length.put(PUSH, 5);
+        length.put(POP, 5);
         length.put(IN, 10);
         length.put(OUT, 10);
         length.put(JMP, 6);
         length.put(JPC, 6);
-        length.put(CALL, 6);
-        length.put(RET, 2);
+        length.put(CALL, 5);
+        length.put(RET, 1);
         length.put(CMP, 10);
         length.put(CAL, 10);
-        length.put(EXIT, 2);
+        length.put(EXIT, 1);
     }
 
 
