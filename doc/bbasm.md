@@ -92,7 +92,7 @@ n		| 0x8	| 0x9	| 0xa	| 0xb
  
  
 * NOP,RET,EXIT 无操作数 长度为 1
-* JMP,PUSH,CALL,POP 长度为 5
+* JMP,PUSH,CALL,POP 一个操作数 长度为 5
 * JPC 一个操作数 长度为 6
 * LD,IN,OUT,CMP,CAL 两个操作数 长度为 10
 * JPC 根据 rf 来判断是否跳转

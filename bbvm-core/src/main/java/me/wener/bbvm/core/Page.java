@@ -4,6 +4,9 @@ import me.wener.bbvm.core.constant.DrawMode;
 import me.wener.bbvm.core.constant.FontType;
 import me.wener.bbvm.core.constant.PenStyle;
 
+/**
+ * BB 中一个页面应该有的操作
+ */
 public interface Page
 {
     void pen(PenStyle penStyle, int width, Colour color);

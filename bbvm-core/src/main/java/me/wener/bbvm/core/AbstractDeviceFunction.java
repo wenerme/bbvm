@@ -10,8 +10,8 @@ public class AbstractDeviceFunction<SCR extends Screen<PAGE>, PAGE extends Page,
 {
     private final AbstractDevice<SCR, PAGE, PIC> device;
     private final SCR screen;
-    private final AbstractHandlePool<PIC> picturePool;
-    private final AbstractHandlePool<PAGE> pagePool;
+    private final ResourceHandlePool<PIC> picturePool;
+    private final ResourceHandlePool<PAGE> pagePool;
     private final PAGE scrPage;
 
     public AbstractDeviceFunction(AbstractDevice<SCR, PAGE, PIC> device)

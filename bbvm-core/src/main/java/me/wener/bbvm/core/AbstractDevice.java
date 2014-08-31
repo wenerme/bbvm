@@ -4,8 +4,8 @@ import me.wener.bbvm.core.constant.Device;
 
 public abstract class AbstractDevice<SCR extends Screen<PAGE>,PAGE extends Page,PIC extends Picture> implements Device
 {
-    public abstract AbstractHandlePool<PAGE> getPagePool();
-    public abstract AbstractHandlePool<PIC> getPicturePool();
+    public abstract ResourceHandlePool<PAGE> getPagePool();
+    public abstract ResourceHandlePool<PIC> getPicturePool();
     public abstract SCR getScreen();
     @Override
     public DeviceFunction getFunction()

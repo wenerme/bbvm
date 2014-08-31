@@ -4,9 +4,20 @@ import java.awt.Image;
 import me.wener.bbvm.core.constant.Device;
 import me.wener.bbvm.core.DeviceFunction;
 
-public class DeviceSwingBackend implements Device
+public class SwingDevice implements Device
 {
     private final SwingDeviceFunction function = new SwingDeviceFunction();
+    private final int width;
+    private final int height;
+    private final SwingPage screen;
+
+    public SwingDevice(int width, int height)
+    {
+        this.width = width;
+        this.height = height;
+        screen = new SwingPage(width, height);
+    }
+
     @Override
     public DeviceFunction getFunction()
     {

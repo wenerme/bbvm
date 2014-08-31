@@ -1,5 +1,7 @@
 package me.wener.bbvm.core;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import me.wener.bbvm.core.asm.CalOP;
 import me.wener.bbvm.core.asm.CmpOP;
 import me.wener.bbvm.core.asm.DataType;
@@ -226,7 +228,7 @@ public class BBVm
             {
                 float a = opv1;
                 float b = opv2;
-                if (dataType.equals(DataType.T_FLOAT))
+                if (dataType == DataType.T_FLOAT)
                 {
                     a = Bins.float32(opv1);
                     b = Bins.float32(opv2);
@@ -288,6 +290,7 @@ public class BBVm
                 }
                 op1.set(ret);
             }
+            break;
             case EXIT:
                 exit();
                 break;
@@ -318,22 +321,55 @@ public class BBVm
         return Bins.int32l(memory, rs.get());
     }
 
-    protected void out(InstructionContext ctx)
+    /**
+     * 处理 out 端口操作
+     * @return 如果被处理了,返回 true 否则 false
+     */
+    protected boolean out(InstructionContext ctx)
     {
+        Integer opv2 = ctx.getOp2().get();
         switch (ctx.getOp1().get())
         {
-            case 3:
-                System.out.printf("%s",ctx.getOp2().get());
-                break;
             case 0:
-                System.out.println(ctx.getOp2().get());
+                System.out.println(opv2);
                 break;
+            case 1:
+                System.out.println(string(opv2));
+                break;
+            case 2:
+                System.out.printf("%s", string(opv2));
+                break;
+            case 3:
+                System.out.printf("%s", opv2);
+                break;
+            case 4:
+                System.out.printf("%c", Character.toChars(opv2)[0]);
+                break;
+            case 5:
+                System.out.printf("%.6f", Bins.float32(opv2));
+                break;
+            default:
+                return false;
         }
+        return true;
     }
 
-    protected void in(InstructionContext ctx)
+    /**
+     * 获取内存中的字符串
+     * @param offset
+     * @return
+     */
+    protected String string(Integer offset)
     {
-
+        return Bins.zString(memory, offset, Charset.forName("GBK"));
+    }
+    /**
+     * 处理 in 端口操作
+     * @return 如果被处理了,返回 true 否则 false
+     */
+    protected boolean in(InstructionContext ctx)
+    {
+        return true;
     }
 
     private void exit()
