@@ -60,8 +60,9 @@ public class BBVm
 {
     private final Device device;
     private final Logger log = Logger.getLogger(BBVm.class.toString());
-    private final boolean logInst = log.getLevel() == Level.INFO;
+    private final boolean logInst = true;//log.getLevel() == Level.INFO;
     private final DeviceFunction deviceFunction;
+    private final StringHandlePool stringPool = new StringHandlePool();
     private final byte[] stack = new byte[1024];
     private final Reg rp = new Reg("rp");
     private final Reg rb = new Reg("rb");
@@ -84,6 +85,8 @@ public class BBVm
         Values.cache(RegType.class);
     }
 
+    private int romSize;
+
     protected BBVm(Device device)
     {
 
@@ -100,6 +103,7 @@ public class BBVm
     public void load(byte[] bytes)
     {
         memory = new byte[bytes.length + stackSize];
+        this.romSize = bytes.length;
         System.arraycopy(bytes, 0, memory, 0, bytes.length);
     }
 
@@ -125,7 +129,7 @@ public class BBVm
     {
         final int pc = rp.get();// 记录位置
 
-        if (pc >= memory.length)
+        if (pc >= romSize)
             return false;
 
         context.read(pc);
@@ -399,6 +403,91 @@ public class BBVm
     }
 
     /**
+     * 处理 in 端口操作
+     *
+     * @return 如果被处理了, 返回 true 否则 false
+     */
+    protected boolean in(InstructionContext ctx)
+    {
+        Operand op1 = ctx.getOp1();
+        Operand op2 = ctx.getOp2();
+        Integer opv2 = op2.get();
+        switch (opv2)
+        {
+            //0 | 浮点数转换为整数 | 整数 | r3:浮点数
+            case 0:
+                op1.set((int)Bins.float32(r3.get()));
+                break;
+            //1 | 整数转换为浮点数 | 浮点数 | r3:整数
+            case 1:
+                op1.set(Bins.int32((float)r3.get()));
+                break;
+            //2 | 申请字符串句柄 | 申请到的句柄 |  |  IN():SHDL
+            case 2:
+                op1.set(stringPool.acquire());
+                break;
+            //3 | 字符串转换为整数 | 整数 | r3:字符串句柄,__地址__ | IN(r3:SHDL):int<br>若r3的值不是合法的字符串句柄则返回r3的值
+            case 3:
+                String s = stringPool.getResource(r3.get()).get();
+                try
+                {
+                    op1.set(Integer.parseInt(s));
+                } catch (NumberFormatException e)
+                {
+                    op1.set(r3.get());
+                }
+                break;
+            //4 | 整数转换为字符串 | 返回的值为r3:整数 | r2:目标字符串_句柄_<br>r3:整数 | IN(r2:SHDL,r3:int):int<br>r2所代表字符串的内容被修改
+            case 4:
+                stringPool.getResource(r2.get())// r2 所代表的字符串
+                          .set(r3.get().toString());// 被修改
+                op1.set(r3.get());// 返回 r3
+                break;
+            // 5 | 复制字符串 | r3的值 | r2:源字符串句柄<br>r3:目标字符串句柄 | IN(r2:SHDL,r3:SHDL):SHDL<br>r3所代表字符串的内容被修改
+            case 5:
+            {
+                StringHandle src = stringPool.getResource(r2.get());
+                StringHandle dest = stringPool.getResource(r3.get());
+                dest.set(src.get());
+                op1.set(r3.get());// 返回 r3
+            }
+                break;
+            // 6 | 连接字符串 | r3的值 | r2:源字符串<br>r3:目标字符串 | IN(r2:SHDL,r3:SHDL):SHDL<br>r3所代表字符串的内容被修改 r3+r2
+            case 6:
+            {
+                StringHandle src = stringPool.getResource(r2.get());
+                StringHandle dest = stringPool.getResource(r3.get());
+                dest.set(src.get()+dest.get());
+                op1.set(r3.get());// 返回 r3
+            }
+            break;
+            // 7 | 获取字符串长度 | 字符串长度 | r3:字符串 | IN(r3:SHDL):int
+            case 7:
+            {
+                StringHandle src = stringPool.getResource(r2.get());
+                StringHandle dest = stringPool.getResource(r3.get());
+                dest.set(src.get()+dest.get());
+                op1.set(r3.get());// 返回 r3
+            }
+            break;
+            // 8 | 释放字符串句柄 | r3的值 | r3:字符串句柄 | IN(r3:SHDL):SHDL
+            case 8:
+            {
+                stringPool.release(r3.get());
+                op1.set(r3.get());// 返回 r3
+            }
+            break;
+
+
+
+
+            default:
+                return false;
+        }
+        return true;
+    }
+
+    /**
      * 获取内存中的字符串
      *
      * @param offset 字符串偏移量
@@ -410,10 +499,10 @@ public class BBVm
 
     protected void log(Object... objects)
     {
-        System.out.println(logString(objects));
+        System.out.println(logString(true, objects));
     }
 
-    protected String logString(Object... objects)
+    protected String logString(boolean debug, Object... objects)
     {
         StringBuilder builder = new StringBuilder();
         boolean lastIsOperand = false;
@@ -426,17 +515,13 @@ public class BBVm
             builder.append(object).append(" ");
             lastIsOperand = object instanceof Operand;
         }
+        if (debug)
+        {
+            builder.append("\n;")
+                   .append(String.format("r0= %s, r1= %s, r2= %s, r3= %s, rs= %s, rb= %s, rp= %s, rf= %s",
+                           r0.get(),r1.get(),r2.get(),r3.get(),rs.get(),rb.get(),rp.get(),rf.get()));
+        }
         return builder.toString();
-    }
-
-    /**
-     * 处理 in 端口操作
-     *
-     * @return 如果被处理了, 返回 true 否则 false
-     */
-    protected boolean in(InstructionContext ctx)
-    {
-        return true;
     }
 
     private void exit()

@@ -1,12 +1,13 @@
 package me.wener.bbvm.core;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
 /**
  * 通用的资源句柄池<br>
- * 该句柄池实现会对释放的句柄重复使用.
+ * 该句柄池实现会对释放的句柄重复使用.<br>
  *
  * @param <T> 句柄内部表示的资源
  */
@@ -16,7 +17,7 @@ public abstract class ResourceHandlePool<T> implements HandlePool
     /**
      * 资源池
      */
-    private final List<T> pool = new LinkedList<>();
+    private final List<T> pool = new ArrayList<>();
     /**
      * 空闲句柄
      */
@@ -58,9 +59,9 @@ public abstract class ResourceHandlePool<T> implements HandlePool
     /**
      * 根据句柄获取资源
      */
-    public T getResource(int i)
+    public T getResource(int handle)
     {
-        return pool.get(i);
+        return pool.get(h2i(handle));
     }
 
     /**
@@ -75,14 +76,15 @@ public abstract class ResourceHandlePool<T> implements HandlePool
      */
     public int addResource(T res)
     {
-        Integer handle = idle.poll();
-        if (handle == null)
+        Integer index = idle.poll();
+        if (index == null)
         {
-            handle = pool.size();
+            index = pool.size();
             pool.add(res);
         } else
-            pool.set(handle, res);
-        return handle;
+            pool.set(index, res);
+
+        return i2h(index);
     }
 
     /**
@@ -90,13 +92,13 @@ public abstract class ResourceHandlePool<T> implements HandlePool
      */
     public int removeResource(T res)
     {
-        int handle = pool.indexOf(res);
-        if (handle >= 0)
+        int index = pool.indexOf(res);
+        if (index >= 0)
         {
-            pool.remove(handle);
-            idle.add(handle);
+            pool.set(index, null);
+            idle.add(index);
         }
-        return handle;
+        return i2h(index);
     }
 
     /**
@@ -119,8 +121,24 @@ public abstract class ResourceHandlePool<T> implements HandlePool
     @Override
     public void release(int handle)
     {
-        T res = pool.get(handle);
+        T res = getResource(handle);
         removeResource(res);
         freeResource(res);
     }
+
+    /**
+     * index to handle
+     */
+    protected int i2h(int i)
+    {
+        return i;
+    }
+    /**
+     * handle to index
+     */
+    protected int h2i(int h)
+    {
+        return h;
+    }
+
 }
