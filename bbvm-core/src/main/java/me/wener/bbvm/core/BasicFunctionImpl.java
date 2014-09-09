@@ -1,6 +1,6 @@
 package me.wener.bbvm.core;
 
-public class BBBasicFuncImpl implements BBBasicFunc
+public class BasicFunctionImpl implements BasicFunction
 {
     @Override
     public float SIN(float X)
@@ -12,21 +12,18 @@ public class BBBasicFuncImpl implements BBBasicFunc
     public float COS(float X)
     {
         return (float) Math.cos(X);
-
     }
 
     @Override
     public float TAN(float X)
     {
         return (float) Math.tan(X);
-
     }
 
     @Override
-    public float SQR(float X)
+    public float SQRT(float X)
     {
         return (float) Math.sqrt(X);
-
     }
 
     @Override

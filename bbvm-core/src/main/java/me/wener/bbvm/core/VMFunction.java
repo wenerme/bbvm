@@ -4,7 +4,7 @@ package me.wener.bbvm.core;
  * BB 虚拟机相关的函数
  */
 @SuppressWarnings("unused")
-public interface BBVMFunc
+public interface VMFunction extends BBFunction
 {
 
     /**
@@ -119,5 +119,24 @@ public interface BBVMFunc
      * 测试是否在VM下
      */
     boolean VMTEST();
+
+    /**
+     * 从数据区读取字符串
+     */
+    String readString();
+    /**
+     * 从数据区读取浮点数
+     */
+    float readFloat();
+    /**
+     * 从数据区读取整数
+     */
+    int readInteger();
+
+    /**
+     * 重设数据区指针地址
+     */
+    void restore(int address);
+
 }
 

@@ -4,7 +4,7 @@ import me.wener.bbvm.core.asm.DataType;
 import me.wener.bbvm.core.asm.Instruction;
 import me.wener.bbvm.utils.Bins;
 
-class InstructionContext
+public class InstructionContext
 {
     private final byte[] memory;
     private final BBVm vm;

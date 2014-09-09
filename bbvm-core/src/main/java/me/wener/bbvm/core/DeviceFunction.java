@@ -1,10 +1,10 @@
 package me.wener.bbvm.core;
 
 /**
- * BB 图形设备相关的函数,多用于操作图形图像的操作
+ * BB 图形设备相关的函数,多用于图形图像的操作
  */
 @SuppressWarnings("unused")
-public interface DeviceFunction
+public interface DeviceFunction extends BBFunction
 {
     /**
      * 在屏幕上显示数据<br>

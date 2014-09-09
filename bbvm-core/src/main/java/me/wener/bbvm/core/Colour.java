@@ -2,6 +2,10 @@ package me.wener.bbvm.core;
 
 import java.beans.ConstructorProperties;
 
+/**
+ * 设备无关的 Color 类
+ */
+@SuppressWarnings("unused")
 public class Colour
 {
     public final static Colour white = new Colour(255, 255, 255);
@@ -14,31 +18,23 @@ public class Colour
 
     public final static Colour black = new Colour(0, 0, 0);
 
-
     public final static Colour red = new Colour(255, 0, 0);
-
 
     public final static Colour pink = new Colour(255, 175, 175);
 
-
     public final static Colour orange = new Colour(255, 200, 0);
-
 
     public final static Colour yellow = new Colour(255, 255, 0);
 
-
     public final static Colour green = new Colour(0, 255, 0);
 
-
     public final static Colour magenta = new Colour(255, 0, 255);
-
 
     public final static Colour cyan = new Colour(0, 255, 255);
 
     public final static Colour blue = new Colour(0, 0, 255);
 
     private final int value;
-
 
     public Colour(int r, int g, int b)
     {
@@ -145,6 +141,7 @@ public class Colour
         return (getRGB() >> 24) & 0xff;
     }
 
+    @Override
     public String toString()
     {
         return getClass().getName() + "[r=" + getRed() + ",g=" + getGreen() + ",b=" + getBlue() + "]";

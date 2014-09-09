@@ -5,6 +5,8 @@ import java.nio.charset.Charset;
 /**
  * 参考实现 {@link java.nio.Bits}, 和 Netty 的ByteBuf 和 ByteBuffer<br>
  * 后缀 b 和 l 分别代表 big-endian 和 little-endian
+ *
+ * 在书写的时候,用了一些额外的 +0 和多余的括号,为了使代码对齐,可能是强迫症,得治.
  */
 @SuppressWarnings("unused")
 public class Bins
@@ -24,8 +26,10 @@ public class Bins
 
         assert 1 == 2;
     }
+
     /**
      * 返回一个范围在 0xf 内的值
+     *
      * @param i 索引, 从右到左, 该索引会mod到8
      */
     public static byte int4(int v, int i)
@@ -33,6 +37,7 @@ public class Bins
         i %= 8;
         return (byte) (v >> (i * 4) & 0xf);
     }
+
     public static byte int4(long v, int i)
     {
         i %= 16;
@@ -43,6 +48,7 @@ public class Bins
     {
         bytes[offset] = v;
     }
+
     public static byte int8(byte[] bytes, int offset)
     {
         return bytes[offset];
@@ -53,6 +59,16 @@ public class Bins
         return (short) (int8(bytes, offset) & 0xFF);
     }
 
+    public static char[] char16(int code)
+    {
+        return Character.toChars(code);
+    }
+
+    public static char char16(short code)
+    {
+        return Character.toChars(code)[0];
+    }
+
     /**
      * 获取一个两字节的 UTF-16 字符
      */
@@ -60,35 +76,40 @@ public class Bins
     {
         return (char) int16b(bytes, offset);
     }
+
     public static void char16b(byte[] bytes, int offset, char v)
     {
-        bytes[offset+0] = char0(v);
-        bytes[offset+1] = char1(v);
+        bytes[offset + 0] = char0(v);
+        bytes[offset + 1] = char1(v);
     }
 
     public static void int16b(byte[] bytes, int offset, short v)
     {
-        bytes[offset+0] = short0(v);
-        bytes[offset+1] = short1(v);
+        bytes[offset + 0] = short0(v);
+        bytes[offset + 1] = short1(v);
     }
+
     public static short int16b(byte[] bytes, int offset)
     {
         return (short) (bytes[offset] << 8 | bytes[offset + 1] & 0xFF);
     }
+
     public static void int16l(byte[] bytes, int offset, short v)
     {
-        bytes[offset+1] = short0(v);
-        bytes[offset+0] = short1(v);
+        bytes[offset + 1] = short0(v);
+        bytes[offset + 0] = short1(v);
     }
+
     public static short int16l(byte[] bytes, int offset)
     {
-        return (short) (bytes[offset+1] << 8 | bytes[offset + 0] & 0xFF);
+        return (short) (bytes[offset + 1] << 8 | bytes[offset + 0] & 0xFF);
     }
 
     public static int uint16l(byte[] bytes, int offset)
     {
         return int16l(bytes, offset) & 0xFFFF;
     }
+
     public static int uint16b(byte[] bytes, int offset)
     {
         return int16b(bytes, offset) & 0xFFFF;
@@ -106,45 +127,48 @@ public class Bins
 
     public static int uint24b(byte[] bytes, int offset)
     {
-        return (bytes[offset + 0] & 0xff) << 16 |
-               (bytes[offset + 1] & 0xff) << 8 |
-                bytes[offset + 2] & 0xff;
+        return ((bytes[offset + 0] & 0xff)) << 16 |
+                (bytes[offset + 1] & 0xff) << 8 |
+                (bytes[offset + 2] & 0xff);
     }
+
     public static int uint24l(byte[] bytes, int offset)
     {
-        return (bytes[offset + 2] & 0xff) << 16 |
-               (bytes[offset + 1] & 0xff) << 8 |
-                bytes[offset + 0] & 0xff;
+        return ((bytes[offset + 2] & 0xff)) << 16 |
+                (bytes[offset + 1] & 0xff) << 8 |
+                (bytes[offset + 0] & 0xff);
     }
 
     public static void int32b(byte[] bytes, int offset, int v)
     {
-        bytes[offset+0] = int3(v);
-        bytes[offset+1] = int2(v);
-        bytes[offset+2] = int1(v);
-        bytes[offset+3] = int0(v);
+        bytes[offset + 0] = int3(v);
+        bytes[offset + 1] = int2(v);
+        bytes[offset + 2] = int1(v);
+        bytes[offset + 3] = int0(v);
     }
+
     public static int int32b(byte[] bytes, int offset)
     {
-        return  (bytes[offset + 0] & 0xff) << 24 |
+        return ((bytes[offset + 0] & 0xff)) << 24 |
                 (bytes[offset + 1] & 0xff) << 16 |
                 (bytes[offset + 2] & 0xff) << 8 |
-                 bytes[offset + 3] & 0xff;
+                (bytes[offset + 3] & 0xff);
     }
 
     public static void int32l(byte[] bytes, int offset, int v)
     {
-        bytes[offset+3] = int3(v);
-        bytes[offset+2] = int2(v);
-        bytes[offset+1] = int1(v);
-        bytes[offset+0] = int0(v);
+        bytes[offset + 3] = int3(v);
+        bytes[offset + 2] = int2(v);
+        bytes[offset + 1] = int1(v);
+        bytes[offset + 0] = int0(v);
     }
+
     public static int int32l(byte[] bytes, int offset)
     {
-        return (bytes[offset + 3] & 0xff) << 24 |
-               (bytes[offset + 2] & 0xff) << 16 |
-               (bytes[offset + 1] & 0xff) << 8 |
-                bytes[offset + 0] & 0xff;
+        return ((bytes[offset + 3] & 0xff)) << 24 |
+                (bytes[offset + 2] & 0xff) << 16 |
+                (bytes[offset + 1] & 0xff) << 8 |
+                (bytes[offset + 0] & 0xff);
     }
 
     public static int int32(float v)
@@ -156,6 +180,7 @@ public class Bins
     {
         return int32b(bytes, offset) & 0xFFFFFFFFL;
     }
+
     public static long uint32l(byte[] bytes, int offset)
     {
         return int32l(bytes, offset) & 0xFFFFFFFFL;
@@ -163,18 +188,19 @@ public class Bins
 
     public static void int64b(byte[] bytes, int offset, long v)
     {
-        bytes[offset+0] = long0(v);
-        bytes[offset+1] = long1(v);
-        bytes[offset+2] = long2(v);
-        bytes[offset+3] = long3(v);
-        bytes[offset+4] = long4(v);
-        bytes[offset+5] = long5(v);
-        bytes[offset+6] = long6(v);
-        bytes[offset+7] = long7(v);
+        bytes[offset + 0] = long0(v);
+        bytes[offset + 1] = long1(v);
+        bytes[offset + 2] = long2(v);
+        bytes[offset + 3] = long3(v);
+        bytes[offset + 4] = long4(v);
+        bytes[offset + 5] = long5(v);
+        bytes[offset + 6] = long6(v);
+        bytes[offset + 7] = long7(v);
     }
+
     public static long int64b(byte[] bytes, int offset)
     {
-        return  ((long) bytes[offset + 0] & 0xff) << 56 |
+        return (((long) bytes[offset + 0] & 0xff)) << 56 |
                 ((long) bytes[offset + 1] & 0xff) << 48 |
                 ((long) bytes[offset + 2] & 0xff) << 40 |
                 ((long) bytes[offset + 3] & 0xff) << 32 |
@@ -194,9 +220,20 @@ public class Bins
     {
         return float32(int32b(bytes, offset));
     }
+
     public static void float32b(byte[] bytes, int offset, float v)
     {
         int32b(bytes, offset, int32(v));
+    }
+
+    public static float float32l(byte[] bytes, int offset)
+    {
+        return float32(int32l(bytes, offset));
+    }
+
+    public static void float32l(byte[] bytes, int offset, float v)
+    {
+        int32l(bytes, offset, int32(v));
     }
 
     public static float float32(int v)
@@ -213,6 +250,7 @@ public class Bins
     {
         return Double.longBitsToDouble(int64b(bytes, offset));
     }
+
     public static void double64b(byte[] bytes, int offset, double v)
     {
         int64b(bytes, offset, int64(v));
@@ -223,11 +261,11 @@ public class Bins
      */
     public static String zString(byte[] bytes, int offset, Charset charset)
     {
-        return string(zByte(bytes, offset),charset);
+        return string(zByte(bytes, offset), charset);
     }
 
     /**
-     * 返回byte数组,从bytes中读取,知道遇到0
+     * 返回byte数组,从bytes中读取,直到遇到0
      */
     public static byte[] zByte(byte[] bytes, int offset)
     {
@@ -236,10 +274,10 @@ public class Bins
         {
             if (bytes[i] == 0)
                 break;
-            len ++;
+            len++;
         }
         byte[] out = new byte[len];
-        rBytes(bytes,offset,out,0,len);
+        rBytes(bytes, offset, out, 0, len);
         return out;
     }
 
@@ -300,30 +338,46 @@ public class Bins
 
     //endregion
 
-    public static int makeInt(byte b3, byte b2, byte b1, byte b0) {
-        return (((b3       ) << 24) |
+    public static int makeInt(byte b3, byte b2, byte b1, byte b0)
+    {
+        return (((b3) << 24) |
                 ((b2 & 0xff) << 16) |
-                ((b1 & 0xff) <<  8) |
-                ((b0 & 0xff)      ));
+                ((b1 & 0xff) << 8) |
+                ((b0 & 0xff)));
     }
 
     //region 基本类型的byte获取操作
-    public static byte int3(int x) { return (byte)(x >> 24); }
-    public static byte int2(int x) { return (byte)(x >> 16); }
-    public static byte int1(int x) { return (byte)(x >>  8); }
-    public static byte int0(int x) { return (byte)(x      ); }
-    public static byte long7(long x) { return (byte)(x >> 56); }
-    public static byte long6(long x) { return (byte)(x >> 48); }
-    public static byte long5(long x) { return (byte)(x >> 40); }
-    public static byte long4(long x) { return (byte)(x >> 32); }
-    public static byte long3(long x) { return (byte)(x >> 24); }
-    public static byte long2(long x) { return (byte)(x >> 16); }
-    public static byte long1(long x) { return (byte)(x >>  8); }
-    public static byte long0(long x) { return (byte)(x      ); }
+    public static byte int3(int x)
+    { return (byte) (x >> 24); }
 
-    public static byte char1(char x) { return (byte)(x >> 8); }
-    public static byte char0(char x) { return (byte)(x     ); }
-    public static byte short1(short x) { return (byte)(x >> 8); }
-    public static byte short0(short x) { return (byte)(x     ); }
+    public static byte int2(int x) { return (byte) (x >> 16); }
+
+    public static byte int1(int x) { return (byte) (x >> 8); }
+
+    public static byte int0(int x) { return (byte) (x); }
+
+    public static byte long7(long x) { return (byte) (x >> 56); }
+
+    public static byte long6(long x) { return (byte) (x >> 48); }
+
+    public static byte long5(long x) { return (byte) (x >> 40); }
+
+    public static byte long4(long x) { return (byte) (x >> 32); }
+
+    public static byte long3(long x) { return (byte) (x >> 24); }
+
+    public static byte long2(long x) { return (byte) (x >> 16); }
+
+    public static byte long1(long x) { return (byte) (x >> 8); }
+
+    public static byte long0(long x) { return (byte) (x); }
+
+    public static byte char1(char x) { return (byte) (x >> 8); }
+
+    public static byte char0(char x) { return (byte) (x); }
+
+    public static byte short1(short x) { return (byte) (x >> 8); }
+
+    public static byte short0(short x) { return (byte) (x); }
     //endregion
 }

@@ -3,7 +3,7 @@ package me.wener.bbvm.core;
 /**
  * 基本操作函数
  */
-public interface BBBasicFunc
+public interface BasicFunction extends BBFunction
 {
     float SIN(float X);
 
@@ -11,7 +11,7 @@ public interface BBBasicFunc
 
     float TAN(float X);
 
-    float SQR(float X);
+    float SQRT(float X);
 
     float ABS(float X);
 
