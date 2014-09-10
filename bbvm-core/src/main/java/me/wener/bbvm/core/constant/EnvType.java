@@ -2,7 +2,7 @@ package me.wener.bbvm.core.constant;
 
 import me.wener.bbvm.core.IsValue;
 
-public enum BBEnv implements IsValue<Integer>
+public enum EnvType implements IsValue<Integer>
 {
     ENV_SIM(0),
     ENV_9288(9288),
@@ -12,7 +12,7 @@ public enum BBEnv implements IsValue<Integer>
     ENV_9388(9388);
     private final int value;
 
-    BBEnv(int value)
+    EnvType(int value)
     {
         this.value = value;
     }

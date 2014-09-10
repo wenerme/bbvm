@@ -9,6 +9,7 @@ import me.wener.bbvm.core.asm.DataType;
 import me.wener.bbvm.core.asm.Instruction;
 import me.wener.bbvm.core.asm.RegType;
 import me.wener.bbvm.core.constant.Device;
+import me.wener.bbvm.core.constant.EnvType;
 import me.wener.bbvm.utils.Bins;
 
 /*
@@ -77,6 +78,8 @@ public class BBVm
     private byte[] memory;
     private InstructionContext context;
     private int stackSize = 1000;
+
+    private EnvType envType = EnvType.ENV_SIM;
 
     static
     {
@@ -618,19 +621,90 @@ public class BBVm
             // 23 | 读内存数据 | 地址内容 | r3:地址 |
             case 23:
             {
-
+                // 由于端口 23 和 24 在虚拟机内不能使用,所以无法测试,
+                o.set(Bins.int32l(memory, r3.get()));
             }
             break;
             // 24 | 写内存数据 | r3的值 | r2:待写入数据<br>r3:待写入地址 |
             case 24:
             {
+                Bins.int32l(memory, r3.get(), r2.get());
 
+                o.set(r3.get());
             }
             break;
             // 25 | 获取环境值 | 环境值 |  |
             case 25:
             {
+                o.set(envType.asValue());
+            }
+            break;
+            // 32 | 整数转换为字符串 | r3的值 | r1:整数<br>r3:目标字符串 | r3所代表字符串的内容被修改
+            case 32:
+            {
+                stringHandle(r3.get()).set(r1.get().toString());
+                o.set(r3.get());
+            }
+            break;
+            // 33 | 字符串转换为整数 | 整数 | r3:字符串 |
+            case 33:
+            {
+                o.set((int) Float.parseFloat(string(r3.get())));
+            }
+            break;
+            // 34 | 获取字符的ASCII码 | ASCII码 | r3:字符串 |
+            case 34:
+            {
+                o.set(string(r3.get()).codePointAt(0));
+            }
+            break;
+            // 35 | 左取字符串 | r3的值 | r1:截取长度<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改 （此端口似乎不正常）
+            case 35:
+            {
+               stringHandle(r3.get()).set(string(r2.get()).substring(0, r1.get()));
 
+               o.set(r3.get());
+            }
+            break;
+            // 36 | 右取字符串 | r3的值 | r1:截取长度<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改
+            case 36:
+            {
+                Integer len = r1.get();
+                String str = string(r2.get());
+                int start = str.length() - len;
+                int end = str.length();
+                stringHandle(r3.get()).set(str.substring(start, end));
+
+                o.set(r3.get());
+            }
+            break;
+            // 37 | 中间取字符串 | r0:截取长度 | r0:截取长度<br>r1:截取位置<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改
+            case 37:
+            {
+                Integer len = r0.get();
+                String str = string(r2.get());
+                int start = r1.get();
+                int end = start+len;
+
+                stringHandle(r3.get()).set(str.substring(start, end));
+
+                o.set(r0.get());
+            }
+            break;
+            // 38 | 查找字符串 | 位置 | r1:起始位置<br>r2:子字符串<br>r3:父字符串 |
+            case 38:
+            {
+                int i = string(r3.get()).indexOf(string(r2.get()), r1.get());
+                // FIXME PC 虚拟机中有这个BUG,不知道小机中有这个BUG没
+                if (i < 0)
+                    i = 0;
+                o.set(i);
+            }
+            break;
+            // 39 | 获取字符串长度 | 字符串长度 | r3:字符串 |
+            case 39:
+            {
+                o.set(string(r3.get()).length());
             }
             break;
             default:

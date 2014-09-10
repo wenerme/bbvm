@@ -2,6 +2,7 @@ package me.wener.bbvm.core;
 
 import static me.wener.bbvm.core.Values.fromValue;
 
+import me.wener.bbvm.core.constant.BackgroundMode;
 import me.wener.bbvm.core.constant.DrawMode;
 import me.wener.bbvm.core.constant.FontType;
 import me.wener.bbvm.core.constant.PenStyle;
