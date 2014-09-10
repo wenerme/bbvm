@@ -42,17 +42,6 @@ public interface DeviceFunction extends BBFunction
     void SETLCD(int WIDTH, int HEIGHT);
 
     /**
-     * 在字符串B$中查找字符串S$第一次出现的位置。
-     * 在QB中，查找的起始位置可以缺省，缺省时默认为从0开始；在BB中必须明确指出。
-     *
-     * @param N  查找的起始位置
-     * @param S$ 目标字符串
-     * @param B$ 源字符串
-     * @return 第一次出现的位置
-     */
-    int INSTR(int N, String S$, String B$);
-
-    /**
      * 从键盘获取一个字符，并返回该字符的字符串。
      * 本函数不暂停程序的执行。当键盘缓冲区中不存在字符时，本函数返回空字符串""；
      * 当键盘缓冲中存在输入字符时，本函数返回一个字符的字符串，比如返回"A"。返回字符串时，屏幕不会显示返回的字符串。
@@ -80,6 +69,13 @@ public interface DeviceFunction extends BBFunction
      * @return 资源句柄
      */
     int LOADRES(String FILE$, int ID);
+
+    /**
+     * @param FILE  文件句柄
+     * @param ID    资源ID
+     * @return 资源句柄
+     */
+    int LOADRES(int FILE, int ID);
 
     /**
      * 释放通过LOADRES函数载入的资源。

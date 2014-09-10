@@ -2,6 +2,7 @@ package me.wener.bbvm.core;
 
 import com.google.common.base.Preconditions;
 import java.nio.charset.Charset;
+import java.util.Scanner;
 import java.util.logging.Logger;
 import me.wener.bbvm.core.asm.CalOP;
 import me.wener.bbvm.core.asm.CmpOP;
@@ -57,11 +58,13 @@ import me.wener.bbvm.utils.Bins;
 //    \/\_/  \___  >___|  /\___  >__|
 //               \/     \/     \/
 */
+@SuppressWarnings("ConstantConditions")
 public class BBVm
 {
     public static final Charset DEFAULT_CHARSET = Charset.forName("GBK");
     private final Device device;
     private final Logger log = Logger.getLogger(BBVm.class.toString());
+    @SuppressWarnings("FieldCanBeLocal")
     private final boolean logInst = false;//log.getLevel() == Level.INFO;
     private final DeviceFunction deviceFunction;
     private final StringHandlePool stringPool = new StringHandlePool();
@@ -125,6 +128,7 @@ public class BBVm
         r3.set(0);
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     public void start()
     {
         startTick = System.currentTimeMillis();
@@ -385,6 +389,12 @@ public class BBVm
         Integer input = ctx.getOp2().get();
         switch (ctx.getOp1().get())
         {
+            // 0 | 显示整数 | 整数 |  | 会换行
+            // 1 | 显示字符串 | 字符串 |  | 会换行
+            // 2 | 显示字符串 | 字符串 |  |
+            // 3 | 显示整数 | 整数 |  |
+            // 4 | 显示字符 | 字符ASCII码 |  |
+            // 5 | 显示浮点数 | 浮点数 |  |
             case 0:
                 System.out.println(input);
                 break;
@@ -403,6 +413,39 @@ public class BBVm
             case 5:
                 System.out.printf("%.6f", Bins.float32(input));
                 break;
+            //  10 | 键入整数 | 0 |  | r3的值变为键入的整数
+            case 10:
+            {
+                String line = new Scanner(System.in).nextLine();
+                try
+                {
+                    r3.set((int) Float.parseFloat(line));
+                }catch(NumberFormatException ignored)
+                {
+                    r3.set(0);
+                }
+            }
+            break;
+            //  11 | 键入字符串 | 0 | r3:目标字符串句柄 | r3所指字符串的内容变为键入的字符串
+            case 11:
+            {
+                String line = new Scanner(System.in).nextLine();
+                stringHandle(r3.get()).set(line);
+            }
+            break;
+            //  12 | 键入浮点数 | 0 |  | r3的值变为键入的浮点数
+            case 12:
+            {
+                String line = new Scanner(System.in).nextLine();
+                try
+                {
+                    r3.set(Bins.int32(Float.parseFloat(line)));
+                }catch(NumberFormatException ignored)
+                {
+                    r3.set(0);
+                }
+            }
+            break;
             // 13 | 从数据区读取整数 | 0 |  | r3的值变为读取的整数
             case 13:
             {
@@ -429,6 +472,31 @@ public class BBVm
                 dataPtr += 4;
             }
             break;
+            // 16 | 设定模拟器屏幕 | 0 | r2:宽, r3:高 |  SetLcd
+            case 16:
+            {
+                deviceFunction.SETLCD(r2.get(), r3.get());
+            }
+            break;
+            // 17 | 申请画布句柄 | r3:PAGE句柄 | - | CreatPage
+            case 17:
+            {
+                r3.set(deviceFunction.CREATEPAGE());
+            }
+            break;
+            // 18 | 释放画布句柄 | 0 | r3:PAGE句柄 |  DeletePage
+            case 18:
+            {
+                deviceFunction.DELETEPAGE(r3.get());
+            }
+            break;
+            // 19 | 申请图片句柄并从文件载入像素资源 | r3:资源句柄 | r3:文件句柄, r2:资源索引 |  LoadRes
+            case 19:
+            {
+                deviceFunction.LOADRES(r3.get(), r2.get());
+            }
+            break;
+
             default:
                 return false;
         }
@@ -608,7 +676,7 @@ public class BBVm
             // 21 | 求绝对值 | X!的绝对值 | r3:X! |
             case 21:
             {
-                o.set(Bins.int32((float) Math.abs(Bins.float32(r3.get()))));
+                o.set(Bins.int32(Math.abs(Bins.float32(r3.get()))));
             }
             break;
             // 22 | 重定位数据指针 | r3的值 | r2:数据位置 | r3中为任意值

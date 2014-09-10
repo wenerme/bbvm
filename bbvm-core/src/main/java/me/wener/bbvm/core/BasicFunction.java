@@ -3,6 +3,7 @@ package me.wener.bbvm.core;
 /**
  * 基本操作函数
  */
+@SuppressWarnings("unused")
 public interface BasicFunction extends BBFunction
 {
     float SIN(float X);
@@ -79,7 +80,8 @@ public interface BasicFunction extends BBFunction
 
     /**
      * 从中间指定开始位置取指定长度的字符串
-     * 该函数返回从指定位置开始的指定长度子字符串。当N<0或N>源字符串长度时，将返回整个源字符串；当S + N大于源字符串的长度时，将截取从S开始到字符串结束的字符串。
+     * 该函数返回从指定位置开始的指定长度子字符串。当N<0或N>源字符串长度时，
+     * 将返回整个源字符串；当S + N大于源字符串的长度时，将截取从S开始到字符串结束的字符串。
      *
      * @param X$ 源字符串
      * @param S  开始位置
@@ -87,4 +89,16 @@ public interface BasicFunction extends BBFunction
      * @return 结果字符串
      */
     String MID$(String X$, int S, int N);
+
+
+    /**
+     * 在字符串{@code B$}中查找字符串{@code sub}第一次出现的位置。
+     * 在QB中，查找的起始位置可以缺省，缺省时默认为从0开始；在BB中必须明确指出。
+     *
+     * @param index  查找的起始位置
+     * @param sub 目标字符串
+     * @param B$ 源字符串
+     * @return 第一次出现的位置,如果没找到返回 -1
+     */
+    int INSTR(int index, String sub, String B$);
 }

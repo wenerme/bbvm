@@ -93,4 +93,10 @@ public class BasicFunctionImpl implements BasicFunction
             return X$;
         return X$.substring(S, S + N);
     }
+
+    @Override
+    public int INSTR(int index, String sub, String B$)
+    {
+        return B$.indexOf(sub, index);
+    }
 }

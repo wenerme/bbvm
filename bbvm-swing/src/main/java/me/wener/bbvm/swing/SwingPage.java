@@ -20,11 +20,7 @@ public class SwingPage
 
     public SwingPage(int width, int height)
     {
-        this.width = width;
-        this.height = height;
-
-        image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-        g = (Graphics2D) image.getGraphics();
+        this(new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR));
     }
 
     public SwingPage(BufferedImage image)

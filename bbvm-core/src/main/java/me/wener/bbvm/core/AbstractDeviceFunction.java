@@ -73,12 +73,6 @@ public class AbstractDeviceFunction<SCR extends Screen<PAGE>, PAGE extends Page,
     }
 
     @Override
-    public int INSTR(int N, String S$, String B$)
-    {
-        return 0;
-    }
-
-    @Override
     public String INKEY$()
     {
         return null;
@@ -94,6 +88,12 @@ public class AbstractDeviceFunction<SCR extends Screen<PAGE>, PAGE extends Page,
     public int LOADRES(String FILE$, int ID)
     {
         return device.loadPicture(FILE$,ID);
+    }
+
+    @Override
+    public int LOADRES(int FILE, int ID)
+    {
+        return device.loadPicture(FILE,ID);
     }
 
     @Override
