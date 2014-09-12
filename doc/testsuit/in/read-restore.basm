@@ -1,0 +1,58 @@
+; 测试端口 in22, out13,out14,out15
+jmp CODES
+data FDATA int 1, "wener",%00%, 2,"xiao",%00%
+data SDATA int 3, "文儿",%00%, 1082388382,"笑",%00%
+CODES:
+
+
+ld int r2, FDATA
+ld int r3, 235
+IN r0,22
+; 注意,这里将 r0的值设置为了0
+out 0, r0; 输出: 235
+out 0, r2; 输出: 5
+in r1,2; r1 存放一个临时的字符串句柄
+out 13, 0
+out 0, r3; 输出: 1
+ld int r3, r1
+out 14, 0
+out 1, r3; 输出: wener
+
+out 13, 0
+out 0, r3; 输出: 2
+ld int r3, r1
+out 14, 0
+out 1, r3; 输出: xiao
+
+; restore
+ld int r2, FDATA
+ld int r0, 235
+IN r0,22
+
+out 13, 0
+out 0, r3; 输出: 1
+ld int r3, r1
+out 14, 0
+out 1, r3; 输出: wener
+
+
+; restore
+ld int r2, SDATA
+ld int r0, 235
+IN r0,22
+
+out 13, 0
+out 0, r3; 输出: 3
+ld int r3, r1
+out 14, 0
+out 1, r3; 输出: 文儿
+
+out 15, 0
+out 5, r3; 输出: 4.123000
+out 4, 10
+ld int r3, r1
+out 14, 0
+out 1, r3; 输出: 笑
+
+
+

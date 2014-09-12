@@ -1,0 +1,34 @@
+#! bash
+BB_HOME=$PWD/bb/
+PATH=$PATH:$BB_HOME/tool
+
+export BB_HOME
+
+bbr()
+{
+	cp $1 $BB_HOME/Sim/BBasic/Test.bin
+	cd $BB_HOME/Sim/Debug/
+	./GamDev
+	cd -
+}
+
+bbc()
+{
+	bbasic $1 | gbk2utf8
+	FN=`basename $1 .bas`
+	blink $FN.obj $FN.bin  | gbk2utf8
+}
+bbcr()
+{
+	bbasic $1 | gbk2utf8
+	FN=`basename $1 .bas`
+	blink $FN.obj $FN.bin  | gbk2utf8
+	bbr $FN.bin
+}
+
+bbar()
+{
+	FN=`basename $1 .basm`
+	blink $1 $FN.bin | gbk2utf8
+	bbr $FN.bin
+}

@@ -1,0 +1,32 @@
+; 12 | 获取字符的ASCII码
+; 返回: ASCII码
+; 参数: r2:字符位置, r3:字符串 
+; 备注: 返回的结果范围为有符号的 8bit值,因此对中文操作时返回负数
+
+ld int r3, STR_F
+ld int r2, 1
+in r1, 12
+
+out 0, r0; 输出:0
+out 0, r2; 输出:0
+out 1, r3; 输出:123.019997
+out 0, r1; 输出:50
+
+ld int r2, 2
+in r1, 12
+out 0, r1; 输出:51
+
+
+ld int r3, STR_CN
+ld int r2, 0
+in r1, 12
+out 0, r1; 输出:-48
+
+ld int r2, 1
+in r1, 12
+out 0, r1; 输出:-95
+
+exit
+; 选择了一个能够正确转换为浮点数的数值
+data STR_F char "123.019997",0
+data STR_CN char "小文",0

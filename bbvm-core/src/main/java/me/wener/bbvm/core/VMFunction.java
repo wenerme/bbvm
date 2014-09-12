@@ -124,10 +124,12 @@ public interface VMFunction extends BBFunction
      * 从数据区读取字符串
      */
     String readString();
+
     /**
      * 从数据区读取浮点数
      */
     float readFloat();
+
     /**
      * 从数据区读取整数
      */
