@@ -5,3 +5,4 @@ ignored
 *.obj
 test.bas
 temp.bas
+test.basm
