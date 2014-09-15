@@ -3,14 +3,14 @@ package me.wener.bbvm.swing;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import me.wener.bbvm.core.AbstractPage;
+import me.wener.bbvm.core.spi.AbstractPage;
 import me.wener.bbvm.core.Colour;
 import me.wener.bbvm.core.constant.DrawMode;
 import me.wener.bbvm.core.Page;
 import me.wener.bbvm.core.Picture;
 
 public class SwingPage
-        extends AbstractPage<SwingPage>
+        extends AbstractPage
         implements IsImage<BufferedImage>
 {
     private final int width;
@@ -20,7 +20,7 @@ public class SwingPage
 
     public SwingPage(int width, int height)
     {
-        this(new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR));
+        this(new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR));
     }
 
     public SwingPage(BufferedImage image)

@@ -1,28 +1,32 @@
-package me.wener.bbvm.core;
+package me.wener.bbvm.core.spi;
 
 import static me.wener.bbvm.core.Values.fromValue;
 
+import me.wener.bbvm.core.BrushStyle;
+import me.wener.bbvm.core.Colour;
+import me.wener.bbvm.core.DeviceFunction;
+import me.wener.bbvm.core.Page;
+import me.wener.bbvm.core.Picture;
+import me.wener.bbvm.core.ResourceHandlePool;
+import me.wener.bbvm.core.Screen;
 import me.wener.bbvm.core.constant.BackgroundMode;
 import me.wener.bbvm.core.constant.DrawMode;
 import me.wener.bbvm.core.constant.FontType;
 import me.wener.bbvm.core.constant.PenStyle;
-import me.wener.bbvm.java.JavaFileHandle;
 
-public class AbstractDeviceFunction
-        <SCR extends Screen<PAGE>, PAGE extends Page, PIC extends Picture, FILE extends FileHandle>
-        implements DeviceFunction
+public abstract class AbstractDeviceFunction implements DeviceFunction
 {
-    private final AbstractDevice<SCR, PAGE, PIC, FILE> device;
-    private final SCR screen;
-    private final ResourceHandlePool<PIC> picturePool;
-    private final ResourceHandlePool<PAGE> pagePool;
-    private final PAGE scrPage;
+    protected final AbstractDevice device;
+    protected final Screen screen;
+    protected final ResourceHandlePool<Picture> picturePool;
+    protected final ResourceHandlePool<Page> pagePool;
+    protected final Page screenPage;
 
-    public AbstractDeviceFunction(AbstractDevice<SCR, PAGE, PIC, FILE> device)
+    public AbstractDeviceFunction(AbstractDevice device)
     {
         this.device = device;
         screen = device.getScreen();
-        scrPage = screen.asPage();
+        screenPage = screen.asPage();
         picturePool = device.getPicturePool();
         pagePool = device.getPagePool();
     }
@@ -33,28 +37,28 @@ public class AbstractDeviceFunction
         for (Object o : v)
         {
             if (o instanceof String)
-                scrPage.print((String) o);
+                screenPage.print((String) o);
             else
-                scrPage.print(o.toString());
+                screenPage.print(o.toString());
         }
     }
 
     @Override
     public void CLS()
     {
-        scrPage.clear();
+        screenPage.clear();
     }
 
     @Override
     public void PIXLOCATE(int x, int y)
     {
-        scrPage.cursor(x, y);
+        screenPage.cursor(x, y);
     }
 
     @Override
     public void FONT(int type)
     {
-        scrPage.setFontType(fromValue(FontType.class, type));
+        screenPage.setFontType(fromValue(FontType.class, type));
     }
 
     @Override
@@ -93,11 +97,6 @@ public class AbstractDeviceFunction
         return device.loadPicture(FILE$,ID);
     }
 
-    @Override
-    public int LOADRES(int FILE, int ID)
-    {
-        return device.loadPicture(FILE,ID);
-    }
 
     @Override
     public void FREERES(int PIC)
@@ -182,13 +181,13 @@ public class AbstractDeviceFunction
     @Override
     public void COLOR(int FRONT, int BACK, int FRAME)
     {
-        scrPage.color(Colour.fromARGB(FRONT), Colour.fromARGB(BACK));
+        screenPage.color(Colour.fromARGB(FRONT), Colour.fromARGB(BACK));
     }
 
     @Override
     public void SETBKMODE(int mode)
     {
-        scrPage.setBgMode(fromValue(BackgroundMode.class, mode));
+        screenPage.setBgMode(fromValue(BackgroundMode.class, mode));
     }
 
     @Override
@@ -254,6 +253,6 @@ public class AbstractDeviceFunction
     @Override
     public void LOCATE(int row, int column)
     {
-        scrPage.locate(row, column);
+        screenPage.locate(row, column);
     }
 }

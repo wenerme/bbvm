@@ -9,7 +9,6 @@ import me.wener.bbvm.core.asm.CmpOP;
 import me.wener.bbvm.core.asm.DataType;
 import me.wener.bbvm.core.asm.Instruction;
 import me.wener.bbvm.core.asm.RegType;
-import me.wener.bbvm.core.constant.Device;
 import me.wener.bbvm.core.constant.EnvType;
 import me.wener.bbvm.utils.Bins;
 
@@ -494,10 +493,10 @@ public class BBVm
                 deviceFunction.DELETEPAGE(r3.get());
             }
             break;
-            // 19 | 申请图片句柄并从文件载入像素资源 | r3:资源句柄 | r3:文件句柄, r2:资源索引 |  LoadRes
+            // 19 | 申请图片句柄并从文件载入像素资源 | r3:资源句柄 | r3:文件名, r2:资源索引 |  LoadRes
             case 19:
             {
-                deviceFunction.LOADRES(r3.get(), r2.get());
+                deviceFunction.LOADRES(string(r3.get()), r2.get());
             }
             break;
 

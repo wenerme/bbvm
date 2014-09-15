@@ -6,7 +6,7 @@ import me.wener.bbvm.core.constant.FontType;
 import me.wener.bbvm.core.constant.PenStyle;
 
 /**
- * BB 中一个页面应该有的操作
+ * 页面抽象接口
  */
 public interface Page
 {
@@ -57,5 +57,8 @@ public interface Page
 
     void setFontType(FontType fontType);
 
+    /**
+     * 设置光标坐标
+     */
     void cursor(int x, int y);
 }

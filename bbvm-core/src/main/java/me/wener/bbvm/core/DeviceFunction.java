@@ -1,5 +1,7 @@
 package me.wener.bbvm.core;
 
+import me.wener.bbvm.core.BBFunction;
+
 /**
  * BB 图形设备相关的函数,多用于图形图像的操作
  */
@@ -69,13 +71,6 @@ public interface DeviceFunction extends BBFunction
      * @return 资源句柄
      */
     int LOADRES(String FILE$, int ID);
-
-    /**
-     * @param FILE  文件句柄
-     * @param ID    资源ID
-     * @return 资源句柄
-     */
-    int LOADRES(int FILE, int ID);
 
     /**
      * 释放通过LOADRES函数载入的资源。
@@ -185,7 +180,7 @@ public interface DeviceFunction extends BBFunction
     void PIXEL(int PAGE, int X, int Y, int COLOR);
 
     /**
-     * 读取指定页面上一点的颜色值
+     * 读取指定页面上一点的颜色值~
      * 当page=-1时，将直接从前台屏幕上读取
      *
      * @param PAGE 页面句柄

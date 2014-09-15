@@ -1,9 +1,6 @@
 package me.wener.bbvm.core;
 
-public interface Screen<T extends Page> extends IsPage<T>
+public interface Screen extends IsPage
 {
-
-
-    void showPage(T resource);
-
+    void showPage(Page resource);
 }

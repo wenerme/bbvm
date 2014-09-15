@@ -1,68 +1,37 @@
 package me.wener.bbvm.swing;
 
-import me.wener.bbvm.core.AbstractDevice;
-import me.wener.bbvm.core.AdapterResourceHandlePool;
+import me.wener.bbvm.core.FileHandle;
+import me.wener.bbvm.core.Page;
+import me.wener.bbvm.core.Picture;
 import me.wener.bbvm.core.ResourceHandlePool;
-import me.wener.bbvm.java.JavaFileHandle;
+import me.wener.bbvm.core.spi.AbstractDevice;
+import me.wener.bbvm.core.DeviceFunction;
 
-public class SwingDevice extends AbstractDevice<SwingScreen, SwingPage, SwingPicture, JavaFileHandle>
+public class SwingDevice extends AbstractDevice
 {
 
     @Override
-    public ResourceHandlePool<SwingPage> getPagePool0()
+    public ResourceHandlePool<Page> getPagePool0()
     {
-        return new AdapterResourceHandlePool<>(-1, new AdapterResourceHandlePool.Adapter<SwingPage>()
-        {
-            @Override
-            public SwingPage createResource()
-            {
-                return null;
-            }
-
-            @Override
-            public void freeResource(SwingPage resource)
-            {
-
-            }
-        });
+        return null;
     }
 
     @Override
-    public ResourceHandlePool<SwingPicture> getPicturePool0()
+    public ResourceHandlePool<Picture> getPicturePool0()
     {
-        return new AdapterResourceHandlePool<>(-1, new AdapterResourceHandlePool.Adapter<SwingPicture>()
-        {
-            @Override
-            public SwingPicture createResource()
-            {
-                return null;
-            }
-
-            @Override
-            public void freeResource(SwingPicture resource)
-            {
-
-            }
-        });
+        return null;
     }
 
     @Override
-    public ResourceHandlePool<JavaFileHandle> getFilePool0()
+    public ResourceHandlePool<FileHandle> getFilePool0()
     {
-        return new AdapterResourceHandlePool<>(-1, new AdapterResourceHandlePool.Adapter<JavaFileHandle>()
-        {
-            @Override
-            public JavaFileHandle createResource()
-            {
-                return new JavaFileHandle();
-            }
+        return null;
+    }
 
-            @Override
-            public void freeResource(JavaFileHandle resource)
-            {
-                resource.close();
-            }
-        });
+    @Override
+    public DeviceFunction getFunction()
+    {
+        return null;
     }
 
     @Override

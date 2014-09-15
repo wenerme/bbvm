@@ -6,7 +6,10 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 import me.wener.bbvm.core.Colour;
+import me.wener.bbvm.core.spi.DeviceProvider;
+import me.wener.bbvm.swing.SwingDeviceProvider;
 import me.wener.bbvm.swing.SwingPage;
+import org.junit.Test;
 
 public class TestFrame
 {
@@ -48,5 +51,11 @@ public class TestFrame
 
         page.drawString("Demo here", 0, 40);
         page.drawString("测试示例", 0, 60);
+    }
+
+    @Test
+    public void test()
+    {
+        assert DeviceProvider.getProvider().getClass() == SwingDeviceProvider.class;
     }
 }

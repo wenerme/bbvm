@@ -1,10 +1,13 @@
-package me.wener.bbvm.core;
+package me.wener.bbvm.core.spi;
 
+import me.wener.bbvm.core.BrushStyle;
+import me.wener.bbvm.core.Colour;
+import me.wener.bbvm.core.Page;
 import me.wener.bbvm.core.constant.BackgroundMode;
 import me.wener.bbvm.core.constant.FontType;
 import me.wener.bbvm.core.constant.PenStyle;
 
-public abstract class AbstractPage<P extends Page> implements Page
+public abstract class AbstractPage implements Page
 {
     protected FontType fontType = FontType.FONT_12SONG;
     protected BackgroundMode bgMode = BackgroundMode.OPAQUE;
@@ -28,12 +31,6 @@ public abstract class AbstractPage<P extends Page> implements Page
     }
 
     @Override
-    public void setBrushStyle(BrushStyle brushStyle)
-    {
-        this.brushStyle = brushStyle;
-    }
-
-    @Override
     public void lineTo(int x, int y)
     {
         drawLine(penX, penY, x, y);
@@ -47,7 +44,6 @@ public abstract class AbstractPage<P extends Page> implements Page
         penX = x;
         penY = y;
     }
-
 
     public int getFontSize()
     {
@@ -73,12 +69,6 @@ public abstract class AbstractPage<P extends Page> implements Page
     }
 
     @Override
-    public void setBgMode(BackgroundMode backgroundMode)
-    {
-        this.bgMode = backgroundMode;
-    }
-
-    @Override
     public void locate(int row, int column)
     {
         cursorX = column * getFontSize();
@@ -93,12 +83,6 @@ public abstract class AbstractPage<P extends Page> implements Page
     }
 
     @Override
-    public void setFontType(FontType fontType)
-    {
-        this.fontType = fontType;
-    }
-
-    @Override
     public void cursor(int x, int y)
     {
         cursorX = x;
@@ -108,6 +92,12 @@ public abstract class AbstractPage<P extends Page> implements Page
     public BrushStyle getBrushStyle()
     {
         return brushStyle;
+    }
+
+    @Override
+    public void setBrushStyle(BrushStyle brushStyle)
+    {
+        this.brushStyle = brushStyle;
     }
 
     public PenStyle getPenStyle()
@@ -120,9 +110,21 @@ public abstract class AbstractPage<P extends Page> implements Page
         return bgMode;
     }
 
+    @Override
+    public void setBgMode(BackgroundMode backgroundMode)
+    {
+        this.bgMode = backgroundMode;
+    }
+
     public FontType getFontType()
     {
         return fontType;
+    }
+
+    @Override
+    public void setFontType(FontType fontType)
+    {
+        this.fontType = fontType;
     }
 
     public Colour getBackground()

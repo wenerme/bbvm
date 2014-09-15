@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import me.wener.bbvm.core.AbstractFileHandle;
+import me.wener.bbvm.core.spi.AbstractFileHandle;
 
 public class JavaFileHandle extends AbstractFileHandle
 {

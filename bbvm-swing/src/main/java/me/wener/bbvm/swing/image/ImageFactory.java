@@ -22,20 +22,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import me.wener.bbvm.utils.Bins;
-import net.sf.image4j.codec.bmp.BMPDecoder;
 
 public class ImageFactory
 {
-    public static void load(String file) throws IOException
-    {
-        BufferedImage image = BMPDecoder.read(new File(file));
-    }
-
-    public static Image[] loadDlx(String file)
-    {
-        return null;
-    }
-
     public static BufferedImage loadLibRGB565(DataInput is) throws IOException
     {
 
@@ -185,8 +174,6 @@ public class ImageFactory
         String lib9688 = "D:\\dev\\projects\\bbvm\\doc\\testsuit\\out\\9688-wener.lib";
         String lib9288 = "D:\\dev\\projects\\bbvm\\doc\\testsuit\\out\\9288-wener.lib";
         String lib9188 = "D:\\dev\\projects\\bbvm\\doc\\testsuit\\out\\9188-wener.lib";
-        final BMPDecoder decoder = new BMPDecoder(new FileInputStream(file));
-        System.out.println(decoder.getInfoHeader());
 
         //Image image = loadRlb(rlb)[0];
         BufferedImage image = loadLibrary(lib9188, ImageType.LIB_Bit2Gray_BE)[0];
