@@ -94,6 +94,10 @@ public class BBVm
     }
 
     private int romSize;
+    /**
+     * 数据指针位置
+     */
+    private int dataPtr = 0;
 
     protected BBVm(Device device)
     {
@@ -420,7 +424,7 @@ public class BBVm
                 try
                 {
                     r3.set((int) Float.parseFloat(line));
-                }catch(NumberFormatException ignored)
+                } catch (NumberFormatException ignored)
                 {
                     r3.set(0);
                 }
@@ -440,7 +444,7 @@ public class BBVm
                 try
                 {
                     r3.set(Bins.int32(Float.parseFloat(line)));
-                }catch(NumberFormatException ignored)
+                } catch (NumberFormatException ignored)
                 {
                     r3.set(0);
                 }
@@ -467,7 +471,7 @@ public class BBVm
             // 注意: 读取浮点数和读取整数的内部表示是一样的
             case 15:
             {
-                Preconditions.checkState(input == 0,"输入的值为 %s, 要求为 0", input);
+                Preconditions.checkState(input == 0, "输入的值为 %s, 要求为 0", input);
                 r3.set(Bins.int32l(memory, dataPtr));
                 dataPtr += 4;
             }
@@ -502,11 +506,6 @@ public class BBVm
         }
         return true;
     }
-
-    /**
-     * 数据指针位置
-     */
-    private int dataPtr = 0;
 
     /**
      * 处理 in 端口操作
@@ -729,9 +728,9 @@ public class BBVm
             // 35 | 左取字符串 | r3的值 | r1:截取长度<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改 （此端口似乎不正常）
             case 35:
             {
-               stringHandle(r3.get()).set(string(r2.get()).substring(0, r1.get()));
+                stringHandle(r3.get()).set(string(r2.get()).substring(0, r1.get()));
 
-               o.set(r3.get());
+                o.set(r3.get());
             }
             break;
             // 36 | 右取字符串 | r3的值 | r1:截取长度<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改
@@ -752,7 +751,7 @@ public class BBVm
                 Integer len = r0.get();
                 String str = string(r2.get());
                 int start = r1.get();
-                int end = start+len;
+                int end = start + len;
 
                 stringHandle(r3.get()).set(str.substring(start, end));
 

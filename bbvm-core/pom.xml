@@ -11,20 +11,25 @@
 
     <artifactId>bbvm-core</artifactId>
 
-    <properties>
-        <bbvm.version>0.1.0</bbvm.version>
-    </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>me.wener.bbvm</groupId>
+            <artifactId>bbvm-common</artifactId>
+            <version>${bbvm.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

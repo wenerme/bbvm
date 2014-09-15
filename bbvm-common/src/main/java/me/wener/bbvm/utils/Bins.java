@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 /**
  * 参考实现 {@link java.nio.Bits}, 和 Netty 的ByteBuf 和 ByteBuffer<br>
  * 后缀 b 和 l 分别代表 big-endian 和 little-endian
- *
+ * <p/>
  * 在书写的时候,用了一些额外的 +0 和多余的括号,为了使代码对齐,可能是强迫症,得治.
  */
 @SuppressWarnings("unused")
@@ -115,6 +115,14 @@ public class Bins
         return int16b(bytes, offset) & 0xFFFF;
     }
 
+    public static int int16(byte[] bytes, int offset, boolean be)
+    {
+        if (be)
+            return int16b(bytes, offset);
+        else
+            return int16l(bytes, offset);
+    }
+
     public static int int24b(byte[] bytes, int offset)
     {
         int value = uint24b(bytes, offset);
@@ -153,6 +161,14 @@ public class Bins
                 (bytes[offset + 1] & 0xff) << 16 |
                 (bytes[offset + 2] & 0xff) << 8 |
                 (bytes[offset + 3] & 0xff);
+    }
+
+    public static int int32(byte[] bytes, int offset, boolean be)
+    {
+        if (be)
+            return int32b(bytes, offset);
+        else
+            return int32l(bytes, offset);
     }
 
     public static void int32l(byte[] bytes, int offset, int v)
@@ -379,5 +395,6 @@ public class Bins
     public static byte short1(short x) { return (byte) (x >> 8); }
 
     public static byte short0(short x) { return (byte) (x); }
+
     //endregion
 }

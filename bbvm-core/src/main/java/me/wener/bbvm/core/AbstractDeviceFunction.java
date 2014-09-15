@@ -6,16 +6,19 @@ import me.wener.bbvm.core.constant.BackgroundMode;
 import me.wener.bbvm.core.constant.DrawMode;
 import me.wener.bbvm.core.constant.FontType;
 import me.wener.bbvm.core.constant.PenStyle;
+import me.wener.bbvm.java.JavaFileHandle;
 
-public class AbstractDeviceFunction<SCR extends Screen<PAGE>, PAGE extends Page, PIC extends Picture> implements DeviceFunction
+public class AbstractDeviceFunction
+        <SCR extends Screen<PAGE>, PAGE extends Page, PIC extends Picture, FILE extends FileHandle>
+        implements DeviceFunction
 {
-    private final AbstractDevice<SCR, PAGE, PIC> device;
+    private final AbstractDevice<SCR, PAGE, PIC, FILE> device;
     private final SCR screen;
     private final ResourceHandlePool<PIC> picturePool;
     private final ResourceHandlePool<PAGE> pagePool;
     private final PAGE scrPage;
 
-    public AbstractDeviceFunction(AbstractDevice<SCR, PAGE, PIC> device)
+    public AbstractDeviceFunction(AbstractDevice<SCR, PAGE, PIC, FILE> device)
     {
         this.device = device;
         screen = device.getScreen();
