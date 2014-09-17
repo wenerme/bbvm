@@ -1,19 +1,12 @@
 package me.wener.bbvm.swing;
 
 import me.wener.bbvm.core.Page;
-import me.wener.bbvm.core.Screen;
+import me.wener.bbvm.core.spi.AbstractScreen;
 
-public class SwingScreen implements Screen
+public class SwingScreen extends AbstractScreen
 {
-    @Override
-    public void showPage(Page resource)
+    public SwingScreen(SwingPage page)
     {
-
-    }
-
-    @Override
-    public SwingPage asPage()
-    {
-        return null;
+        super(page);
     }
 }

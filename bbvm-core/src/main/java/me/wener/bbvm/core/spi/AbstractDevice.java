@@ -5,15 +5,24 @@ import me.wener.bbvm.core.FileHandle;
 import me.wener.bbvm.core.Page;
 import me.wener.bbvm.core.Picture;
 import me.wener.bbvm.core.ResourceHandlePool;
+import me.wener.bbvm.core.Screen;
 
 public abstract class AbstractDevice implements Device
 {
+    protected final Screen screen;
     protected final ResourceHandlePool<Page> pagePool;
     protected final ResourceHandlePool<Picture> picturePool;
     protected final ResourceHandlePool<FileHandle> filePool;
 
-    protected AbstractDevice()
+    @Override
+    public Screen getScreen()
     {
+        return screen;
+    }
+
+    protected AbstractDevice(Screen screen)
+    {
+        this.screen = screen;
         pagePool = getPagePool0();
         picturePool = getPicturePool0();
         filePool = getFilePool0();
@@ -51,13 +60,6 @@ public abstract class AbstractDevice implements Device
      * @return 返回图片资源句柄
      */
     public abstract int loadPicture(String file, int index);
-
-    /**
-     * @param file  资源文件句柄
-     * @param index 资源索引
-     * @return 返回图片资源句柄
-     */
-    public abstract int loadPicture(int file, int index);
 
     public abstract void setScreenSize(int width, int height);
 }

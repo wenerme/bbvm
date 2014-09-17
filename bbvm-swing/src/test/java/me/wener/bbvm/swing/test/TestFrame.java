@@ -2,11 +2,15 @@ package me.wener.bbvm.swing.test;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 import me.wener.bbvm.core.Colour;
 import me.wener.bbvm.core.spi.DeviceProvider;
+import me.wener.bbvm.swing.KeyStatus;
 import me.wener.bbvm.swing.SwingDeviceProvider;
 import me.wener.bbvm.swing.SwingPage;
 import org.junit.Test;
@@ -15,6 +19,14 @@ public class TestFrame
 {
     public static void main(String[] args)
     {
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run()
+            {
+                System.out.println("A pressed ? "+ KeyStatus.isPressed(KeyEvent.VK_A));
+            }
+        }, 0, 1000);
+
         final BufferedImage image = new BufferedImage(240, 320, BufferedImage.TYPE_3BYTE_BGR);
         JFrame frame = new JFrame()
         {

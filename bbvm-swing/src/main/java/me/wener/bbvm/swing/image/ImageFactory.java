@@ -49,7 +49,7 @@ public class ImageFactory
     }
 
 
-    private static BufferedImage loadLibBit2Gray(DataInput is, ImageType type) throws IOException
+    private static BufferedImage loadLibBit2Gray(DataInput is,final ImageType type) throws IOException
     {
         int len = is.readInt();
         int w = is.readUnsignedShort();
@@ -76,6 +76,22 @@ public class ImageFactory
         return image;
     }
 
+
+    public static BufferedImage loadImage(String file, int index) throws IOException
+    {
+        try{
+            byte[] bytes = Files.readAllBytes(Paths.get(file));
+            ImageType type = detectType(file, bytes);
+            if (type == null)
+                return ImageIO.read(new ByteArrayInputStream(bytes));
+
+            return loadLibrary(new ByteArrayInputStream(bytes), type)[index];
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public static BufferedImage[] loadLibrary(String file, ImageType type) throws IOException
     {

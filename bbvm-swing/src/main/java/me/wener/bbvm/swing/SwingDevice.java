@@ -1,44 +1,53 @@
 package me.wener.bbvm.swing;
 
+import java.awt.Toolkit;
+import java.io.IOException;
+import me.wener.bbvm.core.DeviceFunction;
 import me.wener.bbvm.core.FileHandle;
 import me.wener.bbvm.core.Page;
 import me.wener.bbvm.core.Picture;
 import me.wener.bbvm.core.ResourceHandlePool;
 import me.wener.bbvm.core.spi.AbstractDevice;
-import me.wener.bbvm.core.DeviceFunction;
+import me.wener.bbvm.swing.image.ImageFactory;
 
 public class SwingDevice extends AbstractDevice
 {
+    final static Toolkit kit = Toolkit.getDefaultToolkit();
+
+    private final SwingDeviceFunction function;
+
+    public SwingDevice(int width, int height)
+    {
+        super(new SwingScreen(new SwingPage(width, height)));
+        function = new SwingDeviceFunction(this);
+    }
 
     @Override
     public ResourceHandlePool<Page> getPagePool0()
     {
-        return null;
+        return new AutoResourceHandlePool<>(10, true);
     }
 
     @Override
     public ResourceHandlePool<Picture> getPicturePool0()
     {
-        return null;
+        return new AutoResourceHandlePool<>(10, true);
     }
 
     @Override
     public ResourceHandlePool<FileHandle> getFilePool0()
     {
-        return null;
+        AutoResourceHandlePool<FileHandle> pool = new AutoResourceHandlePool<>(10, true);
+        pool.prepare();
+        return pool;
     }
 
     @Override
     public DeviceFunction getFunction()
     {
-        return null;
+        return function;
     }
 
-    @Override
-    public SwingScreen getScreen()
-    {
-        return null;
-    }
 
     @Override
     public int waitkey()
@@ -49,19 +58,20 @@ public class SwingDevice extends AbstractDevice
     @Override
     public boolean isKeyPressed(int keycode)
     {
-        return false;
+        return KeyStatus.isPressed(keycode);
     }
 
     @Override
     public int loadPicture(String file, int index)
     {
-        return 0;
-    }
-
-    @Override
-    public int loadPicture(int file, int index)
-    {
-        return 0;
+        try
+        {
+            return picturePool.addResource(new SwingPicture(ImageFactory.loadImage(file, index)));
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     @Override

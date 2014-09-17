@@ -5,10 +5,9 @@ import me.wener.bbvm.core.Screen;
 
 public abstract class AbstractScreen implements Screen
 {
+    protected final Page page;
 
-    private final Page page = getPage();
-
-    protected abstract Page getPage();
+    protected AbstractScreen(Page page) {this.page = page;}
 
     @Override
     public void showPage(Page page)
