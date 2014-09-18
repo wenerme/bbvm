@@ -94,7 +94,8 @@ public abstract class AbstractDeviceFunction implements DeviceFunction
     @Override
     public int LOADRES(String FILE$, int ID)
     {
-        return device.loadPicture(FILE$,ID);
+        // 在BB中,资源的索引是从一开始的
+        return device.loadPicture(FILE$,ID -1);
     }
 
 
@@ -233,9 +234,9 @@ public abstract class AbstractDeviceFunction implements DeviceFunction
     }
 
     @Override
-    public String[] INPUT(String PROMOTE, int n)
+    public String INPUT()
     {
-        return new String[0];
+        return null;
     }
 
     @Override

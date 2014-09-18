@@ -1,6 +1,7 @@
 package me.wener.bbvm.swing;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import me.wener.bbvm.core.spi.AbstractPage;
@@ -13,10 +14,9 @@ public class SwingPage
         extends AbstractPage
         implements IsImage<BufferedImage>
 {
-    private final int width;
-    private final int height;
     private final BufferedImage image;
     private final Graphics2D g;
+    private Font font;
 
     public SwingPage(int width, int height)
     {
@@ -25,9 +25,8 @@ public class SwingPage
 
     public SwingPage(BufferedImage image)
     {
+        super(image.getWidth(), image.getHeight());
         this.image = image;
-        width = image.getWidth();
-        height = image.getHeight();
         g = (Graphics2D) image.getGraphics();
     }
 
@@ -110,9 +109,17 @@ public class SwingPage
         g.drawImage(page.asImage(), x, y, null);
     }
 
+
+
     public int getWidth()
     {
         return width;
+    }
+
+    @Override
+    public int getFontSize()
+    {
+        return 12;
     }
 
     public int getHeight()

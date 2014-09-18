@@ -276,10 +276,9 @@ public interface DeviceFunction extends BBFunction
      * <b>语法：</b>INPUT "输入提示字语";变量列表
      * BB中INPUT语句没做相应的数据类型检查。所以输入数据的类型和个数请在输入提示语中明确指出。
      *
-     * @param PROMOTE 输入提示字语
      * @return 输入的数值列表
      */
-    String[] INPUT(String PROMOTE, int n);
+    String INPUT();
 
     /**
      * 检测指定键的状态<br>

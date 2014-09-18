@@ -200,7 +200,7 @@ OUT 端口说明
 17 | 申请画布句柄 | 0 ,r3:PAGE句柄 | - | CreatPage
 18 | 释放画布句柄 | 0 | r3:PAGE句柄 |  DeletePage
 19 | 申请图片句柄并从文件载入像素资源 | r3:资源句柄 | r3:文件名, r2:资源索引 |  LoadRes
-20 | 复制图片到画布上 | - | r3:地址,其他参数在该地址后 |  ShowPic
+20 | 复制图片到画布上 | 0 | r3:地址,其他参数在该地址后 |  ShowPic
 21 | 显示画布 | 0 | r3:PAGE句柄 |  FlipPage
 22 | 复制画布 | 0 | r2:目标PAGE句柄,r3:源PAGE句柄 |  BitBltPage
 23 | 填充画布 | 0 | r3:参数地址 |  FillPage

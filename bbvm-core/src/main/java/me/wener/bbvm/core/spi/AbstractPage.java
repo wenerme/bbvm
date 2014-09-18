@@ -21,12 +21,32 @@ public abstract class AbstractPage implements Page
     protected BrushStyle brushStyle = BrushStyle.BRUSH_SOLID;
     protected int penX;
     protected int penY;
+    protected int width;
+    protected int height;
+
+    protected AbstractPage(int height, int width)
+    {
+        this.height = height;
+        this.width = width;
+    }
 
     @Override
-    public void pen(PenStyle penStyle, int width, Colour color)
+    public int getHeight()
+    {
+        return height;
+    }
+
+    @Override
+    public int getWidth()
+    {
+        return width;
+    }
+
+    @Override
+    public void pen(PenStyle penStyle, int thickness, Colour color)
     {
         this.penStyle = penStyle;
-        this.penSize = width;
+        this.penSize = thickness;
         this.penColor = color;
     }
 
@@ -45,21 +65,67 @@ public abstract class AbstractPage implements Page
         penY = y;
     }
 
-    public int getFontSize()
+    public int getCharSize(char c)
     {
-        return 0;
+        return c < 127 ? getFontSize() / 2 : getFontSize();
     }
 
-    @Override
-    public void print(String... v)
-    {
+    /**
+     * 字体大小为一个全角字符的大小
+     */
+    public abstract int getFontSize();
 
+    @Override
+    public void print(String... strings)
+    {
+        for (String string : strings)
+        {
+            print(string);
+        }
     }
 
     @Override
     public void print(String v)
     {
+        for (char c : v.toCharArray())
+        {
+            int size = -1;
+            switch (c)
+            {
+                case '\n':
+                    // 换行
+                    nextCursorLine();
+                    continue;
+                case '\t':
+                    // 一个制表符算四个
+                    size = getFontSize() * 4/2;
+                    break;
+            }
 
+            if(size < 0)
+                size = getCharSize(c);
+            if (size + cursorX > width)
+                nextCursorLine();
+
+            drawChar(c, cursorX, cursorY);
+        }
+    }
+
+    private void testCursorPosition()
+    {
+        if (cursorX > width)
+            nextCursorLine();
+    }
+    private void nextCursorLine()
+    {
+        cursorX = 0;
+        cursorY += getFontSize();
+    }
+
+    @Override
+    public void drawChar(char c, int x, int y)
+    {
+        drawString(String.valueOf(c), x, y);
     }
 
     @Override

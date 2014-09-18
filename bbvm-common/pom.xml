@@ -11,5 +11,15 @@
 
     <artifactId>bbvm-common</artifactId>
 
+    <dependencies>
+
+        <!--共有依赖-->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>${jsr305.version}</version>
+        </dependency>
+
+    </dependencies>
 
 </project>

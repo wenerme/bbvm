@@ -8,6 +8,7 @@ import me.wener.bbvm.core.Page;
 import me.wener.bbvm.core.Picture;
 import me.wener.bbvm.core.ResourceHandlePool;
 import me.wener.bbvm.core.spi.AbstractDevice;
+import me.wener.bbvm.java.JavaFileHandle;
 import me.wener.bbvm.swing.image.ImageFactory;
 
 public class SwingDevice extends AbstractDevice
@@ -15,29 +16,41 @@ public class SwingDevice extends AbstractDevice
     final static Toolkit kit = Toolkit.getDefaultToolkit();
 
     private final SwingDeviceFunction function;
+    private final int height;
+    private final int width;
 
     public SwingDevice(int width, int height)
     {
         super(new SwingScreen(new SwingPage(width, height)));
+        this.width = width;
+        this.height = height;
+
         function = new SwingDeviceFunction(this);
     }
 
     @Override
     public ResourceHandlePool<Page> getPagePool0()
     {
-        return new AutoResourceHandlePool<>(10, true);
+        return new AutoResourceHandlePool<Page>(10, true)
+        {
+            @Override
+            public Page createResource()
+            {
+                return new SwingPage(width, height);
+            }
+        };
     }
 
     @Override
     public ResourceHandlePool<Picture> getPicturePool0()
     {
-        return new AutoResourceHandlePool<>(10, true);
+        return new AutoResourceHandlePool<Picture>(10, true, SwingPicture.class);
     }
 
     @Override
     public ResourceHandlePool<FileHandle> getFilePool0()
     {
-        AutoResourceHandlePool<FileHandle> pool = new AutoResourceHandlePool<>(10, true);
+        AutoResourceHandlePool<FileHandle> pool = new AutoResourceHandlePool<FileHandle>(10, true, JavaFileHandle.class);
         pool.prepare();
         return pool;
     }

@@ -64,7 +64,7 @@ public class BBVm
     private final Device device;
     private final Logger log = Logger.getLogger(BBVm.class.toString());
     @SuppressWarnings("FieldCanBeLocal")
-    private final boolean logInst = false;//log.getLevel() == Level.INFO;
+    private final boolean logInst = true;//log.getLevel() == Level.INFO;
     private final DeviceFunction deviceFunction;
     private final StringHandlePool stringPool = new StringHandlePool();
     private final byte[] stack = new byte[1024];
@@ -97,12 +97,14 @@ public class BBVm
      * 数据指针位置
      */
     private int dataPtr = 0;
+    private boolean running = false;
+    private boolean useConsoleIO = false;
 
-    protected BBVm(Device device)
+    public BBVm(Device device)
     {
 
         this.device = device;
-        deviceFunction = null;
+        deviceFunction = device.getFunction();
         //deviceFunction = device.getFunction();
     }
 
@@ -135,8 +137,9 @@ public class BBVm
     public void start()
     {
         startTick = System.currentTimeMillis();
-        while (loop())
-            ;
+        running = true;
+        while (running)
+            loop();
     }
 
     boolean loop()
@@ -382,6 +385,19 @@ public class BBVm
         return Bins.int32l(memory, rs.get());
     }
 
+    protected Integer[] readParameters(int n, int offset)
+    {
+        Integer[] parameters = new Integer[n];
+
+        for (int i = 0; i < n; i++)
+        {
+            parameters[n - i - 1] = Bins.int32l(memory, offset);
+            offset += 4;
+        }
+
+        return parameters;
+    }
+
     /**
      * 处理 out 端口操作
      *
@@ -389,6 +405,147 @@ public class BBVm
      */
     protected boolean out(InstructionContext ctx)
     {
+        return beforeOut(ctx) || out0(ctx) || afterOut(ctx);
+    }
+
+    protected boolean out0(InstructionContext ctx)
+    {
+        Integer input = ctx.getOp2().get();
+        switch (ctx.getOp1().get())
+        {
+            // 0 | 显示整数 | 整数 |  | 会换行
+            // 1 | 显示字符串 | 字符串 |  | 会换行
+            // 2 | 显示字符串 | 字符串 |  |
+            // 3 | 显示整数 | 整数 |  |
+            // 4 | 显示字符 | 字符ASCII码 |  |
+            // 5 | 显示浮点数 | 浮点数 |  |
+            case 0:
+                deviceFunction.PRINT(input, '\n');
+                break;
+            case 1:
+                deviceFunction.PRINT(string(input), '\n');
+                break;
+            case 2:
+                deviceFunction.PRINT(string(input));
+                break;
+            case 3:
+                deviceFunction.PRINT(input);
+                break;
+            case 4:
+                deviceFunction.PRINT(Character.toChars(input)[0]);
+                break;
+            case 5:
+                deviceFunction.PRINT(String.format("%.6f", Bins.float32(input)));
+                break;
+            //  10 | 键入整数 | 0 |  | r3的值变为键入的整数
+            case 10:
+            {
+                String in = deviceFunction.INPUT();
+                try
+                {
+                    r3.set((int) Float.parseFloat(in));
+                } catch (NumberFormatException ignored)
+                {
+                    r3.set(0);
+                }
+            }
+            break;
+            //  11 | 键入字符串 | 0 | r3:目标字符串句柄 | r3所指字符串的内容变为键入的字符串
+            case 11:
+            {
+                String in = deviceFunction.INPUT();
+                stringHandle(r3.get()).set(deviceFunction.INPUT());
+            }
+            break;
+            //  12 | 键入浮点数 | 0 |  | r3的值变为键入的浮点数
+            case 12:
+            {
+                String in = deviceFunction.INPUT();
+                try
+                {
+                    r3.set(Bins.int32(Float.parseFloat(in)));
+                } catch (NumberFormatException ignored)
+                {
+                    r3.set(0);
+                }
+            }
+            break;
+            // 13 | 从数据区读取整数 | 0 |  | r3的值变为读取的整数
+            case 13:
+            {
+                Preconditions.checkState(input == 0, "输入的值为 %s, 要求为 0", input);
+                r3.set(Bins.int32l(memory, dataPtr));
+                dataPtr += 4;
+            }
+            break;
+            // 14 | 从数据区读取字符串 | 0 | r3:目标字符串句柄 | r3所指字符串的内容变为读取的字符串
+            case 14:
+            {
+                Preconditions.checkState(input == 0, "输入的值为 %s, 要求为 0", input);
+                byte[] bytes = Bins.zByte(memory, dataPtr);
+                dataPtr += bytes.length + 1;
+                stringHandle(r3.get()).set(new String(bytes, DEFAULT_CHARSET));
+            }
+            break;
+            // 15 | 从数据区读取浮点数 | 0 |  | r3的值变为读取的浮点数
+            // 注意: 读取浮点数和读取整数的内部表示是一样的
+            case 15:
+            {
+                Preconditions.checkState(input == 0, "输入的值为 %s, 要求为 0", input);
+                r3.set(Bins.int32l(memory, dataPtr));
+                dataPtr += 4;
+            }
+            break;
+            // 16 | 设定模拟器屏幕 | 0 | r2:宽, r3:高 |  SetLcd
+            case 16:
+            {
+                deviceFunction.SETLCD(r2.get(), r3.get());
+            }
+            break;
+            // 17 | 申请画布句柄 | r3:PAGE句柄 | - | CreatPage
+            case 17:
+            {
+                r3.set(deviceFunction.CREATEPAGE());
+            }
+            break;
+            // 18 | 释放画布句柄 | 0 | r3:PAGE句柄 |  DeletePage
+            case 18:
+            {
+                deviceFunction.DELETEPAGE(r3.get());
+            }
+            break;
+            // 19 | 申请图片句柄并从文件载入像素资源 | r3:资源句柄 | r3:文件名, r2:资源索引 |  LoadRes
+            case 19:
+            {
+                int handle = deviceFunction.LOADRES(string(r3.get()), r2.get());
+                r3.set(handle);
+            }
+            break;
+            // ; 20 | 复制图片到画布上 | 0 | r3:地址,其他参数在该地址后<br>(PAGE,PIC,DX,DY,W,H,X,Y,MODE) |  ShowPic
+            case 20:
+            {
+                Integer[] args = readParameters(9, r3.get());
+                deviceFunction.SHOWPIC(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
+            }
+            break;
+            // 21 | 显示画布 | 0 | r3:PAGE句柄 |  FlipPage
+            case 21:
+            {
+                deviceFunction.FLIPPAGE(r3.get());
+            }
+            break;
+
+            default:
+                return false;
+        }
+        return true;
+    }
+
+    protected boolean beforeOut(InstructionContext ctx)
+    {
+        if (!useConsoleIO)
+            return false;
+
         Integer input = ctx.getOp2().get();
         switch (ctx.getOp1().get())
         {
@@ -449,61 +606,16 @@ public class BBVm
                 }
             }
             break;
-            // 13 | 从数据区读取整数 | 0 |  | r3的值变为读取的整数
-            case 13:
-            {
-                Preconditions.checkState(input == 0, "输入的值为 %s, 要求为 0", input);
-                r3.set(Bins.int32l(memory, dataPtr));
-                dataPtr += 4;
-            }
-            break;
-            // 14 | 从数据区读取字符串 | 0 | r3:目标字符串句柄 | r3所指字符串的内容变为读取的字符串
-            case 14:
-            {
-                Preconditions.checkState(input == 0, "输入的值为 %s, 要求为 0", input);
-                byte[] bytes = Bins.zByte(memory, dataPtr);
-                dataPtr += bytes.length + 1;
-                stringHandle(r3.get()).set(new String(bytes, DEFAULT_CHARSET));
-            }
-            break;
-            // 15 | 从数据区读取浮点数 | 0 |  | r3的值变为读取的浮点数
-            // 注意: 读取浮点数和读取整数的内部表示是一样的
-            case 15:
-            {
-                Preconditions.checkState(input == 0, "输入的值为 %s, 要求为 0", input);
-                r3.set(Bins.int32l(memory, dataPtr));
-                dataPtr += 4;
-            }
-            break;
-            // 16 | 设定模拟器屏幕 | 0 | r2:宽, r3:高 |  SetLcd
-            case 16:
-            {
-                deviceFunction.SETLCD(r2.get(), r3.get());
-            }
-            break;
-            // 17 | 申请画布句柄 | r3:PAGE句柄 | - | CreatPage
-            case 17:
-            {
-                r3.set(deviceFunction.CREATEPAGE());
-            }
-            break;
-            // 18 | 释放画布句柄 | 0 | r3:PAGE句柄 |  DeletePage
-            case 18:
-            {
-                deviceFunction.DELETEPAGE(r3.get());
-            }
-            break;
-            // 19 | 申请图片句柄并从文件载入像素资源 | r3:资源句柄 | r3:文件名, r2:资源索引 |  LoadRes
-            case 19:
-            {
-                deviceFunction.LOADRES(string(r3.get()), r2.get());
-            }
-            break;
-
             default:
                 return false;
         }
+
         return true;
+    }
+
+    protected boolean afterOut(InstructionContext ctx)
+    {
+        return false;
     }
 
     /**
@@ -512,6 +624,11 @@ public class BBVm
      * @return 如果被处理了, 返回 true 否则 false
      */
     protected boolean in(InstructionContext ctx)
+    {
+        return beforeIn(ctx) || in0(ctx) || afterIn(ctx);
+    }
+
+    protected boolean in0(InstructionContext ctx)
     {
         // o for out
         Operand o = ctx.getOp1();
@@ -779,6 +896,16 @@ public class BBVm
         return true;
     }
 
+    protected boolean beforeIn(InstructionContext ctx)
+    {
+        return false;
+    }
+
+    protected boolean afterIn(InstructionContext ctx)
+    {
+        return false;
+    }
+
     public int getTick()
     {
         return (int) (System.currentTimeMillis() - startTick);
@@ -832,7 +959,7 @@ public class BBVm
 
     private void exit()
     {
-        System.exit(0);
+        running = false;
     }
 
     /**

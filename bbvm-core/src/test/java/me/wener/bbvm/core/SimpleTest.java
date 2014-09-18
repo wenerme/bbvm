@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import me.wener.bbvm.core.spi.DeviceProvider;
 import me.wener.bbvm.utils.Bins;
 import org.junit.Test;
 
@@ -12,8 +13,8 @@ public class SimpleTest
 {
     public static void main(String[] args) throws IOException
     {
-        byte[] bytes = Files.readAllBytes(Paths.get("D:\\dev\\projects\\bbvm\\doc\\ignored\\test\\BB\\Sim\\BBasic\\test.bin"));
-        BBVm vm = new BBVm(null);
+        byte[] bytes = Files.readAllBytes(Paths.get("D:\\dev\\projects\\bbvm\\doc\\testsuit\\BB\\Sim\\BBasic\\test.bin"));
+        BBVm vm = new BBVm(DeviceProvider.getProvider().createDevice(240, 320));
         byte[] mem = Arrays.copyOfRange(bytes, 16, bytes.length);
         vm.load(mem);
         vm.reset();

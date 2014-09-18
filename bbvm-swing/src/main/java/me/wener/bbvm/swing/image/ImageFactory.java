@@ -25,7 +25,7 @@ import me.wener.bbvm.utils.Bins;
 
 public class ImageFactory
 {
-    public static BufferedImage loadLibRGB565(DataInput is) throws IOException
+    private static BufferedImage loadLibRGB565(DataInput is) throws IOException
     {
 
         int len = is.readInt();
@@ -49,7 +49,7 @@ public class ImageFactory
     }
 
 
-    private static BufferedImage loadLibBit2Gray(DataInput is,final ImageType type) throws IOException
+    private static BufferedImage loadLibBit2Gray(DataInput is, final ImageType type) throws IOException
     {
         int len = is.readInt();
         int w = is.readUnsignedShort();
@@ -79,14 +79,15 @@ public class ImageFactory
 
     public static BufferedImage loadImage(String file, int index) throws IOException
     {
-        try{
+        try
+        {
             byte[] bytes = Files.readAllBytes(Paths.get(file));
             ImageType type = detectType(file, bytes);
             if (type == null)
                 return ImageIO.read(new ByteArrayInputStream(bytes));
 
             return loadLibrary(new ByteArrayInputStream(bytes), type)[index];
-        }catch (Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
             return null;
@@ -106,7 +107,10 @@ public class ImageFactory
         else in = new DataInputStream(is);
 
 
-        int[] offsets = readOffset(in, 0);
+        int gap = 0;
+        if (type == ImageType.RLB)
+            gap = 32;
+        int[] offsets = readOffset(in, gap);
         int number = offsets.length;
         BufferedImage[] images = new BufferedImage[number];
 
@@ -192,7 +196,8 @@ public class ImageFactory
         String lib9188 = "D:\\dev\\projects\\bbvm\\doc\\testsuit\\out\\9188-wener.lib";
 
         //Image image = loadRlb(rlb)[0];
-        BufferedImage image = loadLibrary(lib9188, ImageType.LIB_Bit2Gray_BE)[0];
+//        BufferedImage image = loadLibrary(lib9188, ImageType.LIB_Bit2Gray_BE)[0];
+        BufferedImage image = loadImage(rlb, 0);
         ImageIO.write(image, "BMP", new File("D:\\dev\\projects\\bbvm\\doc\\testsuit\\out\\tmp.bmp"));
 
         assert detectType(lib9188, Files.readAllBytes(Paths.get(lib9188))) == ImageType.LIB_Bit2Gray_BE;
@@ -337,7 +342,7 @@ public class ImageFactory
         }
     }
 
-    static class BackgroundImageJFrame extends JFrame
+    public static class BackgroundImageJFrame extends JFrame
     {
         private final Image image;
         JButton b1;
@@ -358,11 +363,11 @@ public class ImageFactory
             setLayout(new FlowLayout());
             l1 = new JLabel("Here is a button");
             b1 = new JButton("I am a button");
-            add(l1);
-            add(b1);
+//            add(l1);
+//            add(b1);
             // Just for refresh :) Not optional!
-            setSize(399, 399);
-            setSize(400, 400);
+//            setSize(399, 399);
+//            setSize(400, 400);
         }
 
     }

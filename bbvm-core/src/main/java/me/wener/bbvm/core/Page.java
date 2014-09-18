@@ -37,6 +37,7 @@ public interface Page
     void draw(Page src);
 
     void drawString(String content, int x, int y);
+    void drawChar(char c, int x, int y);
 
     void draw(Picture picture, int destX, int destY, int width, int height, int x, int y, DrawMode drawMode);
 

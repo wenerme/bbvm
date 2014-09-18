@@ -8,14 +8,20 @@ import me.wener.bbvm.core.ResourceHandlePool;
 
 public class AutoResourceHandlePool<T> extends ResourceHandlePool<T>
 {
-    private final Class<T> type;
+    private final Class<? extends T> type;
     private final boolean autoClose;
 
+    public AutoResourceHandlePool(int maxsize, boolean autoClose, Class<? extends T> type)
+    {
+        super(maxsize);
+        this.type = type;
+        this.autoClose = autoClose;
+    }
     @SuppressWarnings("unchecked")
     public AutoResourceHandlePool(int maxsize, boolean autoClose)
     {
         super(maxsize);
-        type = (Class<T>) capture();
+        this.type = (Class<T>) capture();
         this.autoClose = autoClose;
     }
 
