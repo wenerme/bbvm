@@ -4,11 +4,11 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import me.wener.bbvm.core.spi.AbstractPage;
-import me.wener.bbvm.core.Colour;
-import me.wener.bbvm.core.constant.DrawMode;
-import me.wener.bbvm.core.Page;
-import me.wener.bbvm.core.Picture;
+import me.wener.bbvm.api.Page;
+import me.wener.bbvm.api.Picture;
+import me.wener.bbvm.def.DrawMode;
+import me.wener.bbvm.impl.plaf.Colour;
+import me.wener.bbvm.impl.spi.AbstractPage;
 
 public class SwingPage
         extends AbstractPage

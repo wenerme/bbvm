@@ -12,10 +12,10 @@ stat
 
 expr
     : instruction
-    | LABEL // ¶¨Òå±êÇ©µÄÓï¾ä
+    | LABEL // å®šä¹‰æ ‡ç­¾çš„è¯­å¥
     ;
 
-// ËùÓĞ¿ÉÄÜµÄÖ¸Áî¼¯
+// æ‰€æœ‰å¯èƒ½çš„æŒ‡ä»¤é›†
 instruction
     : NoOperandIns
     | OneOperandIns operand
@@ -25,33 +25,33 @@ instruction
     ;
 
 operand
-    : Register						// Ê¹ÓÃ¼Ä´æÆ÷
+    : Register						// ä½¿ç”¨å¯„å­˜å™¨
     | LBRACK Register RBRACK
-    | ConstFormula					// Ê¹ÓÃ³£Á¿±í´ïÊ½
+    | ConstFormula					// ä½¿ç”¨å¸¸é‡è¡¨è¾¾å¼
     | LBRACK ConstFormula RBRACK
-    | Identifier					// Ê¹ÓÃ±êÊ¶·û
+    | Identifier					// ä½¿ç”¨æ ‡è¯†ç¬¦
     | LBRACK Identifier RBRACK
     ;
 
-// ³£Á¿±í´ïÊ½,ÔÚ±àÒëÆÚ¼ä¿ÉÒÔ½øĞĞÇóÖµ
+// å¸¸é‡è¡¨è¾¾å¼,åœ¨ç¼–è¯‘æœŸé—´å¯ä»¥è¿›è¡Œæ±‚å€¼
 ConstFormula
 	: IntegerLiteral
 	;
 	
-// ÎŞ²Ù×÷ÊıµÄÖ¸Áî
+// æ— æ“ä½œæ•°çš„æŒ‡ä»¤
 NoOperandIns
     : INS_NOP
     | INS_RET
     | INS_EXIT
     ;
-// Ò»¸ö²Ù×÷ÊıµÄÖ¸Áî
+// ä¸€ä¸ªæ“ä½œæ•°çš„æŒ‡ä»¤
 OneOperandIns
     : INS_JMP
     | INS_CALL
     | INS_PUSH
     | INS_POP
     ;
-// Á½¸ö²Ù×÷ÊıµÄÖ¸Áî
+// ä¸¤ä¸ªæ“ä½œæ•°çš„æŒ‡ä»¤
 TowOperandIns
     : INS_IN
     | INS_OUT
@@ -79,7 +79,7 @@ Register
     | R3
     ;
 
-// ¼Ä´æÆ÷ÀàĞÍ
+// å¯„å­˜å™¨ç±»å‹
 fragment RP : R P ;
 fragment RF : R F ;
 fragment RS : R S ;
@@ -89,7 +89,7 @@ fragment R1 : R '1' ;
 fragment R2 : R '2' ;
 fragment R3 : R '3' ;
 
-// ±È½Ï²Ù×÷
+// æ¯”è¾ƒæ“ä½œ
 CompareOperator
 	: CMP_Z	
 	| CMP_B 	
@@ -106,7 +106,7 @@ fragment CMP_A 	: A   ;
 fragment CMP_AE	: A E ;
 fragment CMP_NZ	: N Z ;
 
-// ¼ÆËã²Ù×÷
+// è®¡ç®—æ“ä½œ
 CalculateOperator
 	: CAL_ADD
 	| CAL_SUB
@@ -121,7 +121,7 @@ fragment CAL_MUL : M U L ;
 fragment CAL_DIV : D I V ;
 fragment CAL_MOD : M O D ;
 
-// Êı¾İÀàĞÍ
+// æ•°æ®ç±»å‹
 DataType
 	: DataType_DWORD
 	| DataType_WORD
@@ -136,7 +136,7 @@ fragment DataType_BYTE  :B Y T E   ;
 fragment DataType_FLOAT :F L O A T ;
 fragment DataType_INT   :I N T     ;
 
-// ËùÓĞµÄÖ¸Áî
+// æ‰€æœ‰çš„æŒ‡ä»¤
 INS_NOP    : N O P;
 INS_LD     : L D;
 INS_PUSH   : P U S H;
@@ -152,12 +152,12 @@ INS_CAL    : C A L;
 INS_EXIT   : E X I T;
 INS_DATA   : D A T A;
 INS_BLOCK  : DOT? B L O C K;
-// ±êÇ©¸ñÊ½
+// æ ‡ç­¾æ ¼å¼
 LABEL : Identifier ':' ;
 
-// ³£Á¿ËãÊ½,ÔÚ±àÒëÆÚÄÜ¹»µÃµ½½á¹ûµÄ
+// å¸¸é‡ç®—å¼,åœ¨ç¼–è¯‘æœŸèƒ½å¤Ÿå¾—åˆ°ç»“æœçš„
 
-// ÕûÊı×ÖÃæÖµ
+// æ•´æ•°å­—é¢å€¼
 IntegerLiteral
     :   DecimalIntegerLiteral
     |   HexIntegerLiteral
@@ -286,7 +286,7 @@ BinaryDigitOrUnderscore
     |   '_'
     ;
 
-// ¸¡µãÊı×ÖÃæÖµ
+// æµ®ç‚¹æ•°å­—é¢å€¼
 FloatingPointLiteral
     :   DecimalFloatingPointLiteral
     |   HexadecimalFloatingPointLiteral
@@ -346,13 +346,13 @@ BinaryExponentIndicator
     :   [pP]
     ;
 
-// ²¼¶û×ÖÃæÖµ
+// å¸ƒå°”å­—é¢å€¼
 BooleanLiteral
     :   'true'
     |   'false'
     ;
 
-// ×Ö·û×ÖÃæÖµ
+// å­—ç¬¦å­—é¢å€¼
 CharacterLiteral
     :   '\'' SingleCharacter '\''
     |   '\'' EscapeSequence '\''
@@ -363,7 +363,7 @@ SingleCharacter
     :   ~['\\]
     ;
 
-// ×Ö·û´®×ÖÃæÖµ
+// å­—ç¬¦ä¸²å­—é¢å€¼
 StringLiteral
     :   '"' StringCharacters? '"'
     ;
@@ -379,7 +379,7 @@ StringCharacter
     |   EscapeSequence
     ;
 
-// ×Ö·ûºÍ×Ö·û´®µÄ×ªÒåĞòÁĞ
+// å­—ç¬¦å’Œå­—ç¬¦ä¸²çš„è½¬ä¹‰åºåˆ—
 fragment
 EscapeSequence
     :   '\\' [btnfr"'\\]
@@ -460,7 +460,7 @@ LSHIFT_ASSIGN   : '<<=';
 RSHIFT_ASSIGN   : '>>=';
 URSHIFT_ASSIGN  : '>>>=';
 
-// ±êÊ¶·û ±ØĞëÔÚËùÓĞ¹Ø¼ü´ÊÖ®ºó
+// æ ‡è¯†ç¬¦ å¿…é¡»åœ¨æ‰€æœ‰å…³é”®è¯ä¹‹å
 Identifier
     :   JavaLetter JavaLetterOrDigit*
     ;
@@ -511,7 +511,7 @@ LINE_COMMENT
 
 NEWLINE:'\r'? '\n' ; // return newlines to parser (is end-statement signal)
 
-// ±ãÓÚ×ö´óĞ¡Ğ´ÎŞ¹ØµÄÓï·¨
+// ä¾¿äºåšå¤§å°å†™æ— å…³çš„è¯­æ³•
 fragment A:('a'|'A');
 fragment B:('b'|'B');
 fragment C:('c'|'C');

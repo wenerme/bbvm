@@ -1,7 +1,7 @@
 package me.wener.bbvm.swing;
 
 import java.awt.Image;
-import me.wener.bbvm.core.Picture;
+import me.wener.bbvm.api.Picture;
 
 public class SwingPicture implements Picture, IsImage
 {

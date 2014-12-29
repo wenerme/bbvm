@@ -1,6 +1,6 @@
 package me.wener.bbvm.swing;
 
-import me.wener.bbvm.core.spi.AbstractDeviceFunction;
+import me.wener.bbvm.impl.spi.AbstractDeviceFunction;
 
 public class SwingDeviceFunction extends AbstractDeviceFunction
 {

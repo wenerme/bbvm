@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.*;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import me.wener.bbvm.core.ResourceHandlePool;
+import me.wener.bbvm.impl.ResourceHandlePool;
 
 public class AutoResourceHandlePool<T> extends ResourceHandlePool<T>
 {

@@ -2,12 +2,12 @@ package me.wener.bbvm.swing;
 
 import java.awt.Toolkit;
 import java.io.IOException;
-import me.wener.bbvm.core.DeviceFunction;
-import me.wener.bbvm.core.FileHandle;
-import me.wener.bbvm.core.Page;
-import me.wener.bbvm.core.Picture;
-import me.wener.bbvm.core.ResourceHandlePool;
-import me.wener.bbvm.core.spi.AbstractDevice;
+import me.wener.bbvm.api.DeviceFunction;
+import me.wener.bbvm.api.FileHandle;
+import me.wener.bbvm.api.Page;
+import me.wener.bbvm.api.Picture;
+import me.wener.bbvm.impl.ResourceHandlePool;
+import me.wener.bbvm.impl.spi.AbstractDevice;
 import me.wener.bbvm.java.JavaFileHandle;
 import me.wener.bbvm.swing.image.ImageFactory;
 

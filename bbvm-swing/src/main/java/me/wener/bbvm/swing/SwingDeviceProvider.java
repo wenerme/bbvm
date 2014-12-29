@@ -9,9 +9,8 @@ import java.util.TimerTask;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
-import me.wener.bbvm.core.Device;
-import me.wener.bbvm.core.spi.DeviceProvider;
-import me.wener.bbvm.swing.image.ImageFactory;
+import me.wener.bbvm.api.Device;
+import me.wener.bbvm.impl.spi.DeviceProvider;
 
 public class SwingDeviceProvider extends DeviceProvider
 {

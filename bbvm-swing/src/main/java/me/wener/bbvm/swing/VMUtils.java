@@ -1,7 +1,7 @@
 package me.wener.bbvm.swing;
 
 import java.awt.Color;
-import me.wener.bbvm.core.Colour;
+import me.wener.bbvm.impl.plaf.Colour;
 
 public class VMUtils
 {
