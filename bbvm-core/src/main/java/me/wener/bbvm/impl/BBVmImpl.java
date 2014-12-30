@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 import me.wener.bbvm.api.BBVm;
 import me.wener.bbvm.api.Device;
 import me.wener.bbvm.api.DeviceFunction;
-import me.wener.bbvm.api.IntHolder;
 import me.wener.bbvm.def.CalOP;
 import me.wener.bbvm.def.CmpOP;
 import me.wener.bbvm.def.DataType;
@@ -15,6 +14,7 @@ import me.wener.bbvm.def.EnvType;
 import me.wener.bbvm.def.Instruction;
 import me.wener.bbvm.def.RegType;
 import me.wener.bbvm.utils.Bins;
+import me.wener.bbvm.utils.val.IntegerHolder;
 import me.wener.bbvm.utils.val.Values;
 
 /*
@@ -113,7 +113,7 @@ public class BBVmImpl implements BBVm
         //deviceFunction = device.getFunction();
     }
 
-    byte[] getMemory()
+    public byte[] getMemory()
     {
         return memory;
     }
@@ -300,11 +300,11 @@ public class BBVmImpl implements BBVm
                 }
                 float c = a - b;
                 if (c > 0)
-                    rf.set(CmpOP.A.asValue());
+                    rf.set(CmpOP.A.get());
                 else if (c < 0)
-                    rf.set(CmpOP.B.asValue());
+                    rf.set(CmpOP.B.get());
                 else
-                    rf.set(CmpOP.Z.asValue());
+                    rf.set(CmpOP.Z.get());
             }
             break;
             case CAL:
@@ -312,7 +312,7 @@ public class BBVmImpl implements BBVm
                 if (logInst)
                     log(instruction, op1);
 
-                CalOP op = Values.fromValue(CalOP.class, this.context.getSpecialByte());
+                CalOP op = Values.fromValue(CalOP.class, ctx.getSpecialByte());
                 // 返回结果为 r0
                 double a = opv1;
                 double b = opv2;
@@ -380,13 +380,15 @@ public class BBVmImpl implements BBVm
         return new UnsupportedOperationException(str);
     }
 
-    protected void push(int v)
+    @Override
+    public void push(int v)
     {
         Bins.int32l(memory, rs.get(), v);
         rs.set(rs.get() - 4);
     }
 
-    protected int pop()
+    @Override
+    public int pop()
     {
         rs.set(rs.get() + 4);
         return Bins.int32l(memory, rs.get());
@@ -826,7 +828,7 @@ public class BBVmImpl implements BBVm
             // 25 | 获取环境值 | 环境值 |  |
             case 25:
             {
-                o.set(envType.asValue());
+                o.set(envType.get());
             }
             break;
             // 32 | 整数转换为字符串 | r3的值 | r1:整数<br>r3:目标字符串 | r3所代表字符串的内容被修改
@@ -964,7 +966,8 @@ public class BBVmImpl implements BBVm
         return builder.toString();
     }
 
-    private void exit()
+    @Override
+    public void exit()
     {
         running = false;
     }
@@ -982,7 +985,7 @@ public class BBVmImpl implements BBVm
      * r3 | 0x7 | #3 寄存器
      * </pre>
      */
-    IntHolder register(int reg)
+    IntegerHolder register(int reg)
     {
         RegType r = Values.fromValue(RegType.class, reg);
         switch (r)

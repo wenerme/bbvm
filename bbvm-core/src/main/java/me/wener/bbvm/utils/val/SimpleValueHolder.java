@@ -1,10 +1,18 @@
-package me.wener.bbvm.impl;
-
-import me.wener.bbvm.api.ValueHolder;
+package me.wener.bbvm.utils.val;
 
 public class SimpleValueHolder<T> implements ValueHolder<T>
 {
     private T value;
+
+    public SimpleValueHolder(T value)
+    {
+        this.value = value;
+    }
+
+    public SimpleValueHolder()
+    {
+    }
+
     @Override
     public T get()
     {

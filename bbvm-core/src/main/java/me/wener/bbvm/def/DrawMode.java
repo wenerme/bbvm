@@ -12,7 +12,7 @@ public enum DrawMode implements IsInteger
         this.value = value;
     }
 
-    public Integer asValue()
+    public Integer get()
     {
         return value;
     }

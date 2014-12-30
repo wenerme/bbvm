@@ -1,4 +1,4 @@
-package me.wener.bbvm.impl;
+package me.wener.bbvm.def;
 /**
  * BB 定义的一些常量
  * <pre>

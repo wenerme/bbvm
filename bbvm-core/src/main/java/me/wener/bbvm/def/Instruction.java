@@ -6,7 +6,7 @@ import me.wener.bbvm.utils.val.IsInteger;
 
 /**
  * 指令集
- * <p/>
+ * <pre>
  * NOP	| 0x0
  * LD     | 0x1
  * PUSH   | 0x2
@@ -20,6 +20,7 @@ import me.wener.bbvm.utils.val.IsInteger;
  * CMP    | 0xA
  * CAL    | 0xB
  * EXIT   | 0xF
+ * </pre>
  */
 public enum Instruction implements IsInteger
 {
@@ -71,7 +72,12 @@ public enum Instruction implements IsInteger
         return length.get(instruction);
     }
 
-    public Integer asValue()
+    public Integer length()
+    {
+        return length(this);
+    }
+
+    public Integer get()
     {
         return value;
     }

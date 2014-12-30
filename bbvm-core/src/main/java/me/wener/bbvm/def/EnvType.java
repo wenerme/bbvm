@@ -1,9 +1,11 @@
 package me.wener.bbvm.def;
 
+import me.wener.bbvm.utils.val.IsInteger;
+
 /**
  * 环境类型
  */
-public enum EnvType implements IsIntValue
+public enum EnvType implements IsInteger
 {
     ENV_SIM(0),
     ENV_9288(9288),
@@ -18,7 +20,7 @@ public enum EnvType implements IsIntValue
         this.value = value;
     }
 
-    public Integer asValue()
+    public Integer get()
     {
         return value;
     }

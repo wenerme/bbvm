@@ -1,6 +1,8 @@
 package me.wener.bbvm.def;
 
-public enum KeyCode implements IsIntValue
+import me.wener.bbvm.utils.val.IsInteger;
+
+public enum KeyCode implements IsInteger
 {
     KEY_UP(38),
     KEY_DOWN(40),
@@ -16,7 +18,7 @@ public enum KeyCode implements IsIntValue
         this.value = value;
     }
 
-    public Integer asValue()
+    public Integer get()
     {
         return value;
     }

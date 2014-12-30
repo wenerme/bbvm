@@ -23,7 +23,7 @@ public enum RegType implements IsInteger
         this.value = value;
     }
 
-    public Integer asValue()
+    public Integer get()
     {
         return value;
     }

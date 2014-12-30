@@ -1,11 +1,12 @@
 package me.wener.bbvm.impl;
 
-import me.wener.bbvm.api.IntHolder;
 import me.wener.bbvm.utils.Bins;
+import me.wener.bbvm.utils.val.IntegerHolder;
 
-public abstract class Operand implements IntHolder
+public abstract class Operand implements IntegerHolder
 {
     public final static Operand INVALID = new InvalidOperand();
+
     /**
      * 获取地址相关的操作数
      */
@@ -25,20 +26,22 @@ public abstract class Operand implements IntHolder
     /**
      * 将一个 Holder 包装为一个操作数类
      */
-    public static Operand holder(IntHolder v)
+    public static Operand holder(IntegerHolder v)
     {
         return new HolderOperand(v);
     }
+
     public static Operand invalid()
     {
         return INVALID;
     }
+
     /**
      * 包装一个间接寻址
      */
-    public static Operand indirect(IntHolder v, byte[] memory)
+    public static Operand indirect(IntegerHolder v, byte[] memory)
     {
-        return new IndirectOperand(v,memory);
+        return new IndirectOperand(v, memory);
     }
 
     @Override
@@ -70,11 +73,12 @@ public abstract class Operand implements IntHolder
             return "invalid";
         }
     }
+
     private static class HolderOperand extends Operand
     {
-        private final IntHolder value;
+        private final IntegerHolder value;
 
-        HolderOperand(IntHolder value)
+        HolderOperand(IntegerHolder value)
         {
             this.value = value;
         }
@@ -149,12 +153,13 @@ public abstract class Operand implements IntHolder
             return String.valueOf(address);
         }
     }
+
     private static class IndirectOperand extends AddressedOperand
     {
 
-        private final IntHolder origin;
+        private final IntegerHolder origin;
 
-        IndirectOperand(IntHolder v, byte[] memory)
+        IndirectOperand(IntegerHolder v, byte[] memory)
         {
             super(v.get(), memory);
             this.origin = v;
@@ -163,7 +168,7 @@ public abstract class Operand implements IntHolder
         @Override
         public String toString()
         {
-            return "[ "+origin.toString()+" ]";
+            return "[ " + origin.toString() + " ]";
         }
     }
 }

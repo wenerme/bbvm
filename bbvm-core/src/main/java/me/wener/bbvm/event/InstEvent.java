@@ -2,11 +2,11 @@ package me.wener.bbvm.event;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import me.wener.bbvm.def.Instruction;
+import me.wener.bbvm.impl.InstructionContext;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class InstEvent extends BBVmEvent
+public class InstEvent extends BBVMEvent
 {
-    Instruction instruction;
+    InstructionContext context;
 }

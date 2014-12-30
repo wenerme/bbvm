@@ -1,6 +1,6 @@
 package me.wener.bbvm.event;
 
-public class VMStateEvent extends BBVmEvent
+public class VMStateEvent extends BBVMEvent
 {
     VMState state;
 

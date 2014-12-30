@@ -3,14 +3,14 @@ package me.wener.bbvm.event;
 import java.util.EventObject;
 import me.wener.bbvm.api.BBVm;
 
-public class BBVmEvent extends EventObject
+public class BBVMEvent extends EventObject
 {
-    public BBVmEvent(BBVm source)
+    public BBVMEvent(BBVm source)
     {
         super(source);
     }
 
-    public BBVmEvent()
+    public BBVMEvent()
     {
         super("");
         setSource(null);
@@ -22,7 +22,7 @@ public class BBVmEvent extends EventObject
         return (BBVm) super.getSource();
     }
 
-    public BBVmEvent setSource(BBVm source)
+    public BBVMEvent setSource(BBVm source)
     {
         this.source = source;
         return this;

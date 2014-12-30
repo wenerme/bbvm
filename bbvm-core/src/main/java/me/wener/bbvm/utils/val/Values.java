@@ -6,7 +6,7 @@ import me.wener.bbvm.def.Instruction;
 
 public class Values
 {
-    private static final Table<Class,Object,Object> cache = HashBasedTable.create();
+    private static final Table<Class, Object, Object> cache = HashBasedTable.create();
 
     private Values() {}
 
@@ -14,9 +14,10 @@ public class Values
     {
         for (T item : type.getEnumConstants())
         {
-            cache.put(type,item.asValue(), item);
+            cache.put(type, item.get(), item);
         }
     }
+
     @SuppressWarnings("unchecked")
     public static <V, T extends Enum & IsValue<V>> T fromValue(Class<T> type, V v)
     {
@@ -26,7 +27,7 @@ public class Values
     public static void main(String[] args)
     {
         cache(Instruction.class);
-        assert fromValue(Instruction.class, Instruction.CAL.asValue()).equals(Instruction.CAL);
+        assert fromValue(Instruction.class, Instruction.CAL.get()).equals(Instruction.CAL);
 
         long start = System.currentTimeMillis();
         int n = 100000;
@@ -46,7 +47,17 @@ public class Values
             fromValue(Instruction.class, 0XB);
         }
         long esplase = System.currentTimeMillis() - start;
-        System.out.println(n*12 + " used "+esplase+" ms");
+        System.out.println(n * 12 + " used " + esplase + " ms");
 
+    }
+
+    public <T> ValueHolder<T> hold(T value)
+    {
+        return new SimpleValueHolder<>(value);
+    }
+
+    public <T> IsValue<T> valueOf(T value)
+    {
+        return new SimpleValue<>(value);
     }
 }

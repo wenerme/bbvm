@@ -20,7 +20,7 @@ public enum CalOP implements IsInteger
         this.value = value;
     }
 
-    public Integer asValue()
+    public Integer get()
     {
         return value;
     }

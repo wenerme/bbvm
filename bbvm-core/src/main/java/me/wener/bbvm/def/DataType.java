@@ -37,7 +37,7 @@ public enum DataType implements IsInteger
         this.value = value;
     }
 
-    public Integer asValue()
+    public Integer get()
     {
         return value;
     }

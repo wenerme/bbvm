@@ -1,13 +1,19 @@
 package me.wener.bbvm.impl;
 
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
 import me.wener.bbvm.def.DataType;
 import me.wener.bbvm.def.Instruction;
 import me.wener.bbvm.utils.Bins;
 import me.wener.bbvm.utils.val.Values;
 
+@Data
 public class InstructionContext
 {
+    @Getter(AccessLevel.NONE)
     private final byte[] memory;
+    @Getter(AccessLevel.NONE)
     private final BBVmImpl vm;
     private Instruction instruction;
     private Operand op1;
@@ -24,47 +30,11 @@ public class InstructionContext
         this.vm = vm;
     }
 
-    public Instruction getInstruction()
-    {
-
-        return instruction;
-    }
-
-    public Operand getOp1()
-    {
-        return op1;
-    }
-
-    public Operand getOp2()
-    {
-        return op2;
-    }
-
-    public DataType getDataType()
-    {
-        return dataType;
-    }
-
-    public int getSpecialByte()
-    {
-        return specialByte;
-    }
-
-    public int getAddressingType()
-    {
-        return addressingType;
-    }
-
-    public int getFirstByte()
-    {
-        return firstByte;
-    }
-
     void read(int pc)
     {
        /*
             指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
-         0x 0        0          0             0          0000           0000
+         0x 0       0         0           0        0000         0000
         */
         firstByte = Bins.uint16b(memory, pc);
         int opcode = firstByte >> 12;// 指令码
@@ -83,7 +53,7 @@ public class InstructionContext
             dataType = Values.fromValue(DataType.class, (firstByte & 0x0F00) >> 8);
         }
 
-        op1 = op2 = Operand.INVALID;
+        op1 = op2 = Operand.invalid();
         int op1t;
         int op2t;
         if (length >= 10)
@@ -111,26 +81,6 @@ public class InstructionContext
                 op2 = operand(op2t, Bins.int32l(memory, pc + 6));
                 break;
         }
-
-    }
-
-    void read1(int pc, int code)
-    {
-        addressingType = (code & 0x0F00) >> 8;
-    }
-
-    void read5()
-    {
-
-    }
-
-    void read6()
-    {
-
-    }
-
-    void read10()
-    {
 
     }
 

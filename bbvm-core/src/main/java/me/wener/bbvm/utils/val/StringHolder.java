@@ -1,4 +1,4 @@
-package me.wener.bbvm.api;
+package me.wener.bbvm.utils.val;
 
 public interface StringHolder extends ValueHolder<String>
 {

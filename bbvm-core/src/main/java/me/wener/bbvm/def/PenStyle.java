@@ -1,6 +1,8 @@
 package me.wener.bbvm.def;
 
-public enum PenStyle implements IsIntValue
+import me.wener.bbvm.utils.val.IsInteger;
+
+public enum PenStyle implements IsInteger
 {
     PEN_SOLID(0), PEN_DASH(1);
     private final int value;
@@ -10,7 +12,7 @@ public enum PenStyle implements IsIntValue
         this.value = value;
     }
 
-    public Integer asValue()
+    public Integer get()
     {
         return value;
     }

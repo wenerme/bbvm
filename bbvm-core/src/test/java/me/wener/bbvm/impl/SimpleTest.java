@@ -13,7 +13,8 @@ public class SimpleTest
 {
     public static void main(String[] args) throws IOException
     {
-        byte[] bytes = Files.readAllBytes(Paths.get("D:\\dev\\projects\\bbvm\\doc\\testsuit\\BB\\Sim\\BBasic\\test.bin"));
+        System.out.println("当前目录: " + System.getProperty("user.dir"));
+        byte[] bytes = Files.readAllBytes(Paths.get("doc/testsuit/BB/Sim/BBasic/test.bin"));
         BBVmImpl vm = new BBVmImpl(DeviceProvider.getProvider().createDevice(240, 320));
         byte[] mem = Arrays.copyOfRange(bytes, 16, bytes.length);
         vm.load(mem);
