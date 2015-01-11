@@ -3,14 +3,15 @@ package me.wener.bbvm.impl.subscriber;
 import com.google.common.eventbus.Subscribe;
 import me.wener.bbvm.def.CmpOP;
 import me.wener.bbvm.def.DataType;
-import me.wener.bbvm.def.Instruction;
+import me.wener.bbvm.def.InstructionType;
 import me.wener.bbvm.event.InstEvent;
 import me.wener.bbvm.impl.InstructionContext;
 import me.wener.bbvm.impl.Operand;
+import me.wener.bbvm.impl.VMContext;
 import me.wener.bbvm.utils.Bins;
 import me.wener.bbvm.utils.val.Values;
 
-public class LogPrintSubscriber extends AbstractVMSubscriber
+public class LogPrintSubscriber extends VMContext
 {
 
     private boolean logInst;
@@ -53,7 +54,7 @@ public class LogPrintSubscriber extends AbstractVMSubscriber
         final Operand op1 = ctx.getOp1();
         final Operand op2 = ctx.getOp2();
         final DataType dataType = ctx.getDataType();
-        final Instruction instruction = ctx.getInstruction();
+        final InstructionType instruction = ctx.getInstruction();
 
         switch (instruction)
         {

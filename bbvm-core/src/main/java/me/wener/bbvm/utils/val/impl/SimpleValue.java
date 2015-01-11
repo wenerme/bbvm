@@ -1,6 +1,8 @@
-package me.wener.bbvm.utils.val;
+package me.wener.bbvm.utils.val.impl;
 
-class SimpleValue<T> implements IsValue<T>
+import me.wener.bbvm.utils.val.IsValue;
+
+public class SimpleValue<T> implements IsValue<T>
 {
     private T value;
 

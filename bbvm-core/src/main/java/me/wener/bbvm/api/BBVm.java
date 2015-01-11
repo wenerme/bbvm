@@ -1,7 +1,12 @@
 package me.wener.bbvm.api;
 
+import me.wener.bbvm.def.RegType;
+import me.wener.bbvm.impl.Reg;
+
 public interface BBVm
 {
+    byte[] getMemory();
+
     void reset();
 
     void start();
@@ -11,4 +16,8 @@ public interface BBVm
     int pop();
 
     void exit();
+
+    Reg getRegister(int reg);
+
+    Reg getRegister(RegType r);
 }

@@ -4,14 +4,15 @@ import com.google.common.eventbus.Subscribe;
 import me.wener.bbvm.def.CalOP;
 import me.wener.bbvm.def.CmpOP;
 import me.wener.bbvm.def.DataType;
-import me.wener.bbvm.def.Instruction;
+import me.wener.bbvm.def.InstructionType;
 import me.wener.bbvm.event.InstEvent;
 import me.wener.bbvm.impl.InstructionContext;
 import me.wener.bbvm.impl.Operand;
+import me.wener.bbvm.impl.VMContext;
 import me.wener.bbvm.utils.Bins;
 import me.wener.bbvm.utils.val.Values;
 
-public class BasicInstSubscriber extends AbstractVMSubscriber
+public class BasicInstSubscriber extends VMContext
 {
 
     @Subscribe
@@ -27,7 +28,7 @@ public class BasicInstSubscriber extends AbstractVMSubscriber
         final Integer opv1 = op1.get();
         final Integer opv2 = op2.get();
         final DataType dataType = ctx.getDataType();
-        final Instruction instruction = ctx.getInstruction();
+        final InstructionType instruction = ctx.getInstruction();
 
         switch (instruction)
         {
@@ -92,7 +93,7 @@ public class BasicInstSubscriber extends AbstractVMSubscriber
             break;
             case CALL:
                 // 设置返回位置为下一句的开始
-                vm.push(rp.get() + Instruction.length(instruction));
+                vm.push(rp.get() + InstructionType.length(instruction));
                 rp.set(opv1);
                 break;
             case RET:

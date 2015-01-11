@@ -1,7 +1,7 @@
 package me.wener.bbvm.impl;
 
-import me.wener.bbvm.utils.val.SimpleValueHolder;
 import me.wener.bbvm.utils.val.StringHolder;
+import me.wener.bbvm.utils.val.impl.SimpleValueHolder;
 
 /**
  * 字符串句柄

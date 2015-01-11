@@ -8,7 +8,7 @@ import java.nio.charset.Charset;
  * <p/>
  * 在书写的时候,用了一些额外的 +0 和多余的括号,为了使代码对齐,可能是强迫症,得治.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "PointlessArithmeticExpression"})
 public class Bins
 {
     public static void main(String[] args)

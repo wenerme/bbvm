@@ -15,61 +15,14 @@ import me.wener.bbvm.def.RegType;
 import me.wener.bbvm.utils.Bins;
 import me.wener.bbvm.utils.val.Values;
 
-/*
-//
-//                       _oo0oo_
-//                      o8888888o
-//                      88" . "88
-//                      (| -_- |)
-//                      0\  =  /0
-//                    ___/`---'\___
-//                  .' \\|     |// '.
-//                 / \\|||  :  |||// \
-//                / _||||| -:- |||||- \
-//               |   | \\\  -  /// |   |
-//               | \_|  ''\---/''  |_/ |
-//               \  .-\__  '-'  ___/-. /
-//             ___'. .'  /--.--\  `. .'___
-//          ."" '<  `.___\_<|>_/___.' >' "".
-//         | | :  `- \`.;`\ _ /`;.`/ - ` : | |
-//         \  \ `_.   \_ __\ /__ _/   .-` /  /
-//     =====`-.____`.___ \_____/___.-`___.-'=====
-//                       `=---='
-//
-//
-//     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//
-//               佛祖保佑         永无BUG
-//
-//
-//   █████▒█    ██  ▄████▄   ██ ▄█▀       ██████╗ ██╗   ██╗ ██████╗
-// ▓██   ▒ ██  ▓██▒▒██▀ ▀█   ██▄█▒        ██╔══██╗██║   ██║██╔════╝
-// ▒████ ░▓██  ▒██░▒▓█    ▄ ▓███▄░        ██████╔╝██║   ██║██║  ███╗
-// ░▓█▒  ░▓▓█  ░██░▒▓▓▄ ▄██▒▓██ █▄        ██╔══██╗██║   ██║██║   ██║
-// ░▒█░   ▒▒█████▓ ▒ ▓███▀ ░▒██▒ █▄       ██████╔╝╚██████╔╝╚██████╔╝
-//  ▒ ░   ░▒▓▒ ▒ ▒ ░ ░▒ ▒  ░▒ ▒▒ ▓▒       ╚═════╝  ╚═════╝  ╚═════╝
-//  ░     ░░▒░ ░ ░   ░  ▒   ░ ░▒ ▒░
-//  ░ ░    ░░░ ░ ░ ░        ░ ░░ ░
-//           ░     ░ ░      ░  ░
-//                 ░
-//
-// WRITTEN BY
-//  __  _  __ ____   ____   ___________
-//  \ \/ \/ // __ \ /    \_/ __ \_  __ \
-//   \     /\  ___/|   |  \  ___/|  | \/
-//    \/\_/  \___  >___|  /\___  >__|
-//               \/     \/     \/
-*/
 @SuppressWarnings("ConstantConditions")
-public class BBVmImpl implements BBVm
+public class EasyBBVm extends VMContext implements BBVm
 {
     public static final Charset DEFAULT_CHARSET = Charset.forName("GBK");
     private final Device device;
     @SuppressWarnings("FieldCanBeLocal")
-    private final boolean logInst = true;//log.getLevel() == Level.INFO;
     private final DeviceFunction deviceFunction;
     private final StringHandlePool stringPool = new StringHandlePool();
-    private final byte[] stack = new byte[1024];
     private final Reg rp = new Reg("rp");
     private final Reg rb = new Reg("rb");
     private final Reg rs = new Reg("rs");
@@ -102,15 +55,13 @@ public class BBVmImpl implements BBVm
     private boolean running = false;
     private boolean useConsoleIO = false;
 
-    public BBVmImpl(Device device)
+    public EasyBBVm(Device device)
     {
 
         this.device = device;
         deviceFunction = device.getFunction();
-        //deviceFunction = device.getFunction();
     }
 
-    @Override
     public byte[] getMemory()
     {
         return memory;
@@ -138,7 +89,6 @@ public class BBVmImpl implements BBVm
     }
 
     @Override
-    @SuppressWarnings("StatementWithEmptyBody")
     public void start()
     {
         startTick = System.currentTimeMillis();
@@ -166,7 +116,7 @@ public class BBVmImpl implements BBVm
 
         // 如果 rp 没变,则自增
         if (pc == rp.get())
-            rp.set(pc + InstructionType.length(context.getInstruction()));
+            rp.set(pc + context.getInstruction().length());
 
         return true;
     }
@@ -183,239 +133,34 @@ public class BBVmImpl implements BBVm
         switch (instruction)
         {
             case NOP:
-                if (logInst)
-                    log(instruction);
-                break;
             case LD:
-                if (logInst)
-                    log(instruction, dataType, op1, op2);
-                switch (dataType)
-                {
-                    case T_DWORD:
-                    case T_FLOAT:
-                    case T_INT:
-                        op1.set(op2.get());
-                        break;
-                    case T_BYTE:
-                        op1.set(op1.get() & 0xffffff00 | (op2.get() & 0xff));
-                        break;
-                    case T_WORD:
-                        op1.set(op1.get() & 0xffff0000 | (op2.get() & 0xffff));
-                        break;
-                    default:
-                        throw unsupport("未知的数据类型: %s", dataType);
-                }
-                break;
+
             case PUSH:
-                if (logInst)
-                    log(instruction, op1);
-
-                push(op1.get());
-                break;
             case POP:
-                if (logInst)
-                    log(instruction, op1);
 
-                op1.set(pop());
-                break;
             case IN:
-                if (logInst)
-                    log(instruction, op1, op2);
 
-                in(ctx);
-                break;
             case OUT:
-                if (logInst)
-                    log(instruction, op1, op2);
 
-                out(ctx);
-                break;
             case JMP:
-                if (logInst)
-                    log(instruction, op1);
 
-                rp.set(op1.get());
-                break;
             case JPC:
-            {
-                // JPC 的数据类型为比较操作
-                CmpOP org = Values.fromValue(CmpOP.class, (int) Bins.int4(ctx.getFirstByte(), 2));
-                CmpOP flag = Values.fromValue(CmpOP.class, rf.get());
-                boolean valid = false;
 
-                if (logInst)
-                    log(instruction, org, op1);
-
-
-                switch (flag)
-                {
-                    case A:
-                        if (org == CmpOP.AE || org == CmpOP.A || org == CmpOP.NZ)
-                            valid = true;
-                        break;
-                    case B:
-                        if (org == CmpOP.BE || org == CmpOP.B || org == CmpOP.NZ)
-                            valid = true;
-                        break;
-                    case Z:
-                        if (org == CmpOP.Z || org == CmpOP.AE || org == CmpOP.BE)
-                            valid = true;
-                        break;
-                    default:
-                        if (org.equals(flag))
-                            valid = true;
-                }
-
-                if (valid)
-                    rp.set(opv1);
-            }
-            break;
             case CALL:
-                if (logInst)
-                    log(instruction, op1);
 
-                // 设置返回位置为下一句的开始
-                push(rp.get() + InstructionType.length(instruction));
-                rp.set(opv1);
-                break;
             case RET:
-                if (logInst)
-                    log(instruction);
 
-                rp.set(pop());
-                break;
             case CMP:
-            {
-                if (logInst)
-                    log(instruction, dataType, op1, op2);
 
-                float a = opv1;
-                float b = opv2;
-                if (dataType == DataType.T_FLOAT)
-                {
-                    a = Bins.float32(opv1);
-                    b = Bins.float32(opv2);
-                }
-                float c = a - b;
-                if (c > 0)
-                    rf.set(CmpOP.A.get());
-                else if (c < 0)
-                    rf.set(CmpOP.B.get());
-                else
-                    rf.set(CmpOP.Z.get());
-            }
-            break;
             case CAL:
-            {
-                if (logInst)
-                    log(instruction, op1);
 
-                CalOP op = Values.fromValue(CalOP.class, ctx.getSpecialByte());
-                // 返回结果为 r0
-                double a = opv1;
-                double b = opv2;
-                if (dataType.equals(DataType.T_FLOAT))
-                {
-                    a = Bins.float32(opv1);
-                    b = Bins.float32(opv2);
-                }
-                double c;
-                switch (op)
-                {
-                    case ADD:
-                        c = a + b;
-                        break;
-                    case DIV:
-                        c = a / b;
-                        break;
-                    case MOD:
-                        c = a % b;
-                        break;
-                    case MUL:
-                        c = a * b;
-                        break;
-                    case SUB:
-                        c = a - b;
-                        break;
-                    default:
-                        throw unsupport("未知计算操作: %s", op);
-                }
-                int ret = (int) c;
-                // 值返回归约
-                switch (dataType)
-                {
-                    case T_FLOAT:
-                        ret = Bins.int32((float) c);
-                        break;
-                    case T_BYTE:
-                        ret &= 0xff;
-                        break;
-                    case T_WORD:
-                        ret &= 0xffff;
-                        break;
-                }
-                op1.set(ret);
-            }
-            break;
             case EXIT:
-                if (logInst)
-                    log(instruction);
 
-                exit();
-                break;
             default:
-                throw unsupport("未知指令: %s", instruction);
         }
     }
 
-    protected UnsupportedOperationException unsupport(String format, Object... args)
-    {
-        return unsupport(String.format(format, args));
-    }
-
-    protected UnsupportedOperationException unsupport(String str)
-    {
-        return new UnsupportedOperationException(str);
-    }
-
-    @Override
-    public void push(int v)
-    {
-        Bins.int32l(memory, rs.get(), v);
-        rs.set(rs.get() - 4);
-    }
-
-    @Override
-    public int pop()
-    {
-        rs.set(rs.get() + 4);
-        return Bins.int32l(memory, rs.get());
-    }
-
-    protected Integer[] readParameters(int n, int offset)
-    {
-        Integer[] parameters = new Integer[n];
-
-        for (int i = 0; i < n; i++)
-        {
-            parameters[n - i - 1] = Bins.int32l(memory, offset);
-            offset += 4;
-        }
-
-        return parameters;
-    }
-
-    /**
-     * 处理 out 端口操作
-     *
-     * @return 如果被处理了, 返回 true 否则 false
-     */
     protected boolean out(InstructionContext ctx)
-    {
-        return beforeOut(ctx) || out0(ctx) || afterOut(ctx);
-    }
-
-    protected boolean out0(InstructionContext ctx)
     {
         Integer input = ctx.getOp2().get();
         switch (ctx.getOp1().get())
@@ -620,10 +365,6 @@ public class BBVmImpl implements BBVm
         return true;
     }
 
-    protected boolean afterOut(InstructionContext ctx)
-    {
-        return false;
-    }
 
     /**
      * 处理 in 端口操作
@@ -631,11 +372,6 @@ public class BBVmImpl implements BBVm
      * @return 如果被处理了, 返回 true 否则 false
      */
     protected boolean in(InstructionContext ctx)
-    {
-        return beforeIn(ctx) || in0(ctx) || afterIn(ctx);
-    }
-
-    protected boolean in0(InstructionContext ctx)
     {
         // o for out
         Operand o = ctx.getOp1();
@@ -903,16 +639,6 @@ public class BBVmImpl implements BBVm
         return true;
     }
 
-    protected boolean beforeIn(InstructionContext ctx)
-    {
-        return false;
-    }
-
-    protected boolean afterIn(InstructionContext ctx)
-    {
-        return false;
-    }
-
     public int getTick()
     {
         return (int) (System.currentTimeMillis() - startTick);
@@ -937,94 +663,9 @@ public class BBVmImpl implements BBVm
         return StringHandle.valueOf(Bins.zString(memory, o, DEFAULT_CHARSET));
     }
 
-    protected void log(Object... objects)
-    {
-        System.out.println(logString(true, objects));
-    }
-
-    protected String logString(boolean debug, Object... objects)
-    {
-        StringBuilder builder = new StringBuilder();
-        boolean lastIsOperand = false;
-        for (Object object : objects)
-        {
-            if (lastIsOperand)
-            {
-                builder.append(", ");
-            }
-            builder.append(object).append(" ");
-            lastIsOperand = object instanceof Operand;
-        }
-        if (debug)
-        {
-            builder.append("\n;")
-                   .append(String.format("r0= %s, r1= %s, r2= %s, r3= %s, rs= %s, rb= %s, rp= %s, rf= %s",
-                           r0.get(), r1.get(), r2.get(), r3.get(), rs.get(), rb.get(), rp.get(), rf.get()));
-        }
-        return builder.toString();
-    }
-
     @Override
     public void exit()
     {
         running = false;
     }
-
-    /**
-     * 获取寄存器
-     * <pre>
-     * rp | 0x0 | 程序计数器
-     * rf | 0x1 |
-     * rs | 0x2 | 栈顶位置
-     * rb | 0x3 | 栈底位置
-     * r0 | 0x4 | #0 寄存器
-     * r1 | 0x5 | #1 寄存器
-     * r2 | 0x6 | #2 寄存器
-     * r3 | 0x7 | #3 寄存器
-     * </pre>
-     */
-    @Override
-    public Reg getRegister(int reg)
-    {
-        return getRegister(Values.fromValue(RegType.class, reg));
-    }
-
-    /**
-     * 获取寄存器
-     * <pre>
-     * rp | 0x0 | 程序计数器
-     * rf | 0x1 |
-     * rs | 0x2 | 栈顶位置
-     * rb | 0x3 | 栈底位置
-     * r0 | 0x4 | #0 寄存器
-     * r1 | 0x5 | #1 寄存器
-     * r2 | 0x6 | #2 寄存器
-     * r3 | 0x7 | #3 寄存器
-     * </pre>
-     */
-    public Reg getRegister(RegType r)
-    {
-        switch (r)
-        {
-            case rp:
-                return rp;
-            case rf:
-                return rf;
-            case rs:
-                return rs;
-            case rb:
-                return rb;
-            case r0:
-                return r0;
-            case r1:
-                return r1;
-            case r2:
-                return r2;
-            case r3:
-                return r3;
-            default:
-                throw new IllegalArgumentException("未知的寄存器 :" + r);
-        }
-    }
-
 }

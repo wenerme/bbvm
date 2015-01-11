@@ -1,39 +1,33 @@
 package me.wener.bbvm.impl;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
+import com.google.common.base.Preconditions;
 import me.wener.bbvm.api.BBVm;
 import me.wener.bbvm.def.DataType;
 import me.wener.bbvm.def.InstructionType;
 import me.wener.bbvm.utils.Bins;
 import me.wener.bbvm.utils.val.Values;
 
-@Data
-public class InstructionContext
+public class Instructs
 {
-    @Getter(AccessLevel.NONE)
-    private final byte[] memory;
-    @Getter(AccessLevel.NONE)
-    private final BBVm vm;
-    private InstructionType instruction;
-    private Operand op1;
-    private Operand op2;
-    private DataType dataType;
-    private int specialByte;
-    private int addressingType;
-    private int firstByte;
 
-    InstructionContext(BBVm vm)
+
+    /**
+     * @param inst 输出的信息对象
+     * @param vm   虚拟机
+     * @param pc   计数器
+     */
+    public static void readInstruction(Instruct inst, BBVm vm, int pc)
     {
-        this.memory = vm.getMemory();
+        byte[] memory = vm.getMemory();
+        int specialByte;
+        int addressingType;
+        int firstByte;
+        InstructionType instruction;
+        Operand op1;
+        Operand op2;
+        DataType dataType;
 
-        this.vm = vm;
-    }
-
-    void read(int pc)
-    {
-       /*
+        /*
             指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
          0x 0       0         0           0        0000         0000
         */
@@ -52,6 +46,10 @@ public class InstructionContext
             specialByte = (firstByte & 0x00F0) >> 4;
             addressingType = firstByte & 0x000F;
             dataType = Values.fromValue(DataType.class, (firstByte & 0x0F00) >> 8);
+        } else
+        {
+            Preconditions.checkState(false, "错误的指令长度 %s", length);
+            throw new AssertionError();
         }
 
         op1 = op2 = Operand.invalid();
@@ -72,17 +70,24 @@ public class InstructionContext
         switch (length)
         {
             case 5:
-                op1 = operand(op1t, Bins.int32l(memory, pc + 1));
+                op1 = operand(vm, op1t, Bins.int32l(memory, pc + 1));
                 break;
             case 6:
-                op1 = operand(op1t, Bins.int32l(memory, pc + 2));
+                op1 = operand(vm, op1t, Bins.int32l(memory, pc + 2));
                 break;
             case 10:
-                op1 = operand(op1t, Bins.int32l(memory, pc + 2));
-                op2 = operand(op2t, Bins.int32l(memory, pc + 6));
+                op1 = operand(vm, op1t, Bins.int32l(memory, pc + 2));
+                op2 = operand(vm, op2t, Bins.int32l(memory, pc + 6));
                 break;
         }
 
+        inst.setInstruction(instruction)
+            .setOp1(op1)
+            .setOp2(op2)
+            .setDataType(dataType)
+            .setSpecialByte(specialByte)
+            .setAddressingType(addressingType)
+            .setFirstByte(firstByte);
     }
 
     /**
@@ -93,8 +98,9 @@ public class InstructionContext
      * [n]	| 0x3 | 间接寻址
      * </pre>
      */
-    private Operand operand(int type, int op)
+    public static Operand operand(BBVm vm, int type, int op)
     {
+        byte[] memory = vm.getMemory();
         switch (type)
         {
             case 0:
@@ -109,5 +115,4 @@ public class InstructionContext
                 throw new UnsupportedOperationException(String.format("未知的寻址类型: %s 操作数为: %s", type, op));
         }
     }
-
 }
