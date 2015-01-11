@@ -32,3 +32,8 @@ bbar()
 	blink $1 $FN.bin | gbk2utf8
 	bbr $FN.bin
 }
+bba()
+{
+	FN=`basename $1 .basm`
+	blink $1 $FN.bin | gbk2utf8
+}

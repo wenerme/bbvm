@@ -11,7 +11,11 @@ public class Register extends SimpleValueHolder<Integer> implements IntegerHolde
 {
     private final String name;
 
-    public Register(String name) {this.name = name;}
+    public Register(String name)
+    {
+        super(0);
+        this.name = name;
+    }
 
     @Override
     public String toString()

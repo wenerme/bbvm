@@ -60,7 +60,7 @@ public class TestUtil
             e.printStackTrace();
         }
 
-        return buf.order(ByteOrder.BIG_ENDIAN);
+        return buf.order(ByteOrder.LITTLE_ENDIAN);
     }
 
 }

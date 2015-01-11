@@ -51,4 +51,40 @@ DATA CD_INITDATA bin %%
             System.out.println(InstCodec.read(ctx));
         }
     }
+
+    @Test
+    public void testWithJMPCAL()
+    {
+        /*
+JPC A r1
+JPC NZ 2
+JPC B 3
+JPC AE [ LABEL5 ]
+JPC BE [ r2 ]
+PUSH 1
+JMP LABEL6
+CAL int ADD r0,r1
+CAL float sub r0,[1]
+CAL word mul r2,[LABEL5]
+CAL dword mod r3,[LABEL6]
+CAL byte div rp,r3
+LABEL5:
+LABEL6:
+         */
+        String dump = "00000000  42 42 45 00 00 00 00 40  00 00 00 00 00 00 00 00  |BBE....@........|\n" +
+                "00000010  74 00 05 00 00 00 76 02  02 00 00 00 72 02 03 00  |t.....v.....r...|\n" +
+                "00000020  00 00 75 03 5a 00 00 00  73 01 06 00 00 00 22 01  |..u.Z...s.....\".|\n" +
+                "00000030  00 00 00 62 5a 00 00 00  b4 00 04 00 00 00 05 00  |...bZ...........|\n" +
+                "00000040  00 00 b3 13 04 00 00 00  01 00 00 00 b1 23 06 00  |.............#..|\n" +
+                "00000050  00 00 5a 00 00 00 b0 43  07 00 00 00 5a 00 00 00  |..Z....C....Z...|\n" +
+                "00000060  b2 30 00 00 00 00 07 00  00 00                    |.0........|\n";
+        ByteBuf mem = fromDumpBytes(dump);
+        mem.skipBytes(16);
+        BBVMContext ctx = new BBVMContext(mem);
+
+        for (int i = 0; i < 12; i++)
+        {
+            System.out.println(InstCodec.read(ctx));
+        }
+    }
 }

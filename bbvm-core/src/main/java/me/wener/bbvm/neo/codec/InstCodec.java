@@ -89,17 +89,42 @@ public class InstCodec
             指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
          0x 0       0         0           0        00000000     00000000
         */
-        short b = memory.readUnsignedByte();
-        int opcode = b >> 4;
+        short first = memory.readUnsignedByte();
+        int opcode = first >> 4;
 
 
         Inst inst = factory.apply(opcode);
         switch (opcode)
         {
             case Flags.JPC:
+            {
+                short second = memory.readUnsignedByte();
+                int addressingMode = second & 0xf;
+                // JPC A r1
+                JPC jpc = (JPC) inst;
+                // 数据类型为比较操作
+                jpc.compare = first & 0xf;
+                jpc.a = readOperand(ctx, addressingMode);
+            }
+            break;
+            case Flags.CAL:
+            {
+                int dataType = first & 0xf;
+                short second = memory.readUnsignedByte();
+                int special = second >> 4;
+                int addressingMode = second & 0xf;
+
+                CAL cal = (CAL) inst;
+                cal.a = readOperand(ctx, addressingMode / 4);
+                cal.b = readOperand(ctx, addressingMode % 4);
+                cal.operator = special;
+                cal.dataType = dataType;
+            }
+            break;
             case Flags.POP:
             case Flags.PUSH:
             case Flags.CALL:
+            case Flags.JMP:
             {
                 /*
 无操作数 1byte
@@ -109,13 +134,13 @@ public class InstCodec
    指令码 + 寻址方式 + 第一个操作数
 0x 0       0        00000000
 两个操作数 10byte
-   指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
+   指令码 + 数据类型 + 保留字节 + 寻址方式 + 第一个操作数 + 第二个操作数
 0x 0       0         0           0        00000000     00000000
 JPC指令 6byte
-   指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数
+   指令码 + 比较操作 + 保留字节 + 寻址方式 + 第一个操作数
 0x 0       0         0           0        00000000
         */
-                int addressingMode = b & 0xf;
+                int addressingMode = first & 0xf;
                 // 一个操作数
                 ((OneOperandInst) inst).a = readOperand(ctx, addressingMode);
             }
@@ -130,19 +155,19 @@ JPC指令 6byte
             case Flags.LD:
             case Flags.IN:
             case Flags.OUT:
-            case Flags.JMP:
             case Flags.CMP:
-            case Flags.CAL:
+
             {
 
-                int dataType = b & 0xf;
-                b = memory.readUnsignedByte();
-                int special = b >> 4;
-                int addressingMode = b & 0xf;
+                int dataType = first & 0xf;
+                short second = memory.readUnsignedByte();
+                int special = second >> 4;
+                int addressingMode = second & 0xf;
 
                 TowOperandInst tow = (TowOperandInst) inst;
                 tow.a = readOperand(ctx, addressingMode / 4);
                 tow.b = readOperand(ctx, addressingMode % 4);
+                tow.dataType = dataType;
             }
             break;
         }

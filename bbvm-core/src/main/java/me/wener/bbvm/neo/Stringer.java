@@ -5,7 +5,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import io.netty.buffer.ByteBuf;
 import me.wener.bbvm.neo.define.Flags;
 import me.wener.bbvm.neo.define.InstructionType;
+import me.wener.bbvm.neo.inst.CAL;
 import me.wener.bbvm.neo.inst.Inst;
+import me.wener.bbvm.neo.inst.JPC;
 import me.wener.bbvm.neo.inst.OneOperandInst;
 import me.wener.bbvm.neo.inst.TowOperandInst;
 
@@ -39,10 +41,17 @@ public class Stringer
 
         switch (type.get())
         {
+            case Flags.CAL:
+            {
+                CAL cal = (CAL) inst;
+                return String .format("%s %s %s, %s", type, Types.calculateType(cal.operator), cal.a,cal.b);
+            }
             case Flags.JPC:
+                return String.format("%s %s %s", type, Types.compareType(((JPC)one).compare), one.a);
             case Flags.POP:
             case Flags.PUSH:
             case Flags.CALL:
+            case Flags.JMP:
                 return String.format("%s %s", type, one.a);
             case Flags.IN:
             case Flags.OUT:
@@ -50,9 +59,9 @@ public class Stringer
                 String format = "%s %s, %s";
                 return String.format(format, type, tow.a, tow.b);
             }
-            case Flags.JMP:
+
             case Flags.CMP:
-            case Flags.CAL:
+
 
             case Flags.RET:
             case Flags.NOP:
