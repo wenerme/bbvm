@@ -1,6 +1,6 @@
 package me.wener.bbvm.neo;
 
-import me.wener.bbvm.neo.define.Flags;
+import me.wener.bbvm.neo.inst.def.Flags;
 
 public abstract class AbstractOperand implements Operand
 {

@@ -1,4 +1,4 @@
-package me.wener.bbvm.neo.define;
+package me.wener.bbvm.neo.inst.def;
 
 /**
  * 定义虚拟机中的编码

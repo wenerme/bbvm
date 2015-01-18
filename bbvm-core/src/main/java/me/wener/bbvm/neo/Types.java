@@ -2,13 +2,13 @@ package me.wener.bbvm.neo;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
-import me.wener.bbvm.neo.define.CalculateType;
-import me.wener.bbvm.neo.define.CompareType;
-import me.wener.bbvm.neo.define.DataType;
-import me.wener.bbvm.neo.define.Flags;
-import me.wener.bbvm.neo.define.InstructionType;
-import me.wener.bbvm.neo.define.RegisterType;
 import me.wener.bbvm.neo.inst.*;
+import me.wener.bbvm.neo.inst.def.CalculateType;
+import me.wener.bbvm.neo.inst.def.CompareType;
+import me.wener.bbvm.neo.inst.def.DataType;
+import me.wener.bbvm.neo.inst.def.Flags;
+import me.wener.bbvm.neo.inst.def.InstructionType;
+import me.wener.bbvm.neo.inst.def.RegisterType;
 import me.wener.bbvm.utils.val.Values;
 
 public class Types

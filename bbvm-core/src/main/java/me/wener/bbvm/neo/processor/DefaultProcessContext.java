@@ -4,8 +4,8 @@ import io.netty.util.DefaultAttributeMap;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import me.wener.bbvm.neo.BBVMContext;
-import me.wener.bbvm.neo.define.InstructionType;
 import me.wener.bbvm.neo.inst.Inst;
+import me.wener.bbvm.neo.inst.def.InstructionType;
 
 @Getter
 @Accessors(chain = true)

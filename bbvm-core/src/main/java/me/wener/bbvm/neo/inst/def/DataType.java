@@ -1,4 +1,4 @@
-package me.wener.bbvm.neo.define;
+package me.wener.bbvm.neo.inst.def;
 
 import java.util.EnumMap;
 import java.util.Map;

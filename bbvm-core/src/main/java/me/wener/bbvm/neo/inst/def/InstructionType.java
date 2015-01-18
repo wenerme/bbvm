@@ -1,4 +1,4 @@
-package me.wener.bbvm.neo.define;
+package me.wener.bbvm.neo.inst.def;
 
 import com.google.common.collect.Maps;
 import java.util.EnumMap;

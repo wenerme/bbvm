@@ -3,13 +3,13 @@ package me.wener.bbvm.neo;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.netty.buffer.ByteBuf;
-import me.wener.bbvm.neo.define.Flags;
-import me.wener.bbvm.neo.define.InstructionType;
 import me.wener.bbvm.neo.inst.CAL;
 import me.wener.bbvm.neo.inst.Inst;
 import me.wener.bbvm.neo.inst.JPC;
 import me.wener.bbvm.neo.inst.OneOperandInst;
 import me.wener.bbvm.neo.inst.TowOperandInst;
+import me.wener.bbvm.neo.inst.def.Flags;
+import me.wener.bbvm.neo.inst.def.InstructionType;
 
 /**
  * 将相应类型转换为字符串

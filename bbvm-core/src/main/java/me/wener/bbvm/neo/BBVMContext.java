@@ -1,16 +1,29 @@
 package me.wener.bbvm.neo;
 
 import io.netty.buffer.ByteBuf;
-import me.wener.bbvm.neo.define.CalculateType;
-import me.wener.bbvm.neo.define.CompareType;
-import me.wener.bbvm.neo.define.DataType;
-import me.wener.bbvm.neo.define.Flags;
-import me.wener.bbvm.neo.define.InstructionType;
-import me.wener.bbvm.neo.define.RegisterType;
+import io.netty.util.DefaultAttributeMap;
+import me.wener.bbvm.neo.inst.def.CalculateType;
+import me.wener.bbvm.neo.inst.def.CompareType;
+import me.wener.bbvm.neo.inst.def.DataType;
+import me.wener.bbvm.neo.inst.def.Flags;
+import me.wener.bbvm.neo.inst.def.InstructionType;
+import me.wener.bbvm.neo.inst.def.RegisterType;
 import me.wener.bbvm.utils.val.IntegerHolder;
 import me.wener.bbvm.utils.val.Values;
 
-public class BBVMContext
+/*
+// WRITTEN BY
+//  __  _  __ ____   ____   ___________
+//  \ \/ \/ // __ \ /    \_/ __ \_  __ \
+//   \     /\  ___/|   |  \  ___/|  | \/
+//    \/\_/  \___  >___|  /\___  >__|
+//               \/     \/     \/
+*/
+
+/**
+ * BBVM 上下文类
+ */
+public class BBVMContext extends DefaultAttributeMap
 {
     private final Register rp = Registers.create("rp", new MemoryReaderIndexHolder());
     private final Register rb = Registers.create("rb");

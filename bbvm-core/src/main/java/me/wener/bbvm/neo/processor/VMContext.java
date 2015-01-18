@@ -3,7 +3,7 @@ package me.wener.bbvm.neo.processor;
 import io.netty.buffer.ByteBuf;
 import me.wener.bbvm.neo.BBVMContext;
 import me.wener.bbvm.neo.Register;
-import me.wener.bbvm.neo.define.RegisterType;
+import me.wener.bbvm.neo.inst.def.RegisterType;
 
 public class VMContext implements VMContextAware
 {

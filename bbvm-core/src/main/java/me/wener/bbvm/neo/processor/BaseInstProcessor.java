@@ -1,10 +1,10 @@
 package me.wener.bbvm.neo.processor;
 
-import static me.wener.bbvm.neo.define.Flags.*;
+import static me.wener.bbvm.neo.inst.def.Flags.*;
 
 import me.wener.bbvm.neo.Operand;
-import me.wener.bbvm.neo.define.InstructionType;
 import me.wener.bbvm.neo.inst.Inst;
+import me.wener.bbvm.neo.inst.def.InstructionType;
 import me.wener.bbvm.utils.Bins;
 
 public class BaseInstProcessor extends BasicProcessor

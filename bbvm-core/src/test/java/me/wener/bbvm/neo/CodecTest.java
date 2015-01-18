@@ -1,7 +1,7 @@
 package me.wener.bbvm.neo;
 
 import io.netty.buffer.ByteBuf;
-import me.wener.bbvm.neo.codec.InstCodec;
+import me.wener.bbvm.neo.inst.codec.InstCodec;
 import org.junit.Test;
 
 public class CodecTest extends TestUtil

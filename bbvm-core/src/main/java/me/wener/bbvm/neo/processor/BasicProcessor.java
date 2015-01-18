@@ -1,10 +1,10 @@
 package me.wener.bbvm.neo.processor;
 
 import me.wener.bbvm.neo.Operand;
-import me.wener.bbvm.neo.define.InstructionType;
 import me.wener.bbvm.neo.inst.Inst;
 import me.wener.bbvm.neo.inst.OneOperandInst;
 import me.wener.bbvm.neo.inst.TowOperandInst;
+import me.wener.bbvm.neo.inst.def.InstructionType;
 
 public abstract class BasicProcessor extends VMContext implements Processor
 {

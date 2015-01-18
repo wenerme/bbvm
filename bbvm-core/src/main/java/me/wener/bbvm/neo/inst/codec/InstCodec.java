@@ -1,4 +1,4 @@
-package me.wener.bbvm.neo.codec;
+package me.wener.bbvm.neo.inst.codec;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
@@ -7,8 +7,8 @@ import java.util.Map;
 import me.wener.bbvm.neo.BBVMContext;
 import me.wener.bbvm.neo.Operand;
 import me.wener.bbvm.neo.Operands;
-import me.wener.bbvm.neo.define.Flags;
 import me.wener.bbvm.neo.inst.*;
+import me.wener.bbvm.neo.inst.def.Flags;
 
 /**
  * 指令编码
