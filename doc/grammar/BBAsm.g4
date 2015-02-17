@@ -22,6 +22,7 @@ instruction
     | TowOperandIns operand COMMA operand
 	| INS_CAL DataType CalculateOperator operand COMMA operand // CAL int ADD r0,12
 	| INS_LD DataType operand COMMA operand  // ld int r1, 1067320848
+	| INS_JMP CompareOperator operand // jpc a some-where
     ;
 
 operand
