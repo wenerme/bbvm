@@ -15,7 +15,7 @@ BBvm - BeBasic Virtual Machine
 ====
 
 * BBAsm 语法参考[这里][bbasm-g4]
-* BB 虚拟机规范参考[这里][bbasm-g4]
+* BB 虚拟机规范参考[这里][bbvm-spec]
 
  [bbasm-g4]:https://github.com/wenerme/bbvm/blob/master/doc/grammar/BBAsm.g4
  [bbvm-spec]:https://github.com/wenerme/bbvm/blob/master/doc/bbvm-spec.md

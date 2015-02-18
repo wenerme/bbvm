@@ -33,7 +33,7 @@
         <jodd.version>3.5.2</jodd.version>
         <junit.version>4.11</junit.version>
         <logback.version>1.1.2</logback.version>
-        <lombok.version>1.12.6</lombok.version>
+        <lombok.version>1.14.8</lombok.version>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <mybatis.version>3.2.7</mybatis.version>
         <mysql-connector.version>5.1.29</mysql-connector.version>
