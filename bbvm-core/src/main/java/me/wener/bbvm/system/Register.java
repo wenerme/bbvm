@@ -1,27 +1,13 @@
 package me.wener.bbvm.system;
 
-import lombok.Getter;
-import lombok.experimental.Accessors;
 import me.wener.bbvm.utils.val.IntegerHolder;
 
-public class Register implements IntegerHolder
+public interface Register extends IntegerHolder
 {
-    @Getter
-    @Accessors(chain = true)
-    private final String name;
-    private Integer value;
+    /**
+     * @return 寄存器名
+     */
+    String name();
 
-    public Register(String name) {this.name = name;}
-
-    @Override
-    public Integer get()
-    {
-        return value;
-    }
-
-    @Override
-    public void set(Integer v)
-    {
-        value = v;
-    }
+    RegisterType type();
 }

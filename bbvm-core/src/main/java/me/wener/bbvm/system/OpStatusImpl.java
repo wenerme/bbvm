@@ -7,12 +7,12 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true, fluent = true)
 public class OpStatusImpl implements OpStatus
 {
-    private final Operand a = new Operand();
-    private final Operand b = new Operand();
-    private DataType dataType;
-    private CompareType compareType;
-    private CalculateType calculateType;
-    private Opcode opcode;
+    protected final Operand a = new Operand();
+    protected final Operand b = new Operand();
+    protected DataType dataType;
+    protected CompareType compareType;
+    protected CalculateType calculateType;
+    protected Opcode opcode;
 
     public static String toString(Operand operand)
     {
@@ -87,6 +87,35 @@ public class OpStatusImpl implements OpStatus
     @Override
     public byte[] toBinary()
     {
-        return new byte[0];
+        byte[] bytes = new byte[opcode.length()];
+        switch (opcode)
+        {
+            case NOP:
+            case RET:
+            case EXIT:
+                bytes[0] = opcode.get().byteValue();
+                break;
+            case LD:
+                break;
+            case PUSH:
+                break;
+            case POP:
+                break;
+            case IN:
+                break;
+            case OUT:
+                break;
+            case JMP:
+                break;
+            case JPC:
+                break;
+            case CALL:
+                break;
+            case CMP:
+                break;
+            case CAL:
+                break;
+        }
+        return bytes;
     }
 }

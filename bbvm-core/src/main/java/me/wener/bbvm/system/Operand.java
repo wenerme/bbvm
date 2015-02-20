@@ -9,14 +9,14 @@ import me.wener.bbvm.utils.val.IsInteger;
 @Data
 @Accessors(chain = true, fluent = true)
 @Slf4j
-public class Operand
+public class Operand implements IntegerHolder
 {
-    private CPU cpu;
+    private VmCPU cpu;
     private Integer value;
     private IsInteger indirect;
     private AddressingMode addressingMode;
 
-    public Operand(CPU cpu)
+    public Operand(VmCPU cpu)
     {
         this.cpu = cpu;
     }
@@ -25,7 +25,7 @@ public class Operand
     {
     }
 
-    public Operand asInteger(int value)
+    public void set(Integer value)
     {
         switch (addressingMode)
         {
@@ -37,16 +37,15 @@ public class Operand
                 break;
             case REGISTER_DEFERRED:
             case DIRECT:
-                cpu.memory().writeInt(asInteger(), value);
+                cpu.memory().writeInt(get(), value);
                 break;
             default:
             case IMMEDIATE:
                 throw new UnsupportedOperationException();
         }
-        return this;
     }
 
-    public int asInteger()
+    public Integer get()
     {
         switch (addressingMode)
         {
@@ -64,6 +63,6 @@ public class Operand
 
     public String asString()
     {
-        return cpu.memory().readString(asInteger());
+        return cpu.memory().readString(get());
     }
 }
