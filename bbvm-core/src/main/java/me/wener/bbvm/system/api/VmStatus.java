@@ -1,4 +1,4 @@
-package me.wener.bbvm.system;
+package me.wener.bbvm.system.api;
 
 /**
  * 虚拟机状态

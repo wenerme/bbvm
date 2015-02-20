@@ -3,6 +3,8 @@ package me.wener.bbvm.system;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import me.wener.bbvm.system.api.Register;
+import me.wener.bbvm.system.api.RegisterType;
 
 @Accessors(chain = true, fluent = true)
 public class RegisterImpl implements Register, Serializable

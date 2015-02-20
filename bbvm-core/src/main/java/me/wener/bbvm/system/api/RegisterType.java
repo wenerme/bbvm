@@ -1,4 +1,4 @@
-package me.wener.bbvm.system;
+package me.wener.bbvm.system.api;
 
 import me.wener.bbvm.utils.val.IsInteger;
 

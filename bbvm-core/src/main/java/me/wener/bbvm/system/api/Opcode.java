@@ -1,4 +1,4 @@
-package me.wener.bbvm.system;
+package me.wener.bbvm.system.api;
 
 import com.google.common.collect.Maps;
 import java.util.EnumMap;

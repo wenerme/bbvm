@@ -1,9 +1,13 @@
-package me.wener.bbvm.system;
+package me.wener.bbvm.system.api;
 
 import java.nio.charset.Charset;
 
 public interface Memory extends Resettable
 {
+    byte read(int address);
+
+    void write(int address, byte val);
+
     int readInt(int pos);
 
     String readString(int pos);
@@ -15,4 +19,6 @@ public interface Memory extends Resettable
     Charset charset();
 
     Memory charset(Charset charset);
+
+    void load(byte[] content);
 }

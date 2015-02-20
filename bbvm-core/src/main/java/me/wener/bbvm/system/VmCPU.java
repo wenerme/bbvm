@@ -1,11 +1,23 @@
 package me.wener.bbvm.system;
 
+import static me.wener.bbvm.neo.inst.def.CompareTypes.*;
+
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.ByteBuffer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import me.wener.bbvm.system.api.CPU;
+import me.wener.bbvm.system.api.CompareType;
+import me.wener.bbvm.system.api.DataType;
+import me.wener.bbvm.system.api.OpStatus;
+import me.wener.bbvm.system.api.Register;
+import me.wener.bbvm.system.api.RegisterType;
+import me.wener.bbvm.system.api.VmStatus;
+import me.wener.bbvm.utils.Bins;
+import me.wener.bbvm.utils.val.Values;
 
 @Accessors(chain = true, fluent = true)
 @Slf4j
@@ -33,6 +45,7 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus
     @Getter
     @Setter
     private Writer asmWriter;
+    private ByteBuffer stack = ByteBuffer.allocate(1024);
 
     void reset() {}
 
@@ -133,12 +146,6 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus
         }
     }
 
-
-
-    /*
-     * Logic
-     */
-
     void NOP()
     {
     }
@@ -165,10 +172,12 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus
 
     void PUSH()
     {
+        push(a.get());
     }
 
     void POP()
     {
+        a.set(pop());
     }
 
     void IN()
@@ -181,32 +190,120 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus
 
     void JMP()
     {
+        rp.set(a.get());
     }
 
     void JPC()
     {
+        // JPC 的数据类型为比较操作
+        CompareType org = compareType;
+        CompareType flag = Values.fromValue(CompareType.class, rf.get());
+
+
+        if (CompareType.isMatch(org, flag))
+            rp.set(a.get());
     }
 
     void CALL()
     {
+        push(rp.get() + opcode.length());
+        rp.set(a.get());
     }
 
     void RET()
     {
+        rp.set(pop());
     }
 
     void CMP()
     {
+        float oa;
+        float ob;
+
+        if (dataType == DataType.T_FLOAT)
+        {
+            oa = Bins.float32(a.get());
+            ob = Bins.float32(b.get());
+        } else
+        {
+            oa = a.get();
+            ob = b.get();
+        }
+        float oc = oa - ob;
+        if (oc > 0)
+            rf.set(A);
+        else if (oc < 0)
+            rf.set(B);
+        else
+            rf.set(Z);
     }
 
     void CAL()
     {
+        // 返回结果为 r0
+        double oa;
+        double ob;
+        double oc;
+
+        if (dataType == DataType.T_FLOAT)
+        {
+            oa = Bins.float32(a.get());
+            ob = Bins.float32(b.get());
+        } else
+        {
+            oa = a.get();
+            ob = b.get();
+        }
+        switch (calculateType)
+        {
+            case ADD:
+                oc = oa + ob;
+                break;
+            case DIV:
+                oc = oa / ob;
+                break;
+            case MOD:
+                oc = oa % ob;
+                break;
+            case MUL:
+                oc = oa * ob;
+                break;
+            case SUB:
+                oc = oa - ob;
+                break;
+            default:
+                throw new AssertionError("未知计算操作: " + cal.operator);
+        }
+        int ret = (int) oc;
+        // 值返回归约
+        switch (dataType)
+        {
+            case T_FLOAT:
+                ret = Bins.int32((float) oc);
+                break;
+            case T_BYTE:
+                ret &= 0xff;
+                break;
+            case T_WORD:
+                ret &= 0xffff;
+                break;
+        }
+        a.set(ret);
     }
 
     void EXIT()
     {
     }
 
+    public void push(int v)
+    {
+        stack.putInt(v);
+    }
+
+    public int pop()
+    {
+        return stack.getInt();
+    }
 
     @Override
     public OpStatus opstatus()

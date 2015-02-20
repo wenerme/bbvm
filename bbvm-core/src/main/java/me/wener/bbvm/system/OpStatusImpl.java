@@ -2,19 +2,24 @@ package me.wener.bbvm.system;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import me.wener.bbvm.system.api.CalculateType;
+import me.wener.bbvm.system.api.CompareType;
+import me.wener.bbvm.system.api.DataType;
+import me.wener.bbvm.system.api.OpStatus;
+import me.wener.bbvm.system.api.Opcode;
 
 @Data
 @Accessors(chain = true, fluent = true)
 public class OpStatusImpl implements OpStatus
 {
-    protected final Operand a = new Operand();
-    protected final Operand b = new Operand();
+    protected final OperandImpl a = new OperandImpl();
+    protected final OperandImpl b = new OperandImpl();
     protected DataType dataType;
     protected CompareType compareType;
     protected CalculateType calculateType;
     protected Opcode opcode;
 
-    public static String toString(Operand operand)
+    public static String toString(OperandImpl operand)
     {
         switch (operand.addressingMode())
         {
