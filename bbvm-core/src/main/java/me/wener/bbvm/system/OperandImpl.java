@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import me.wener.bbvm.system.api.AddressingMode;
 import me.wener.bbvm.system.api.Operand;
+import me.wener.bbvm.system.api.Register;
 import me.wener.bbvm.utils.Bins;
 import me.wener.bbvm.utils.val.IntegerHolder;
 import me.wener.bbvm.utils.val.IsInteger;
@@ -82,5 +83,21 @@ public class OperandImpl implements Operand, Serializable
             case IMMEDIATE:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    public String toAssembly()
+    {
+        switch (addressingMode)
+        {
+            case REGISTER:
+                return ((Register) indirect()).name();
+            case REGISTER_DEFERRED:
+                return "[ " + ((Register) indirect()).name() + " ]";
+            case IMMEDIATE:
+                return value.toString();
+            case DIRECT:
+                return "[ " + value + " ]";
+        }
+        throw new UnsupportedOperationException();
     }
 }

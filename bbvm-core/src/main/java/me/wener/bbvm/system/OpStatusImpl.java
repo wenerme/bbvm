@@ -53,36 +53,36 @@ public class OpStatusImpl implements OpStatus
             case JMP:
             case CALL:
                 // 一个操作数
-                sb.append(' ').append(a);
+                sb.append(' ').append(a.toAssembly());
                 break;
             case IN:
             case OUT:
                 // 标准的两个操作数
-                sb.append(' ').append(a)
-                  .append(", ").append(b);
+                sb.append(' ').append(a.toAssembly())
+                  .append(", ").append(b.toAssembly());
                 break;
 
             case JPC:
                 sb.append(' ').append(compareType)
-                  .append(' ').append(a);
+                  .append(' ').append(a.toAssembly());
                 break;
             case CMP:
                 sb.append(' ').append(compareType)
-                  .append(' ').append(a)
-                  .append(", ").append(b)
+                  .append(' ').append(a.toAssembly())
+                  .append(", ").append(b.toAssembly())
                 ;
                 break;
             case LD:
                 sb.append(' ').append(dataType)
-                  .append(' ').append(a)
-                  .append(", ").append(b)
+                  .append(' ').append(a.toAssembly())
+                  .append(", ").append(b.toAssembly())
                 ;
                 break;
             case CAL:
                 sb.append(' ').append(dataType)
                   .append(' ').append(calculateType)
-                  .append(' ').append(a)
-                  .append(", ").append(b)
+                  .append(' ').append(a.toAssembly())
+                  .append(", ").append(b.toAssembly())
                 ;
                 break;
         }

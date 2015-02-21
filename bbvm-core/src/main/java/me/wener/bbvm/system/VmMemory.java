@@ -2,6 +2,7 @@ package me.wener.bbvm.system;
 
 import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +24,11 @@ public class VmMemory implements Memory
 
     @Getter
     private int length;
+
+    public VmMemory()
+    {
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+    }
 
     @Override
     public byte read(int address)
@@ -81,5 +87,10 @@ public class VmMemory implements Memory
     public void reset()
     {
         buffer.clear();
+    }
+
+    public boolean hasRemaining(int pos)
+    {
+        return length <= pos;
     }
 }

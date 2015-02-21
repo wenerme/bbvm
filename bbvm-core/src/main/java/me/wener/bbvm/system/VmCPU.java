@@ -1,10 +1,10 @@
 package me.wener.bbvm.system;
 
 import static me.wener.bbvm.neo.inst.def.CompareTypes.*;
+import static me.wener.bbvm.utils.val.Values.fromValue;
 
 import com.google.common.collect.Maps;
 import java.io.IOException;
-import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import lombok.Getter;
@@ -40,11 +40,21 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
     private VmMemory memory = new VmMemory();
     @Getter
     @Setter
-    private Writer asmWriter;
+    private boolean ignoreProcess;
     @Getter
     private boolean exit;
     private Map<String, ResourcePool> resources = Maps.newConcurrentMap();
     private boolean isJumped = false;
+
+    static
+    {
+        Values.cache(DataType.class,
+                CalculateType.class,
+                CompareType.class,
+                Opcode.class,
+                RegisterType.class
+        );
+    }
 
     public VmCPU()
     {
@@ -101,41 +111,51 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
 
     public boolean step()
     {
+        exit = memory.hasRemaining(rp.get());
         if (!exit)
         {
             isJumped = false;
             readInstruction();
-            if (asmWriter != null)
+            log.trace("[{}] {}", rp.get(), toAssembly());
+
+            if (!ignoreProcess)
             {
-                try
-                {
-                    asmWriter.write(toAssembly());
-                } catch (IOException e)
-                {
-                    log.info("Write asm failed.", e);
-                }
+                process();
             }
-            process();
             // 如果没有跳转,则正常增加
             if (!isJumped)
             {
                 rp.set(rp.get() + opcode.length());
             }
         }
-
-        return exit;
+        return !exit;
     }
 
     private void readInstruction()
     {
         /*
-            指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
-         0x 0       0         0           0        00000000     00000000
+   指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
+0x 0       0         0           0        00000000     00000000
+        */
+
+        /*
+无操作数 1byte
+   指令码 + 无用
+0x 0       0
+一个操作数 5byte
+   指令码 + 寻址方式 + 第一个操作数
+0x 0       0        00000000
+两个操作数 10byte
+   指令码 + 数据类型 + 保留字节 + 寻址方式 + 第一个操作数 + 第二个操作数
+0x 0       0         0           0        00000000     00000000
+JPC指令 6byte
+   指令码 + 比较操作 + 保留字节 + 寻址方式 + 第一个操作数
+0x 0       0         0           0        00000000
         */
         ByteBuffer buf = memory.buffer();
         buf.position(rp.get()).mark();
         short first = Bins.unsigned(buf.get());
-        opcode = Values.fromValue(Opcode.class, first >> 4);
+        opcode = fromValue(Opcode.class, first >> 4);
         switch (opcode)
         {
             case RET:
@@ -145,31 +165,52 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
                 // 无操作数
             }
             break;
+            case POP:
+            case PUSH:
+            case CALL:
+            case JMP:
+            {
+                a.addressingMode(fromValue(AddressingMode.class, first & 0xf));
+                // 一个操作数
+                readOperand(a);
+            }
+            break;
             case LD:
             case IN:
             case OUT:
+            case CAL:
             case CMP:
             {
                 // 两个操作数
-//                int dataType = first & 0xf;
-//                short second = memory.readUnsignedByte();
-//                int special = second >> 4;
-//                int addressingMode = second & 0xf;
-//
-//                TowOperandInst tow = (TowOperandInst) inst;
-//                tow.a = readOperand(ctx, addressingMode / 4);
-//                tow.b = readOperand(ctx, addressingMode % 4);
-//                tow.dataType = dataType;
-                dataType = Values.fromValue(DataType.class, first & 0xf);
+                dataType = fromValue(DataType.class, first & 0xf);
                 short second = Bins.unsigned(buf.get());
                 int special = second >> 4;
                 int addressingMode = second & 0xf;
-                a.addressingMode(Values.fromValue(AddressingMode.class, addressingMode / 4));
-                b.addressingMode(Values.fromValue(AddressingMode.class, addressingMode % 4));
+
+                a.addressingMode(fromValue(AddressingMode.class, addressingMode / 4));
+                b.addressingMode(fromValue(AddressingMode.class, addressingMode % 4));
                 readOperand(a);
                 readOperand(b);
+
+                if (opcode == Opcode.CAL)
+                {
+                    calculateType = fromValue(CalculateType.class, special);
+                }
             }
             break;
+
+            case JPC:
+            {
+                short second = Bins.unsigned(buf.get());
+                int addressingMode = second & 0xf;
+                // JPC A r1
+                // 数据类型为比较操作
+                compareType = fromValue(CompareType.class, first & 0xf);
+                a.addressingMode(fromValue(AddressingMode.class, addressingMode));
+                readOperand(a);
+            }
+            break;
+
             default:
                 throw new UnsupportedOperationException();
         }
@@ -183,7 +224,7 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
         {
             case REGISTER:
             case REGISTER_DEFERRED:
-                o.indirect(register(Values.fromValue(RegisterType.class, v)));
+                o.indirect(register(fromValue(RegisterType.class, v)));
                 break;
             case IMMEDIATE:
             case DIRECT:
@@ -235,8 +276,9 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
             case EXIT:
                 EXIT();
                 break;
+            default:
+                throw new UnsupportedOperationException();
         }
-        throw new UnsupportedOperationException();
     }
 
     void NOP()
@@ -290,7 +332,7 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
     {
         // JPC 的数据类型为比较操作
         CompareType org = compareType;
-        CompareType flag = Values.fromValue(CompareType.class, rf.get());
+        CompareType flag = fromValue(CompareType.class, rf.get());
 
 
         if (CompareType.isMatch(org, flag))
@@ -453,6 +495,7 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
 
     public void load(byte[] content)
     {
+        log.debug("Load content, size {}", content.length);
         memory.load(content);
     }
 }
