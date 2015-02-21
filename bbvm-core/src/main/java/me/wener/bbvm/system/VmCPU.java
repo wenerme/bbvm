@@ -2,9 +2,11 @@ package me.wener.bbvm.system;
 
 import static me.wener.bbvm.neo.inst.def.CompareTypes.*;
 
+import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.ByteBuffer;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.wener.bbvm.system.api.CPU;
 import me.wener.bbvm.system.api.CompareType;
 import me.wener.bbvm.system.api.DataType;
+import me.wener.bbvm.system.api.Defines;
 import me.wener.bbvm.system.api.OpStatus;
 import me.wener.bbvm.system.api.Register;
 import me.wener.bbvm.system.api.RegisterType;
@@ -21,7 +24,7 @@ import me.wener.bbvm.utils.val.Values;
 
 @Accessors(chain = true, fluent = true)
 @Slf4j
-public class VmCPU extends OpStatusImpl implements CPU, VmStatus
+public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
 {
     @Getter
     private final RegisterImpl rp = new RegisterImpl("rp");
@@ -46,6 +49,27 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus
     @Setter
     private Writer asmWriter;
     private ByteBuffer stack = ByteBuffer.allocate(1024);
+
+    private Map<String, ResourcePool> resources = Maps.newConcurrentMap();
+
+    public VmCPU()
+    {
+        // 初始化资源池
+        // 字符串的句柄为负
+        resources.put(RES_STRING, new ResourcePool()
+        {
+            @Override
+            protected int next()
+            {
+                // 第一个句柄为 -1
+                return handler.decrementAndGet();
+            }
+        });
+
+        resources.put(RES_FILE, new ResourcePool());
+        resources.put(RES_PAGE, new ResourcePool());
+        resources.put(RES_RES, new ResourcePool());
+    }
 
     void reset() {}
 
@@ -144,6 +168,7 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus
                 EXIT();
                 break;
         }
+        throw new UnsupportedOperationException();
     }
 
     void NOP()
@@ -272,7 +297,7 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus
                 oc = oa - ob;
                 break;
             default:
-                throw new AssertionError("未知计算操作: " + cal.operator);
+                throw new AssertionError("未知计算操作: " + calculateType);
         }
         int ret = (int) oc;
         // 值返回归约
@@ -297,12 +322,15 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus
 
     public void push(int v)
     {
-        stack.putInt(v);
+        // FIXME
+        memory.writeInt(rf.get(), v);
+        rf.set(rf.get() + 4);
     }
 
     public int pop()
     {
-        return stack.getInt();
+        rf.set(rf.get() - 4);
+        return memory.readInt(rf.get());
     }
 
     @Override
@@ -340,5 +368,17 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus
                 return r3;
         }
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ResourcePool resources(String resourceName)
+    {
+        return resources.get(resourceName);
+    }
+
+    @Override
+    public Map<String, ResourcePool> resources()
+    {
+        return resources;
     }
 }

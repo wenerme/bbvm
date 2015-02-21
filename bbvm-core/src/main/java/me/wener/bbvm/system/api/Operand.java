@@ -1,5 +1,6 @@
 package me.wener.bbvm.system.api;
 
+import me.wener.bbvm.system.OperandImpl;
 import me.wener.bbvm.utils.val.IntegerHolder;
 import me.wener.bbvm.utils.val.IsInteger;
 
@@ -18,4 +19,8 @@ public interface Operand extends IntegerHolder
     AddressingMode addressingMode();
 
     Operand addressingMode(AddressingMode mode);
+
+    float asFloat();
+
+    OperandImpl asFloat(float v);
 }

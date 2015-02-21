@@ -1,5 +1,8 @@
 package me.wener.bbvm.system.api;
 
+import java.util.Map;
+import me.wener.bbvm.system.ResourcePool;
+
 /**
  * 虚拟机状态
  */
@@ -22,4 +25,8 @@ public interface VmStatus
     Register r2();
 
     Register r3();
+
+    ResourcePool resources(String resourceName);
+
+    Map<String, ResourcePool> resources();
 }

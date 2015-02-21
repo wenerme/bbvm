@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import me.wener.bbvm.system.api.AddressingMode;
 import me.wener.bbvm.system.api.Operand;
+import me.wener.bbvm.utils.Bins;
 import me.wener.bbvm.utils.val.IntegerHolder;
 import me.wener.bbvm.utils.val.IsInteger;
 
@@ -28,24 +29,10 @@ public class OperandImpl implements Operand, Serializable
     {
     }
 
-    public void set(Integer value)
+    @Override
+    public String asString()
     {
-        switch (addressingMode)
-        {
-            case REGISTER:
-                if (indirect instanceof IntegerHolder)
-                    ((IntegerHolder) indirect).set(value);
-                else
-                    throw new UnsupportedOperationException();
-                break;
-            case REGISTER_DEFERRED:
-            case DIRECT:
-                cpu.memory().writeInt(get(), value);
-                break;
-            default:
-            case IMMEDIATE:
-                throw new UnsupportedOperationException();
-        }
+        return cpu.memory().readString(get());
     }
 
     public Integer get()
@@ -64,8 +51,36 @@ public class OperandImpl implements Operand, Serializable
         throw new UnsupportedOperationException();
     }
 
-    public String asString()
+    @Override
+    public float asFloat()
     {
-        return cpu.memory().readString(get());
+        return Bins.float32(get());
+    }
+
+    @Override
+    public OperandImpl asFloat(float v)
+    {
+        set(Bins.int32(v));
+        return this;
+    }
+
+    public void set(Integer value)
+    {
+        switch (addressingMode)
+        {
+            case REGISTER:
+                if (indirect instanceof IntegerHolder)
+                    ((IntegerHolder) indirect).set(value);
+                else
+                    throw new UnsupportedOperationException();
+                break;
+            case REGISTER_DEFERRED:
+            case DIRECT:
+                cpu.memory().writeInt(get(), value);
+                break;
+            default:
+            case IMMEDIATE:
+                throw new UnsupportedOperationException();
+        }
     }
 }
