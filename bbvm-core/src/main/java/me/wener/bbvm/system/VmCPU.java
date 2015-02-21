@@ -11,14 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import me.wener.bbvm.system.api.CPU;
-import me.wener.bbvm.system.api.CompareType;
-import me.wener.bbvm.system.api.DataType;
-import me.wener.bbvm.system.api.Defines;
-import me.wener.bbvm.system.api.OpStatus;
-import me.wener.bbvm.system.api.Register;
-import me.wener.bbvm.system.api.RegisterType;
-import me.wener.bbvm.system.api.VmStatus;
+import me.wener.bbvm.system.api.*;
 import me.wener.bbvm.utils.Bins;
 import me.wener.bbvm.utils.val.Values;
 
@@ -27,7 +20,7 @@ import me.wener.bbvm.utils.val.Values;
 public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
 {
     @Getter
-    private final RegisterImpl rp = new RegisterImpl("rp");
+    private final RegisterImpl.MonitoredRegister rp = RegisterImpl.monitor(new RegisterImpl("rp"));
     @Getter
     private final RegisterImpl rb = new RegisterImpl("rb");
     @Getter
@@ -44,13 +37,14 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
     private final RegisterImpl r3 = new RegisterImpl("r3");
 
     @Getter
-    private VmMemory memory;
+    private VmMemory memory = new VmMemory();
     @Getter
     @Setter
     private Writer asmWriter;
-    private ByteBuffer stack = ByteBuffer.allocate(1024);
-
+    @Getter
+    private boolean exit;
     private Map<String, ResourcePool> resources = Maps.newConcurrentMap();
+    private boolean isJumped = false;
 
     public VmCPU()
     {
@@ -69,59 +63,133 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
         resources.put(RES_FILE, new ResourcePool());
         resources.put(RES_PAGE, new ResourcePool());
         resources.put(RES_RES, new ResourcePool());
+        rp.listeners().add(new RegisterImpl.RegisterChangeListener()
+        {
+            @Override
+            public void onChange(Register register, Integer val)
+            {
+                isJumped = true;
+            }
+        });
+
+        reset();
     }
 
-    void reset() {}
-
-    public void step()
+    public void reset()
     {
-        if (asmWriter != null)
+        for (ResourcePool pool : resources.values())
         {
             try
             {
-                asmWriter.write(disasm());
+                pool.close();
             } catch (IOException e)
             {
-                log.info("Write asm failed.", e);
+                log.warn("Close resource pool failed.", e);
             }
         }
-        process();
+        memory.reset();
+        rp.set(0);
+        rb.set(0);
+        rs.set(0);
+        rf.set(0);
+        r0.set(0);
+        r1.set(0);
+        r2.set(0);
+        r3.set(0);
+        exit = false;
     }
 
-    private String disasm()
+    public boolean step()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append(opcode);
+        if (!exit)
+        {
+            isJumped = false;
+            readInstruction();
+            if (asmWriter != null)
+            {
+                try
+                {
+                    asmWriter.write(toAssembly());
+                } catch (IOException e)
+                {
+                    log.info("Write asm failed.", e);
+                }
+            }
+            process();
+            // 如果没有跳转,则正常增加
+            if (!isJumped)
+            {
+                rp.set(rp.get() + opcode.length());
+            }
+        }
+
+        return exit;
+    }
+
+    private void readInstruction()
+    {
+        /*
+            指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
+         0x 0       0         0           0        00000000     00000000
+        */
+        ByteBuffer buf = memory.buffer();
+        buf.position(rp.get()).mark();
+        short first = Bins.unsigned(buf.get());
+        opcode = Values.fromValue(Opcode.class, first >> 4);
         switch (opcode)
         {
-            // 没有操作数
-            case NOP:
             case RET:
+            case NOP:
             case EXIT:
-                break;
+            {
+                // 无操作数
+            }
+            break;
             case LD:
-                break;
-            case PUSH:
-            case POP:
-            case JMP:
-            case CALL:
-                // 一个操作数
-                sb.append(' ').append(a);
-                break;
             case IN:
             case OUT:
-                // 标准的两个操作数
-                sb.append(' ').append(a)
-                  .append(", ").append(b);
-                break;
-
-            case JPC:
-                break;
             case CMP:
-            case CAL:
+            {
+                // 两个操作数
+//                int dataType = first & 0xf;
+//                short second = memory.readUnsignedByte();
+//                int special = second >> 4;
+//                int addressingMode = second & 0xf;
+//
+//                TowOperandInst tow = (TowOperandInst) inst;
+//                tow.a = readOperand(ctx, addressingMode / 4);
+//                tow.b = readOperand(ctx, addressingMode % 4);
+//                tow.dataType = dataType;
+                dataType = Values.fromValue(DataType.class, first & 0xf);
+                short second = Bins.unsigned(buf.get());
+                int special = second >> 4;
+                int addressingMode = second & 0xf;
+                a.addressingMode(Values.fromValue(AddressingMode.class, addressingMode / 4));
+                b.addressingMode(Values.fromValue(AddressingMode.class, addressingMode % 4));
+                readOperand(a);
+                readOperand(b);
+            }
+            break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+        buf.reset();
+    }
+
+    private void readOperand(OperandImpl o)
+    {
+        int v = memory.buffer().getInt();
+        switch (o.addressingMode())
+        {
+            case REGISTER:
+            case REGISTER_DEFERRED:
+                o.indirect(register(Values.fromValue(RegisterType.class, v)));
+                break;
+            case IMMEDIATE:
+            case DIRECT:
+                o.value(v);
                 break;
         }
-        return sb.toString();
     }
 
     private void process()
@@ -318,6 +386,7 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
 
     void EXIT()
     {
+        exit = true;
     }
 
     public void push(int v)
@@ -380,5 +449,10 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
     public Map<String, ResourcePool> resources()
     {
         return resources;
+    }
+
+    public void load(byte[] content)
+    {
+        memory.load(content);
     }
 }

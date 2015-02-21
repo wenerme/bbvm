@@ -1,5 +1,7 @@
 package me.wener.bbvm.system;
 
+import java.io.Closeable;
+import java.io.IOException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -38,5 +40,14 @@ public class Resource
     public void set(Object v)
     {
         value = v;
+    }
+
+    @Override
+    public void close() throws IOException
+    {
+        if (value instanceof Closeable)
+        {
+            ((Closeable) value).close();
+        }
     }
 }

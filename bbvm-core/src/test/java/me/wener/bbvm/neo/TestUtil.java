@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.List;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.HexDump;
 
+@Slf4j
 public class TestUtil
 {
     public static final Pattern MATCH_HEX_DATA = Pattern
@@ -27,10 +29,11 @@ public class TestUtil
             return !Strings.isNullOrEmpty(input);
         }
     };
+    protected static boolean logDump = false;
 
     public static ByteBuf fromDumpBytes(String dump)
     {
-        ByteBuf buf = Unpooled.buffer();
+        ByteBuf buf = Unpooled.buffer(20);
         String origin = dump;
         // 删除偏移值
         if (dump.startsWith("00000000 "))
@@ -49,18 +52,25 @@ public class TestUtil
             }
         }
 
-        try
-        {
-            System.out.println("原始内容");
-            System.out.println(origin);
-            System.out.println("解析结果 长度:" + buf.readableBytes());
-            HexDump.dump(buf.copy().array(), 0, System.out, 0);
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+        if (log.isTraceEnabled() || logDump)
+            try
+            {
+                System.out.println("原始内容");
+                System.out.println(origin);
+                System.out.println("解析结果 长度:" + buf.readableBytes());
+                HexDump.dump(buf.copy().array(), 0, System.out, 0);
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
 
         return buf.order(ByteOrder.LITTLE_ENDIAN);
     }
 
+    public static byte[] readableToBytes(ByteBuf buf)
+    {
+        byte[] bytes = new byte[buf.readableBytes()];
+        buf.readBytes(bytes);
+        return bytes;
+    }
 }

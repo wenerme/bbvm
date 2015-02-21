@@ -2,14 +2,18 @@ package me.wener.bbvm.system;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.extern.slf4j.Slf4j;
 import me.wener.bbvm.system.api.Resource;
 
 /**
  * 资源池,需要维护句柄,主要用于
  */
-public class ResourcePool
+@Slf4j
+public class ResourcePool implements Closeable
 {
     protected final Map<Integer, Resource> resources = Maps.newConcurrentMap();
     protected AtomicInteger handler = new AtomicInteger();
@@ -38,5 +42,20 @@ public class ResourcePool
     public void recycle(Resource resource)
     {
 
+    }
+
+    @Override
+    public void close() throws IOException
+    {
+        for (Resource resource : resources.values())
+        {
+            try
+            {
+                resource.close();
+            } catch (IOException e)
+            {
+                log.warn("Close resource failed.", e);
+            }
+        }
     }
 }

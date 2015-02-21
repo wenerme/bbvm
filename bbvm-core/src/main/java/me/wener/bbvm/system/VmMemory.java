@@ -16,7 +16,7 @@ public class VmMemory implements Memory
 {
     private static final Charset GBK_CHARSET = Charset.forName("GBK");
     @Getter
-    private ByteBuffer buffer = ByteBuffer.allocate(1024 * 1024 * 4);// 4m
+    private final ByteBuffer buffer = ByteBuffer.allocate(1024 * 1024 * 4);// 4m
     @Getter
     @Setter
     private Charset charset = GBK_CHARSET;

@@ -329,6 +329,23 @@ public class Bins
         return new String(bytes, charset);
     }
 
+    // region unsigned
+    public static short unsigned(byte v)
+    {
+        return (short) (v & 0xFF);
+    }
+
+    public static int unsigned(short v)
+    {
+        return v & 0xFFFF;
+    }
+
+    public static long unsigned(int v)
+    {
+        return v & 0xFFFFFFFFL;
+    }
+    // endregion
+
     //region 位逆序操作
     public static short reverse(short x)
     {
@@ -362,7 +379,9 @@ public class Bins
 
     //region 基本类型的byte获取操作
     public static byte int3(int x)
-    { return (byte) (x >> 24); }
+    {
+        return (byte) (x >> 24);
+    }
 
     public static byte int2(int x) { return (byte) (x >> 16); }
 
