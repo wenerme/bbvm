@@ -13,7 +13,9 @@ public interface Resource extends ValueHolder<Object>, Closeable
     /**
      * @return 句柄号
      */
-    int handler();
+    Integer handler();
 
     boolean isNull();
+
+    Resource handler(Integer handler);
 }

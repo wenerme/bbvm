@@ -7,12 +7,12 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(chain = true, fluent = true)
-class Resource
+class DefaultResource
         implements me.wener.bbvm.system.Resource
 {
     @Getter
     @Setter
-    private int handler = Integer.MAX_VALUE;
+    private Integer handler = null;
 
     private volatile Object value;
 
@@ -27,7 +27,7 @@ class Resource
     @Override
     public boolean isNull()
     {
-        return value == null;
+        return handler == null || value == null;
     }
 
     @Override

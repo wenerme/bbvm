@@ -1,10 +1,12 @@
 package me.wener.bbvm.system.internal;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
+import me.wener.bbvm.system.Resource;
 
 /**
  * 资源池,需要维护句柄,主要用于
@@ -12,21 +14,33 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ResourcePool implements me.wener.bbvm.system.ResourcePool
 {
-    protected final Map<Integer, me.wener.bbvm.system.Resource> resources = Maps.newConcurrentMap();
+    protected final Map<Integer, Resource> resources = Maps.newConcurrentMap();
     protected AtomicInteger handler = new AtomicInteger();
 
     @Override
     public Resource request()
     {
-        me.wener.bbvm.system.internal.Resource res = new me.wener.bbvm.system.internal.Resource();
-        res.handler(next());
+        Resource res = createResource();
+        setHandler(res);
+        Preconditions.checkNotNull(res.handler());
         resources.put(res.handler(), res);
         return res;
     }
 
-    protected int next()
+    /**
+     * @return 创建的资源
+     */
+    protected Resource createResource()
     {
-        return handler.getAndIncrement();
+        return new DefaultResource();
+    }
+
+    /**
+     * 设置句柄值
+     */
+    protected void setHandler(Resource resource)
+    {
+        resource.handler(handler.getAndIncrement());
     }
 
     @Override
@@ -46,7 +60,7 @@ public class ResourcePool implements me.wener.bbvm.system.ResourcePool
     @Override
     public void close() throws IOException
     {
-        for (me.wener.bbvm.system.Resource resource : resources.values())
+        for (Resource resource : resources.values())
         {
             try
             {
