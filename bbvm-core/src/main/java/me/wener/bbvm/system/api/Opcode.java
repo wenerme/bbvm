@@ -6,7 +6,7 @@ import me.wener.bbvm.utils.val.IsInteger;
 import me.wener.bbvm.utils.val.Values;
 
 /**
- * 指令集
+ * 操作码
  * <pre>
  * NOP	| 0x0
  * LD     | 0x1
@@ -65,11 +65,6 @@ public enum Opcode implements IsInteger
     Opcode(int value)
     {
         this.value = value;
-    }
-
-    public static Opcode valueOf(int v)
-    {
-        return Values.fromValue(Opcode.class, v);
     }
 
     /**

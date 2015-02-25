@@ -3,9 +3,11 @@ package me.wener.bbvm.system;
 import static me.wener.bbvm.neo.inst.def.CompareTypes.*;
 import static me.wener.bbvm.utils.val.Values.fromValue;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,20 +37,22 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
     private final RegisterImpl r2 = new RegisterImpl("r2");
     @Getter
     private final RegisterImpl r3 = new RegisterImpl("r3");
-
+    private final LinkedList<Integer> stack = Lists.newLinkedList();
     @Getter
     private VmMemory memory = new VmMemory();
     @Getter
     @Setter
     private boolean ignoreProcess;
     @Getter
+    @Accessors(fluent = false)// isExit
     private boolean exit;
     private Map<String, ResourcePool> resources = Maps.newConcurrentMap();
     private boolean isJumped = false;
 
     static
     {
-        Values.cache(DataType.class,
+        Values.cache(
+                DataType.class,
                 CalculateType.class,
                 CompareType.class,
                 Opcode.class,
@@ -81,7 +85,8 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
                 isJumped = true;
             }
         });
-
+        a.cpu(this);
+        b.cpu(this);
         reset();
     }
 
@@ -136,9 +141,7 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
         /*
    指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
 0x 0       0         0           0        00000000     00000000
-        */
 
-        /*
 无操作数 1byte
    指令码 + 无用
 0x 0       0
@@ -147,13 +150,14 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
 0x 0       0        00000000
 两个操作数 10byte
    指令码 + 数据类型 + 保留字节 + 寻址方式 + 第一个操作数 + 第二个操作数
-0x 0       0         0           0        00000000     00000000
+0x 0       0         0        0        00000000     00000000
 JPC指令 6byte
    指令码 + 比较操作 + 保留字节 + 寻址方式 + 第一个操作数
-0x 0       0         0           0        00000000
+0x 0       0         0        0        00000000
         */
+
         ByteBuffer buf = memory.buffer();
-        buf.position(rp.get()).mark();
+        buf.position(rp.get());
         short first = Bins.unsigned(buf.get());
         opcode = fromValue(Opcode.class, first >> 4);
         switch (opcode)
@@ -214,23 +218,12 @@ JPC指令 6byte
             default:
                 throw new UnsupportedOperationException();
         }
-        buf.reset();
     }
 
     private void readOperand(OperandImpl o)
     {
         int v = memory.buffer().getInt();
-        switch (o.addressingMode())
-        {
-            case REGISTER:
-            case REGISTER_DEFERRED:
-                o.indirect(register(fromValue(RegisterType.class, v)));
-                break;
-            case IMMEDIATE:
-            case DIRECT:
-                o.value(v);
-                break;
-        }
+        o.value(v);
     }
 
     private void process()
@@ -434,14 +427,16 @@ JPC指令 6byte
     public void push(int v)
     {
         // FIXME
-        memory.writeInt(rf.get(), v);
-        rf.set(rf.get() + 4);
+        stack.push(v);
+//        memory.writeInt(rf.get(), v);
+//        rf.set(rf.get() + 4);
     }
 
     public int pop()
     {
-        rf.set(rf.get() - 4);
-        return memory.readInt(rf.get());
+//        rf.set(rf.get() - 4);
+//        return memory.readInt(rf.get());
+        return stack.pop();
     }
 
     @Override

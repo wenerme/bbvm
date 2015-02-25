@@ -1,9 +1,12 @@
 package me.wener.bbvm.system;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Bytes;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -17,23 +20,35 @@ public class VmMemory implements Memory
 {
     private static final Charset GBK_CHARSET = Charset.forName("GBK");
     @Getter
-    private final ByteBuffer buffer = ByteBuffer.allocate(1024 * 1024 * 4);// 4m
+    private final ByteBuffer buffer;// 4m
     @Getter
     @Setter
     private Charset charset = GBK_CHARSET;
+
+    @Getter
+    @Setter
+    private VmCPU cpu;
+
+    /**
+     * 栈大小,默认为 1K
+     */
+    @Getter
+    @Setter
+    private int stackSize = 1024;
 
     @Getter
     private int length;
 
     public VmMemory()
     {
+        // BB 的位序
+        buffer = ByteBuffer.allocate(1024 * 1024 * 4);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
     }
 
     @Override
     public byte read(int address)
     {
-        checkPos(address);
         return buffer.get(address);
     }
 
@@ -45,14 +60,12 @@ public class VmMemory implements Memory
     @Override
     public void write(int address, byte val)
     {
-        checkPos(address);
         buffer.put(address, val);
     }
 
     @Override
     public int readInt(int pos)
     {
-        checkPos(pos);
         return buffer.getInt(pos);
     }
 
@@ -62,17 +75,32 @@ public class VmMemory implements Memory
         return readString(pos, charset);
     }
 
+    public byte[] readBytesUntil(int pos, int until)
+    {
+        int start = pos;
+        byte b;
+        List<Byte> bytes = Lists.newArrayList();
+        for (; ; pos++)
+        {
+            b = buffer.get(pos);
+            if (b == until)
+            {
+                break;
+            }
+            bytes.add(b);
+        }
+        return Bytes.toArray(bytes);
+    }
+
     @Override
     public String readString(int pos, Charset charset)
     {
-        checkPos(pos);
-        return null;
+        return new String(readBytesUntil(pos, 0), charset);
     }
 
     @Override
     public void writeInt(int pos, int value)
     {
-        checkPos(pos);
         buffer.putInt(pos, value);
     }
 
@@ -80,7 +108,18 @@ public class VmMemory implements Memory
     public void load(byte[] content)
     {
         length = content.length;
+        buffer.limit(length + stackSize);
         buffer.put(content);
+    }
+
+    public void push(int v)
+    {
+
+    }
+
+    public int pop()
+    {
+        return 0;
     }
 
     @Override

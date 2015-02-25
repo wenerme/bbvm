@@ -8,7 +8,7 @@ bbr()
 {
 	cp $1 $BB_HOME/Sim/BBasic/Test.bin
 	cd $BB_HOME/Sim/Debug/
-	./GamDev
+	./GamDev.exe
 	cd -
 }
 

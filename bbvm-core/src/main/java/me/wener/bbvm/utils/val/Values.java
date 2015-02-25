@@ -3,7 +3,6 @@ package me.wener.bbvm.utils.val;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import java.util.EnumSet;
-import me.wener.bbvm.def.InstructionType;
 import me.wener.bbvm.utils.val.impl.ReadonlyHolder;
 import me.wener.bbvm.utils.val.impl.SimpleStringHolder;
 import me.wener.bbvm.utils.val.impl.SimpleValue;
@@ -84,32 +83,6 @@ public class Values
     {
         T val = (T) cache.get(type, v);
         return val == null ? forNull : val;
-    }
-
-    public static void main(String[] args)
-    {
-        cache(InstructionType.class);
-        assert fromValue(InstructionType.class, InstructionType.CAL.get()).equals(InstructionType.CAL);
-
-        long start = System.currentTimeMillis();
-        int n = 100000;
-        for (int i = 0; i < n; i++)
-        {
-            fromValue(InstructionType.class, 0);
-            fromValue(InstructionType.class, 1);
-            fromValue(InstructionType.class, 2);
-            fromValue(InstructionType.class, 3);
-            fromValue(InstructionType.class, 4);
-            fromValue(InstructionType.class, 5);
-            fromValue(InstructionType.class, 6);
-            fromValue(InstructionType.class, 7);
-            fromValue(InstructionType.class, 8);
-            fromValue(InstructionType.class, 9);
-            fromValue(InstructionType.class, 0xA);
-            fromValue(InstructionType.class, 0XB);
-        }
-        long esplase = System.currentTimeMillis() - start;
-        System.out.println(n * 12 + " used " + esplase + " ms");
     }
 
     public static <T> ValueHolder<T> hold(T value)

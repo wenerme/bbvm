@@ -19,22 +19,6 @@ public class OpStatusImpl implements OpStatus
     protected CalculateType calculateType;
     protected Opcode opcode;
 
-    public static String toString(OperandImpl operand)
-    {
-        switch (operand.addressingMode())
-        {
-            case REGISTER:
-                return operand.indirect().toString();
-            case REGISTER_DEFERRED:
-                return "[ " + operand.indirect() + " ]";
-            case IMMEDIATE:
-                return operand.value().toString();
-            case DIRECT:
-                return "[ " + operand.value() + " ]";
-        }
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     public String toAssembly()
     {

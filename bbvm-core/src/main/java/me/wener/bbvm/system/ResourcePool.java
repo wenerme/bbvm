@@ -58,4 +58,9 @@ public class ResourcePool implements Closeable
             }
         }
     }
+
+    public Resource get(int handler)
+    {
+        return resources.get(handler);
+    }
 }
