@@ -2,6 +2,7 @@ package me.wener.bbvm.system;
 
 import static org.junit.Assert.assertEquals;
 
+import me.wener.bbvm.system.internal.VmMemory;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package me.wener.bbvm.system;
+package me.wener.bbvm.system.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -10,7 +10,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import me.wener.bbvm.system.api.Memory;
+import me.wener.bbvm.system.Memory;
 
 /**
  * VM 内存内容,栈在最后1K

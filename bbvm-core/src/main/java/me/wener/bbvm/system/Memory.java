@@ -1,4 +1,4 @@
-package me.wener.bbvm.system.api;
+package me.wener.bbvm.system;
 
 import java.nio.charset.Charset;
 

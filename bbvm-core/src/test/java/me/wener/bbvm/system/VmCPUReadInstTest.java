@@ -3,6 +3,7 @@ package me.wener.bbvm.system;
 import io.netty.buffer.ByteBuf;
 import java.io.OutputStreamWriter;
 import me.wener.bbvm.neo.TestUtil;
+import me.wener.bbvm.system.internal.VmCPU;
 import me.wener.bbvm.utils.Dumper;
 import org.junit.Test;
 

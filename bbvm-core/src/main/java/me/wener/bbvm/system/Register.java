@@ -1,4 +1,4 @@
-package me.wener.bbvm.system.api;
+package me.wener.bbvm.system;
 
 import me.wener.bbvm.utils.val.IntegerHolder;
 

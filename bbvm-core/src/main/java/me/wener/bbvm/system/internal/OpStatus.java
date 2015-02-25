@@ -1,19 +1,18 @@
-package me.wener.bbvm.system;
+package me.wener.bbvm.system.internal;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import me.wener.bbvm.system.api.CalculateType;
-import me.wener.bbvm.system.api.CompareType;
-import me.wener.bbvm.system.api.DataType;
-import me.wener.bbvm.system.api.OpStatus;
-import me.wener.bbvm.system.api.Opcode;
+import me.wener.bbvm.system.CalculateType;
+import me.wener.bbvm.system.CompareType;
+import me.wener.bbvm.system.DataType;
+import me.wener.bbvm.system.Opcode;
 
 @Data
 @Accessors(chain = true, fluent = true)
-public class OpStatusImpl implements OpStatus
+class OpStatus implements me.wener.bbvm.system.OpStatus
 {
-    protected final OperandImpl a = new OperandImpl();
-    protected final OperandImpl b = new OperandImpl();
+    protected final Operand a = new Operand();
+    protected final Operand b = new Operand();
     protected DataType dataType;
     protected CompareType compareType;
     protected CalculateType calculateType;

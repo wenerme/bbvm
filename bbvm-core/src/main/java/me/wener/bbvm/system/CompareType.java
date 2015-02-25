@@ -1,4 +1,4 @@
-package me.wener.bbvm.system.api;
+package me.wener.bbvm.system;
 
 import me.wener.bbvm.utils.val.IsInteger;
 
@@ -25,10 +25,6 @@ public enum CompareType implements IsInteger
         this.value = value;
     }
 
-    public Integer get()
-    {
-        return value;
-    }
     public static boolean isMatch(CompareType a, CompareType b)
     {
         boolean valid = false;
@@ -52,5 +48,10 @@ public enum CompareType implements IsInteger
                     valid = true;
         }
         return valid;
+    }
+
+    public Integer get()
+    {
+        return value;
     }
 }

@@ -1,7 +1,7 @@
-package me.wener.bbvm.system.api;
+package me.wener.bbvm.system;
 
 import java.util.Map;
-import me.wener.bbvm.system.ResourcePool;
+import me.wener.bbvm.system.internal.ResourcePool;
 
 /**
  * 虚拟机状态

@@ -1,53 +1,19 @@
 package me.wener.bbvm.system;
 
 import java.io.Closeable;
-import java.io.IOException;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+import me.wener.bbvm.utils.val.ValueHolder;
 
-@Accessors(chain = true, fluent = true)
-public class Resource
-        implements me.wener.bbvm.system.api.Resource
+/**
+ * 资源内容持有类
+ */
+public interface Resource extends ValueHolder<Object>, Closeable
 {
-    @Getter
-    @Setter
-    private int handler = Integer.MAX_VALUE;
+    <T> T as();
 
-    private volatile Object value;
+    /**
+     * @return 句柄号
+     */
+    int handler();
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T as()
-    {
-        return (T) value;
-    }
-
-
-    @Override
-    public boolean isNull()
-    {
-        return value == null;
-    }
-
-    @Override
-    public Object get()
-    {
-        return value;
-    }
-
-    @Override
-    public void set(Object v)
-    {
-        value = v;
-    }
-
-    @Override
-    public void close() throws IOException
-    {
-        if (value instanceof Closeable)
-        {
-            ((Closeable) value).close();
-        }
-    }
+    boolean isNull();
 }

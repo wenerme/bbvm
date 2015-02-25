@@ -1,4 +1,4 @@
-package me.wener.bbvm.system;
+package me.wener.bbvm.system.internal;
 
 import static me.wener.bbvm.neo.inst.def.CompareTypes.*;
 import static me.wener.bbvm.utils.val.Values.fromValue;
@@ -13,30 +13,38 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import me.wener.bbvm.system.api.*;
+import me.wener.bbvm.system.AddressingMode;
+import me.wener.bbvm.system.CPU;
+import me.wener.bbvm.system.CalculateType;
+import me.wener.bbvm.system.CompareType;
+import me.wener.bbvm.system.DataType;
+import me.wener.bbvm.system.Defines;
+import me.wener.bbvm.system.Opcode;
+import me.wener.bbvm.system.RegisterType;
+import me.wener.bbvm.system.VmStatus;
 import me.wener.bbvm.utils.Bins;
 import me.wener.bbvm.utils.val.Values;
 
 @Accessors(chain = true, fluent = true)
 @Slf4j
-public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
+public class VmCPU extends OpStatus implements CPU, VmStatus, Defines
 {
     @Getter
-    private final RegisterImpl.MonitoredRegister rp = RegisterImpl.monitor(new RegisterImpl("rp"));
+    private final Register.MonitoredRegister rp = Register.monitor(new Register("rp"));
     @Getter
-    private final RegisterImpl rb = new RegisterImpl("rb");
+    private final Register rb = new Register("rb");
     @Getter
-    private final RegisterImpl rs = new RegisterImpl("rs");
+    private final Register rs = new Register("rs");
     @Getter
-    private final RegisterImpl rf = new RegisterImpl("rf");
+    private final Register rf = new Register("rf");
     @Getter
-    private final RegisterImpl r0 = new RegisterImpl("r0");
+    private final Register r0 = new Register("r0");
     @Getter
-    private final RegisterImpl r1 = new RegisterImpl("r1");
+    private final Register r1 = new Register("r1");
     @Getter
-    private final RegisterImpl r2 = new RegisterImpl("r2");
+    private final Register r2 = new Register("r2");
     @Getter
-    private final RegisterImpl r3 = new RegisterImpl("r3");
+    private final Register r3 = new Register("r3");
     private final LinkedList<Integer> stack = Lists.newLinkedList();
     @Getter
     private VmMemory memory = new VmMemory();
@@ -77,10 +85,10 @@ public class VmCPU extends OpStatusImpl implements CPU, VmStatus, Defines
         resources.put(RES_FILE, new ResourcePool());
         resources.put(RES_PAGE, new ResourcePool());
         resources.put(RES_RES, new ResourcePool());
-        rp.listeners().add(new RegisterImpl.RegisterChangeListener()
+        rp.listeners().add(new Register.RegisterChangeListener()
         {
             @Override
-            public void onChange(Register register, Integer val)
+            public void onChange(me.wener.bbvm.system.Register register, Integer val)
             {
                 isJumped = true;
             }
@@ -220,7 +228,7 @@ JPC指令 6byte
         }
     }
 
-    private void readOperand(OperandImpl o)
+    private void readOperand(Operand o)
     {
         int v = memory.buffer().getInt();
         o.value(v);
@@ -440,7 +448,7 @@ JPC指令 6byte
     }
 
     @Override
-    public OpStatus opstatus()
+    public me.wener.bbvm.system.OpStatus opstatus()
     {
         return this;
     }
@@ -452,7 +460,7 @@ JPC指令 6byte
     }
 
     @Override
-    public Register register(RegisterType type)
+    public me.wener.bbvm.system.Register register(RegisterType type)
     {
         switch (type)
         {

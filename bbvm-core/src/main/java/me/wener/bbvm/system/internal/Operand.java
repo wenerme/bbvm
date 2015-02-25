@@ -1,4 +1,4 @@
-package me.wener.bbvm.system;
+package me.wener.bbvm.system.internal;
 
 import java.io.Serializable;
 import lombok.AccessLevel;
@@ -6,41 +6,39 @@ import lombok.Data;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import me.wener.bbvm.system.api.AddressingMode;
-import me.wener.bbvm.system.api.Defines;
-import me.wener.bbvm.system.api.Operand;
-import me.wener.bbvm.system.api.Register;
-import me.wener.bbvm.system.api.RegisterType;
+import me.wener.bbvm.system.AddressingMode;
+import me.wener.bbvm.system.Defines;
+import me.wener.bbvm.system.RegisterType;
 import me.wener.bbvm.utils.Bins;
 import me.wener.bbvm.utils.val.Values;
 
 @Data
 @Accessors(chain = true, fluent = true)
 @Slf4j
-public class OperandImpl implements Operand, Serializable
+class Operand implements me.wener.bbvm.system.Operand, Serializable
 {
     private VmCPU cpu;
     @Setter(AccessLevel.NONE)//lombok 生成的方法导致冲突
     private Integer value;
     private AddressingMode addressingMode;
 
-    public OperandImpl(VmCPU cpu)
+    public Operand(VmCPU cpu)
     {
         this.cpu = cpu;
     }
 
-    public OperandImpl()
+    public Operand()
     {
     }
 
     @Override
-    public me.wener.bbvm.system.api.Resource asResource(String res)
+    public me.wener.bbvm.system.Resource asResource(String res)
     {
         return cpu.resources(res).get(get());
     }
 
     @Override
-    public OperandImpl asString(String v)
+    public Operand asString(String v)
     {
         if (addressingMode == AddressingMode.IMMEDIATE)
         {
@@ -85,12 +83,12 @@ public class OperandImpl implements Operand, Serializable
     }
 
     @Override
-    public Operand value(RegisterType v)
+    public me.wener.bbvm.system.Operand value(RegisterType v)
     {
         return value(v.get());
     }
 
-    public Operand value(Integer v)
+    public me.wener.bbvm.system.Operand value(Integer v)
     {
         value = v;
         return this;
@@ -103,7 +101,7 @@ public class OperandImpl implements Operand, Serializable
     }
 
     @Override
-    public OperandImpl asFloat(float v)
+    public Operand asFloat(float v)
     {
         set(Bins.int32(v));
         return this;

@@ -1,11 +1,11 @@
-package me.wener.bbvm.system;
+package me.wener.bbvm.system.internal;
 
 import lombok.extern.slf4j.Slf4j;
-import me.wener.bbvm.system.api.CPU;
-import me.wener.bbvm.system.api.InstructionIntercepter;
-import me.wener.bbvm.system.api.OpStatus;
-import me.wener.bbvm.system.api.Opcode;
-import me.wener.bbvm.system.api.Operand;
+import me.wener.bbvm.system.CPU;
+import me.wener.bbvm.system.InstructionIntercepter;
+import me.wener.bbvm.system.OpStatus;
+import me.wener.bbvm.system.Opcode;
+import me.wener.bbvm.system.Operand;
 
 @Slf4j
 public class IO2Log implements InstructionIntercepter
