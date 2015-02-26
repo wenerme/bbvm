@@ -3,7 +3,7 @@ package me.wener.bbvm.system.internal;
 import lombok.extern.slf4j.Slf4j;
 import me.wener.bbvm.system.CPU;
 import me.wener.bbvm.system.InstructionIntercepter;
-import me.wener.bbvm.system.OpStatus;
+import me.wener.bbvm.system.OpState;
 import me.wener.bbvm.system.Opcode;
 import me.wener.bbvm.system.Operand;
 
@@ -13,7 +13,7 @@ public class IO2Log implements InstructionIntercepter
     @Override
     public void intercept(CPU cpu)
     {
-        OpStatus op = cpu.opstatus();
+        OpState op = cpu.opstatus();
         if (op.opcode() != Opcode.OUT || !log.isDebugEnabled())
         {
             return;

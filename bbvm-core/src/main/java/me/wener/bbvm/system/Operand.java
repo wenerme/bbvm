@@ -8,6 +8,8 @@ public interface Operand extends IntegerHolder
 
     Operand value(Integer v);
 
+    RegisterType asRegisterType();
+
     Operand value(RegisterType v);
 
     AddressingMode addressingMode();

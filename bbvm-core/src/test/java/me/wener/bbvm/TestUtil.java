@@ -1,4 +1,4 @@
-package me.wener.bbvm.neo;
+package me.wener.bbvm;
 
 
 import com.google.common.base.Predicate;

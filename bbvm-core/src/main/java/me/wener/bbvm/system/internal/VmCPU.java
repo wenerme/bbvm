@@ -1,6 +1,5 @@
 package me.wener.bbvm.system.internal;
 
-import static me.wener.bbvm.neo.inst.def.CompareTypes.*;
 import static me.wener.bbvm.utils.val.Values.fromValue;
 
 import com.google.common.collect.Lists;
@@ -13,21 +12,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import me.wener.bbvm.system.AddressingMode;
-import me.wener.bbvm.system.CPU;
-import me.wener.bbvm.system.CalculateType;
-import me.wener.bbvm.system.CompareType;
-import me.wener.bbvm.system.DataType;
-import me.wener.bbvm.system.Defines;
-import me.wener.bbvm.system.Opcode;
-import me.wener.bbvm.system.RegisterType;
-import me.wener.bbvm.system.VmStatus;
+import me.wener.bbvm.system.*;
 import me.wener.bbvm.utils.Bins;
 import me.wener.bbvm.utils.val.Values;
 
 @Accessors(chain = true, fluent = true)
 @Slf4j
-public class VmCPU extends OpStatus implements CPU, VmStatus, Defines
+public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Defines
 {
     @Getter
     private final Register.MonitoredRegister rp = Register.monitor(new Register("rp"));
@@ -72,15 +63,7 @@ public class VmCPU extends OpStatus implements CPU, VmStatus, Defines
     {
         // 初始化资源池
         // 字符串的句柄为负
-        resources.put(RES_STRING, new ResourcePool()
-        {
-            @Override
-            protected int next()
-            {
-                // 第一个句柄为 -1
-                return handler.decrementAndGet();
-            }
-        });
+        resources.put(RES_STRING, new NegativeHandlerResourcePool());
 
         resources.put(RES_FILE, new ResourcePool());
         resources.put(RES_PAGE, new ResourcePool());
@@ -93,8 +76,8 @@ public class VmCPU extends OpStatus implements CPU, VmStatus, Defines
                 isJumped = true;
             }
         });
-        a.cpu(this);
-        b.cpu(this);
+        ((Operand) a).cpu(this);
+        ((Operand) b).cpu(this);
         reset();
     }
 
@@ -228,7 +211,7 @@ JPC指令 6byte
         }
     }
 
-    private void readOperand(Operand o)
+    private void readOperand(me.wener.bbvm.system.Operand o)
     {
         int v = memory.buffer().getInt();
         o.value(v);
@@ -367,11 +350,11 @@ JPC指令 6byte
         }
         float oc = oa - ob;
         if (oc > 0)
-            rf.set(A);
+            rf.set(CompareType.A.get());
         else if (oc < 0)
-            rf.set(B);
+            rf.set(CompareType.B.get());
         else
-            rf.set(Z);
+            rf.set(CompareType.Z.get());
     }
 
     void CAL()
@@ -448,7 +431,7 @@ JPC指令 6byte
     }
 
     @Override
-    public me.wener.bbvm.system.OpStatus opstatus()
+    public OpState opstatus()
     {
         return this;
     }

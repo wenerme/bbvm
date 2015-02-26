@@ -6,7 +6,6 @@ import io.netty.buffer.ByteBufUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.EnumSet;
-import me.wener.bbvm.neo.Stringer;
 import me.wener.bbvm.utils.val.IsInteger;
 import me.wener.bbvm.utils.val.Values;
 import org.apache.commons.io.HexDump;
@@ -73,7 +72,7 @@ public class Dumper
         {
             Throwables.propagate(e);
         }
-        return Stringer.string(os.toByteArray());
+        return new String(os.toByteArray());
     }
 
     // endregion

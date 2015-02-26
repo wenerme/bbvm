@@ -77,9 +77,15 @@ class Operand implements me.wener.bbvm.system.Operand, Serializable
         throw new UnsupportedOperationException();
     }
 
-    private Register asRegister()
+    private me.wener.bbvm.system.Register asRegister()
     {
-        return cpu.register(Values.fromValue(RegisterType.class, value));
+        return cpu.register(asRegisterType());
+    }
+
+    @Override
+    public RegisterType asRegisterType()
+    {
+        return Values.fromValue(RegisterType.class, value);
     }
 
     @Override
@@ -130,9 +136,9 @@ class Operand implements me.wener.bbvm.system.Operand, Serializable
         switch (addressingMode)
         {
             case REGISTER:
-                return Values.fromValue(RegisterType.class, value).toString();
+                return asRegisterType().toString();
             case REGISTER_DEFERRED:
-                return "[ " + Values.fromValue(RegisterType.class, value) + " ]";
+                return "[ " + asRegisterType() + " ]";
             case IMMEDIATE:
                 return value.toString();
             case DIRECT:

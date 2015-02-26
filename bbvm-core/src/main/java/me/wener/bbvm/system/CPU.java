@@ -2,7 +2,7 @@ package me.wener.bbvm.system;
 
 public interface CPU extends Resettable
 {
-    OpStatus opstatus();
+    OpState opstatus();
 
     VmStatus vmstatus();
 

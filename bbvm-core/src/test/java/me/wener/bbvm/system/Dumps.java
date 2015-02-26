@@ -1,7 +1,7 @@
 package me.wener.bbvm.system;
 
 import io.netty.buffer.ByteBuf;
-import me.wener.bbvm.neo.TestUtil;
+import me.wener.bbvm.TestUtil;
 
 public class Dumps extends TestUtil
 {

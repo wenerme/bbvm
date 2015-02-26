@@ -1,14 +1,21 @@
 grammar BBAsm;
-// starting point for parsing a java file
 
+// start point
 prog
     : stat+
     ;
 
 stat
-    : expr NEWLINE
-    | NEWLINE
+    : NEWLINE
+    | expr NEWLINE
+    | comment
     ;
+
+comment
+	: LINE_COMMENT NEWLINE
+	| COMMENT
+	;
+
 
 expr
     : instruction
@@ -23,6 +30,7 @@ instruction
 	| INS_CAL DataType CalculateOperator operand COMMA operand // CAL int ADD r0,12
 	| INS_LD DataType operand COMMA operand  // ld int r1, 1067320848
 	| INS_JMP CompareOperator operand // jpc a some-where
+	| INS_BLOCK IntegerLiteral IntegerLiteral // .block 1 10
     ;
 
 operand
@@ -499,15 +507,15 @@ ELLIPSIS : '...';
 // Whitespace and comments
 //
 
-WS  :  [ \t\r\n\u000C]+ -> skip
+WS  :  [ \t\u000C]+ -> skip
     ;
 
 COMMENT
-    :   '/*' .*? '*/' -> skip
+    :   '/*' .*? '*/'
     ;
 
 LINE_COMMENT
-    :   ('//' | ';') ~[\r\n]* -> skip
+    :   ('//' | ';' | '\'') ~[\r\n]*
     ;
 
 NEWLINE:'\r'? '\n' ; // return newlines to parser (is end-statement signal)
