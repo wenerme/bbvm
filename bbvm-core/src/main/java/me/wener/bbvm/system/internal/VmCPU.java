@@ -55,7 +55,8 @@ public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Def
                 CalculateType.class,
                 CompareType.class,
                 Opcode.class,
-                RegisterType.class
+                RegisterType.class,
+                AddressingMode.class
         );
     }
 
@@ -64,7 +65,6 @@ public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Def
         // 初始化资源池
         // 字符串的句柄为负
         resources.put(RES_STRING, new NegativeHandlerResourcePool());
-
         resources.put(RES_FILE, new ResourcePool());
         resources.put(RES_PAGE, new ResourcePool());
         resources.put(RES_RES, new ResourcePool());
@@ -76,8 +76,8 @@ public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Def
                 isJumped = true;
             }
         });
-        ((Operand) a).cpu(this);
-        ((Operand) b).cpu(this);
+        a = new Operand().cpu(this);
+        b = new Operand().cpu(this);
         reset();
     }
 
@@ -129,86 +129,9 @@ public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Def
 
     private void readInstruction()
     {
-        /*
-   指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
-0x 0       0         0           0        00000000     00000000
-
-无操作数 1byte
-   指令码 + 无用
-0x 0       0
-一个操作数 5byte
-   指令码 + 寻址方式 + 第一个操作数
-0x 0       0        00000000
-两个操作数 10byte
-   指令码 + 数据类型 + 保留字节 + 寻址方式 + 第一个操作数 + 第二个操作数
-0x 0       0         0        0        00000000     00000000
-JPC指令 6byte
-   指令码 + 比较操作 + 保留字节 + 寻址方式 + 第一个操作数
-0x 0       0         0        0        00000000
-        */
-
         ByteBuffer buf = memory.buffer();
         buf.position(rp.get());
-        short first = Bins.unsigned(buf.get());
-        opcode = fromValue(Opcode.class, first >> 4);
-        switch (opcode)
-        {
-            case RET:
-            case NOP:
-            case EXIT:
-            {
-                // 无操作数
-            }
-            break;
-            case POP:
-            case PUSH:
-            case CALL:
-            case JMP:
-            {
-                a.addressingMode(fromValue(AddressingMode.class, first & 0xf));
-                // 一个操作数
-                readOperand(a);
-            }
-            break;
-            case LD:
-            case IN:
-            case OUT:
-            case CAL:
-            case CMP:
-            {
-                // 两个操作数
-                dataType = fromValue(DataType.class, first & 0xf);
-                short second = Bins.unsigned(buf.get());
-                int special = second >> 4;
-                int addressingMode = second & 0xf;
-
-                a.addressingMode(fromValue(AddressingMode.class, addressingMode / 4));
-                b.addressingMode(fromValue(AddressingMode.class, addressingMode % 4));
-                readOperand(a);
-                readOperand(b);
-
-                if (opcode == Opcode.CAL)
-                {
-                    calculateType = fromValue(CalculateType.class, special);
-                }
-            }
-            break;
-
-            case JPC:
-            {
-                short second = Bins.unsigned(buf.get());
-                int addressingMode = second & 0xf;
-                // JPC A r1
-                // 数据类型为比较操作
-                compareType = fromValue(CompareType.class, first & 0xf);
-                a.addressingMode(fromValue(AddressingMode.class, addressingMode));
-                readOperand(a);
-            }
-            break;
-
-            default:
-                throw new UnsupportedOperationException();
-        }
+        OpStates.readBinary(this, buf);
     }
 
     private void readOperand(me.wener.bbvm.system.Operand o)

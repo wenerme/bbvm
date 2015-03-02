@@ -15,11 +15,6 @@ import me.wener.bbvm.utils.Bins;
 
 public class OpStates
 {
-    public static OpState readBinary(ByteBuffer buffer)
-    {
-        return null;
-    }
-
     public static <T extends WritableOpState> T readBinary(T s, ByteBuffer buf)
     {
         /*
@@ -234,8 +229,8 @@ JPC指令 6byte
     @Accessors(chain = true, fluent = true)
     public static class DefaultOpState implements WritableOpState
     {
-        protected me.wener.bbvm.system.Operand a = new Operand();
-        protected me.wener.bbvm.system.Operand b = new Operand();
+        protected me.wener.bbvm.system.Operand a;
+        protected me.wener.bbvm.system.Operand b;
         protected DataType dataType;
         protected CompareType compareType;
         protected CalculateType calculateType;

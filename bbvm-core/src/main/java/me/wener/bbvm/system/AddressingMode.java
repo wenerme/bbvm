@@ -1,7 +1,6 @@
 package me.wener.bbvm.system;
 
 import me.wener.bbvm.utils.val.IsInteger;
-import me.wener.bbvm.utils.val.Values;
 
 public enum AddressingMode implements IsInteger
 {
@@ -41,16 +40,6 @@ n		| 0x8	| 0x9	| 0xa	| 0xb
     AddressingMode(int val)
     {
         this.val = val;
-    }
-
-    static
-    {
-        Values.cache(AddressingMode.class);
-    }
-
-    public static AddressingMode valueOf(int mode)
-    {
-        return Values.fromValue(AddressingMode.class, mode);
     }
 
     @Override
