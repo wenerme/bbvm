@@ -16,17 +16,9 @@ BBvm - BeBasic Virtual Machine
 
 * BBAsm 语法参考[这里][bbasm-g4]
 * BB 虚拟机规范参考[这里][bbvm-spec]
+* [Java 版 BBVM](https://github.com/wenerme/bbvm/tree/java)
 
  [bbasm-g4]:https://github.com/wenerme/bbvm/blob/master/doc/grammar/BBAsm.g4
  [bbvm-spec]:https://github.com/wenerme/bbvm/blob/master/doc/bbvm-spec.md
 
 
-
-NOTE
-====
-
-目前是第三版实现,第一次实现做到了图像处理,基本实现了功能,但难以扩展.
-第二次尝试使用事件处理,使实现过于复杂.
-第三次实现尽量保持简洁,按照实际逻辑进行分类,保持 CPU, Memory 等概念,做到可扩展.
-
-目前主要是第三版实现.
