@@ -43,7 +43,7 @@ public class IO2Log implements InstructionIntercepter
             case 4:
                 msg = Character.highSurrogate(b.get()) + "";
                 break;
-            case 6:
+            case 5:
                 msg = b.asFloat() + "";
                 break;
             default:
