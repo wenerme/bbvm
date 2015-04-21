@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-func LogOut(v *vm, o io.Writer) {
+func HandleOutLog(v VM, o io.Writer) {
 	hdl := func(i *Inst) {
 		var msg string
 		switch i.A.Get(){

@@ -2,7 +2,6 @@ package bbvm
 import (
 	"math"
 	"strconv"
-	"log"
 )
 
 /*
@@ -18,29 +17,28 @@ func handleInConv(i Inst) {
 
 	switch p {
 		case 0:
-		o.Set(int(math.Float32frombits(uint(i.VM.Register(REG_R3).Get()))))
+		o.Set(int(math.Float32frombits(uint32(i.VM.Register(REG_R3).Get()))))
 		case 1:
 		o.SetFloat(float32(i.VM.Register(REG_R3).Get()))
 		case 3:
-		if s, fine := v.GetStr(v.Register(REG_R3)); fine {
-			if r, ok := strconv.Atoi(s); ok {
+		if s, fine := v.GetStr(v.Register(REG_R3).Get()); fine {
+			if r, ok := strconv.Atoi(s); ok == nil {
 				o.Set(r)
 			}else {
-				log.Println("Convert atoi faield:"+s)
+				log.Error("Convert atoi faield:"+s)
 			}
 		}else {
-			log.Println("GetStr faield")
+			log.Error("GetStr faield")
 		}
 		case 4:
-		if s, fine := v.GetStr(v.Register(REG_R3)); fine {
-			if r, ok := strconv.Atoi(s); ok {
+		if s, fine := v.GetStr(v.Register(REG_R3).Get()); fine {
+			if r, ok := strconv.Atoi(s); ok == nil {
 				o.Set(r)
 			}else {
-				log.Println("Convert atoi faield:"+s)
+				log.Error("Convert atoi faield:"+s)
 			}
 		}else {
-			log.Println("GetStr faield")
+			log.Error("GetStr faield")
 		}
-
 	}
 }

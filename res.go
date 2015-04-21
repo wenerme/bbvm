@@ -1,7 +1,6 @@
 package bbvm
 import (
 	"errors"
-	"math"
 )
 
 
@@ -13,7 +12,7 @@ type Res interface {
 type ResValCreator func(ResPool) interface{}
 type ResPool interface {
 	Acquire() (Res, error)
-	Restore(Res)
+	Release(Res)
 	Get(int) Res
 	SetCreator(ResValCreator)
 	Creator() ResValCreator
@@ -43,17 +42,6 @@ type resPool struct {
 
 var ErrPoolLimitReached = errors.New("No more resource can acquire")
 
-func newStrPool() ResPool {
-	return &resPool{
-		pool: make(map[int]Res),
-		current:-1,
-		start:-1,
-		step: -1,
-		limit: math.MaxInt32,
-		creator:func(_ ResPool) interface{} {return ""},
-	}
-}
-
 func (p *resPool)Acquire() (Res, error) {
 	if len(p.pool) >= p.limit {
 		return nil, ErrPoolLimitReached
@@ -79,7 +67,7 @@ func (p *resPool)create() Res {
 	return r
 }
 
-func (p *resPool)Restore(r Res) {
+func (p *resPool)Release(r Res) {
 	delete(p.pool, r.Id())
 }
 func (p *resPool)Get(i int) Res {

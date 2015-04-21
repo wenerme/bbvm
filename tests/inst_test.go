@@ -3,8 +3,8 @@ package bbvm
 import (
 	"testing"
 	"bytes"
-	"log"
-	"os"
+	"github.com/op/go-logging"
+	. "../."
 )
 
 
@@ -74,6 +74,8 @@ DATA CD_INITDATA bin
 	}
 }
 func TestVM(t *testing.T) {
+	logging.SetLevel(logging.INFO, "bbvm")
+
 	data := []byte{
 		0x82, 0x60, 0x00, 0x00, 0x00, 0x10, 0x02, 0x06, 0x00, 0x00, 0x00, 0x77, 0x00, 0x00, 0x00, 0x40,
 		0x02, 0x06, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x23, 0x6c, 0x00, 0x00, 0x00, 0x30, 0x06,
@@ -87,11 +89,17 @@ func TestVM(t *testing.T) {
 	v := NewVM()
 
 	v.Load(data)
-	LogOut(v, os.Stdout)
+	out := &bytes.Buffer{}
+	HandleOutLog(v, out)
+	HandInStr(v)
 	for !v.IsExited() {
-//				log.Println(v.Report())
 		v.Loop()// call
+		//		log.Info(v.Report())
 	}
-	log.Println(v.Report())
-	log.Println(v.GetStr(112))
+	//	log.Info(v.Report())
+	//	log.Info(v.GetStr(112))
+
+	if out.String() != "ABC\n" {
+		t.Error("Output not match, got %s", out.String())
+	}
 }
