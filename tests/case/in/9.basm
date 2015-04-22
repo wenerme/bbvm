@@ -6,20 +6,20 @@ ld int r2, STR_ABC
 ld int r3, STR_ABC
 in r1, 9
 out 0, r1
-;>0\n
+;>0
 
 ld int r2, STR_ABC
 ld int r3, STR_CBA
 in r1, 9
 out 0, r1
-;>1\n
+;>1
 
 ; 交换了 r2 和 r3 的顺序
 ld int r2, STR_CBA
 ld int r3, STR_ABC
 in r1, 9
 out 0, r1
-;>-1\n
+;>-1
 
 exit
 data STR_XWW char "小文文",0

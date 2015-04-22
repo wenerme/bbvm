@@ -26,6 +26,10 @@ func (v *vm)SetInt(addr int, i int) {
 	binary.LittleEndian.PutUint32(v.mem[addr:], uint32(i))
 }
 
+func (v *vm)MustGetStr(addr int) (string) {
+	s, _ := v.GetStr(addr)
+	return s
+}
 func (v *vm)GetStr(addr int) (string, bool) {
 	if addr < 0 {
 		if s, ok := v.strPool.Get(addr).Get().(string); ok {

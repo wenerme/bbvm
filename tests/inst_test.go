@@ -90,7 +90,7 @@ func TestVM(t *testing.T) {
 
 	v.Load(data)
 	out := &bytes.Buffer{}
-	HandleOutLog(v, out)
+	OUT.OutputToWriter(v, out)
 	HandInStr(v)
 	for !v.IsExited() {
 		v.Loop()// call

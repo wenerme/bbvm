@@ -1,16 +1,27 @@
 #! /usr/bin.env bash
-BB_HOME=$PWD/bb/
+BB_HOME=$PWD/bb
 BB_TOOL=$BB_HOME/tool
 PATH=$PATH:$BB_HOME/tool
 
 export BB_HOME BB_TOOL
 
-gbk2utf8(){
+function gbk2utf8()
+{
 	iconv -f gbk -t utf-8
 }
 
 runtool()
 {
+
+	false && type prlctl 2>&1 1>/dev/null &&
+	{
+		if echo $1 | grep $BB_HOME; then
+			open "$1" "$@" | gbk2utf8
+		else
+			open "$BB_TOOL/$1" "$@" | gbk2utf8
+		fi
+		return 0
+	}
 	type wine 2>&1 1>/dev/null &&
 	{
 		if echo $1 | grep $BB_HOME; then
@@ -48,9 +59,7 @@ bbasic()
 bbr()
 {
 	cp $1 $BB_HOME/Sim/BBasic/Test.bin
-	cd $BB_HOME/Sim/Debug/
 	gamdev
-	cd -
 }
 
 bbc()
@@ -92,4 +101,8 @@ bbar <asm>  compile asm and run
 HELP
 }
 
-bbcr test.bas
+#echo $BASH_VERSION
+#bbcr test.bas
+#set -x
+cd in
+bbar 9.basm

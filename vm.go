@@ -109,6 +109,13 @@ func (v *vm)Register(t RegisterType) Register {
 }
 func (v *vm)Loop() {
 	v.rp.Changed = false
+
+	if v.rp.Get() >= len(v.mem){
+		log.Info("Run over, exit")
+		v.Exit()
+		return
+	}
+
 	err := v.inst.UnmarshalBinary(v.mem[v.rp.Get():])
 	if err != nil { panic(err)}
 	v.Proc()
