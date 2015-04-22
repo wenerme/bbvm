@@ -1,0 +1,41 @@
+; 37 | 中间取字符串 | 截取长度 |
+; r0:截取长度<br>r1:截取位置<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改
+
+in r3, 2
+; BUG: 必须要有该操作,让字符串有内容
+ld int r2, EMPTY
+in r0, 5
+
+ld int r2, STR
+ld int r0, 1
+ld int r1, 3
+out 0, [STR_HDL]
+;>2
+in [STR_HDL], 37
+out 1, r3
+;>d
+out 0, r3
+;>-1
+out 0, [STR_HDL]
+;>1
+;返回的截取长度
+
+; BUG: 必须要有该操作,让字符串有内容
+ld int r2, EMPTY
+in r0, 5
+ld int r2, STR
+
+ld int r0, 2
+ld int r1, 4
+in r1, 37
+out 1, r3
+;>ef
+out 0, r1
+;>2
+
+exit
+DATA EMPTY char "ABCXYZ",0
+DATA STR char "abcdefg",0
+DATA EMPTY_HDL int 0
+DATA STR_HDL int 2,0
+DATA INT_STR char "12345.99",0

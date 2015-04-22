@@ -92,5 +92,5 @@ func testByBAsm(file string, t *testing.T) bool {
 }
 
 func TestIn9(t *testing.T) {
-	testByBAsm("case/in/16.basm", t)
+	testByBAsm("case/in/38.basm", t)
 }
