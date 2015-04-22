@@ -97,7 +97,7 @@ func main() {
 	//	fmt.Println(os.Args)
 	//	app.Run(os.Args)
 	os.Chdir("doc/testsuit")
-	os.Args = []string{"bb", "--bb", "doc/testsuit/BB", "prepare", "../../tests/case/in/16.basm"}
+	os.Args = []string{"bb", "--bb", "doc/testsuit/BB", "prepare", "../../tests/case/in/12.basm"}
 	app.RunAndExitOnError()
 	//	app.Run([]string{"bb", "--bb", "BB/Tool", "help"})
 	//	fmt.Println("BBDIR ", bbDir.Value)

@@ -4,6 +4,7 @@ import (
 	"math"
 	"strconv"
 	"fmt"
+	"time"
 )
 type in struct { }
 var IN in
@@ -26,9 +27,8 @@ func inStrFunc(i *Inst) {
 			rlog.Error("Acquire StrRes faield: %s", err)
 		}
 		case 5:
-		rlog.Info("StrRes copy '%s' to %d", o.Str(), v.Register(REG_R3).Get())
-		v.StrPool().Get(v.Register(REG_R3).Get()).Set(o.Str())
-		// TODO 确认是否返回r3的值
+		rlog.Info("StrRes copy '%s' to %d", v.r2.Str(), v.Register(REG_R3).Get())
+		v.r3.SetStr(v.r2.Str())
 		o.Set(v.r3.Get())
 		case 8:
 		hdl := v.Register(REG_R3).Get()
@@ -48,8 +48,30 @@ func inStrFunc(i *Inst) {
 		o.Set(r)
 
 		case 12:
-		
+		s, i := v.r3.Str(), v.r2.Get()
+		if len(s) <i {
+			log.Error("Get char of '%s' at %d out of rang", s, i)
+			o.Set(0)
+		}else {
+			o.Set(int(int8(s[i])))
+		}
 		case 13:
+
+		r, c, i := v.r3.StrRes(), v.r1.Get(), v.r2.Get()
+		if r != nil {
+			s := r.Get().(string)
+			b := []byte(s)
+			if len(b)<i {
+				log.Error("Set char of '%s'@%d at %d to '%c' failed:out of range", s,v.r3.Get(), i, c)
+			}else {
+				b[i] = byte(c%256)
+				r.Set(string(b))
+				break
+			}
+		}else {
+			log.Error("Set char of %d at %d to %c failed:not a str res", v.r3.Get(), i, c)
+		}
+		o.Set(v.r3.Get())
 	}
 }
 
@@ -90,15 +112,17 @@ func inConvFunc(i *Inst) {
 			log.Error("GetStr faield")
 		}
 		case 10:
-		v.r2.SetStr(fmt.Sprintf("%.6f", float32(v.r3.Get())))
+		v.r2.SetStr(fmt.Sprintf(FORMAT_FLOAT, float32(v.r3.Get())))
 		o.Set(v.r3.Get())
 		case 11:
 		f, err := strconv.ParseFloat(v.r3.Str(), 32)
 		if err!= nil {
 			log.Error(err.Error())
+			o.Set(0)
 		}else {
 			o.SetFloat32(float32(f))
 		}
+
 
 	}
 }
@@ -108,6 +132,8 @@ func (in)StrFunc(v VM) {
 	v.SetIn(HANDLE_ALL, 5, inStrFunc)
 	v.SetIn(HANDLE_ALL, 8, inStrFunc)
 	v.SetIn(HANDLE_ALL, 9, inStrFunc)
+	v.SetIn(HANDLE_ALL, 12, inStrFunc)
+	v.SetIn(HANDLE_ALL, 13, inStrFunc)
 }
 func (in)ConvFunc(v VM) {
 	v.SetIn(HANDLE_ALL, 0, inConvFunc)
@@ -116,4 +142,20 @@ func (in)ConvFunc(v VM) {
 	v.SetIn(HANDLE_ALL, 4, inConvFunc)
 	v.SetIn(HANDLE_ALL, 10, inConvFunc)
 	v.SetIn(HANDLE_ALL, 11, inConvFunc)
+}
+func (in)Misc(v VM) {
+	v.SetIn(HANDLE_ALL, 14, inMisc)
+	v.SetIn(HANDLE_ALL, 15, inMisc)
+}
+//14 | （功用不明） | 65535 |  |
+//15 | 获取嘀嗒计数 | 嘀嗒计数 |  | 这里不知道他是怎么算的这个数字,但是会随着时间增长就是了
+func inMisc(i *Inst) {
+	_, p, o := i.VM, i.B.Get(), i.A // port and param
+
+	switch p{
+		case 14:
+		o.Set(65535)
+		case 15:
+		o.Set(int(time.Now().Unix()))
+	}
 }

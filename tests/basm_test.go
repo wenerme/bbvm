@@ -21,7 +21,7 @@ func testByBAsm(file string, t *testing.T) bool {
 	if err!= nil { panic(err) }
 	basm := string(b)
 
-	regIO := regexp.MustCompile(`(?m);\s*(\|?(\<|\>))([^\r\n]*)`)
+	regIO := regexp.MustCompile(`;\s*(\|?(\<|\>))([^\r\n]*)`)
 
 	matches := regIO.FindAllStringSubmatch(basm, -1)
 	//	t.Log(matches)
@@ -29,13 +29,14 @@ func testByBAsm(file string, t *testing.T) bool {
 		val := string(v[3])
 		val = strings.TrimRight(val, " ")
 		val = strings.Replace(val, `\n`, "\n", -1)
-		//		t.Logf("%s %#v",string(v[1]),string(v[2]))
+		//		t.Logf("%#v", v)
 		switch string(v[1]){
 			case "|>":
 			expected.WriteString(val)
 			case ">":
 			expected.WriteString(val)
 			expected.WriteString("\n")
+			//			t.Logf("APPEND LINE %s =  %s\n", val, expected.String())
 			case "|<":
 			input.WriteString(val)
 			case "<":
@@ -57,12 +58,14 @@ func testByBAsm(file string, t *testing.T) bool {
 	v.Load(rom[16:])
 	IN.StrFunc(v)
 	IN.ConvFunc(v)
+	IN.Misc(v)
 	OUT.OutputToWriter(v, output)
 	OUT.InputByReader(v, input)
 	logging.SetLevel(logging.INFO, "bbvm")
 	for !v.IsExited() {
 		v.Loop()// call
-		//				t.Log(v.Report())
+//		t.Log(v.Report())
+//		t.Logf("%10s: %#v\n", "output", string(output.Bytes()))
 	}
 	t.Logf("%10s: %#v\n", "output", string(output.Bytes()))
 
@@ -91,5 +94,5 @@ func testByBAsm(file string, t *testing.T) bool {
 }
 
 func TestIn9(t *testing.T) {
-	testByBAsm("case/in/11.basm", t)
+	testByBAsm("case/in/13.basm", t)
 }

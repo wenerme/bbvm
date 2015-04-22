@@ -2,7 +2,6 @@ package main
 
 import (
 	. "../."
-	"log"
 	"fmt"
 )
 
@@ -29,7 +28,7 @@ func (a B)Get() int {
 //}
 func main() {
 	vm := NewVM()
-	log.Println(vm)
+	_ = vm
 
 	//	b := make([]byte, 4)
 	//	i := -1
@@ -40,7 +39,8 @@ func main() {
 	//	fmt.Print(v.Get())
 
 	var b B = B(A{})
-	fmt.Print(b.Get())
+	fmt.Println(b.Get())
+	fmt.Printf("%010.6f\n", 1.234)
 
 }
 

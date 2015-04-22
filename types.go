@@ -1,5 +1,6 @@
 package bbvm
 
+const FORMAT_FLOAT = "%010.6f"
 
 type DataType uint8
 const (

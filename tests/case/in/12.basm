@@ -26,6 +26,10 @@ ld int r2, 1
 in r1, 12
 out 0, r1;>-80
 
+ld int r2, 100; 超出范围返回
+in r1, 12
+out 0, r1;>0
+
 exit
 ; 选择了一个能够正确转换为浮点数的数值
 data STR_F char "123.019997",0

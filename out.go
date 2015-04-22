@@ -60,7 +60,7 @@ func (out)OutputToWriter(v VM, o io.Writer) {
 			case 2: msg = i.B.Str()
 			case 3: msg = strconv.Itoa(i.B.Get())
 			case 4: msg = fmt.Sprintf("%c", i.B.Get())
-			case 5: msg = fmt.Sprintf("%.6f", i.B.Float32())
+			case 5: msg = fmt.Sprintf(FORMAT_FLOAT, i.B.Float32())
 		}
 		fmt.Fprint(o, msg)
 	}

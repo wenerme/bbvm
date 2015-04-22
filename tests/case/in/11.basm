@@ -16,7 +16,7 @@ ld int r3, STR_FAIL
 in r1, 11
 out 0, r2;>0
 out 1, r3;>ABCD
-out 5, r1;|>000.000
+out 5, r1;|>000.000000
 
 exit
 ; 选择了一个能够正确转换为浮点数的数值
