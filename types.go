@@ -161,7 +161,7 @@ const (
 	REG_R3
 )
 
-func (r RegisterType)String()string {
+func (r RegisterType)String() string {
 	switch r{
 		case REG_RP: return "RP"
 		case REG_RF: return "RF"
@@ -174,3 +174,5 @@ func (r RegisterType)String()string {
 	}
 	return "UNKNOW RegisterType"
 }
+
+

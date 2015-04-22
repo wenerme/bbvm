@@ -105,4 +105,7 @@ HELP
 #bbcr test.bas
 #set -x
 cd in
-bbar 9.basm
+#bbar 11.basm
+#bbar 12.basm
+#bbar 13.basm
+#bbar 16.basm

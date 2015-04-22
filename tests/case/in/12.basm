@@ -7,24 +7,24 @@ ld int r3, STR_F
 ld int r2, 1
 in r1, 12
 
-out 0, r0; 输出:0
-out 0, r2; 输出:0
-out 1, r3; 输出:123.019997
-out 0, r1; 输出:50
+out 0, r0;>0
+out 0, r2;>1
+out 1, r3;>123.019997
+out 0, r1;>50
 
 ld int r2, 2
 in r1, 12
-out 0, r1; 输出:51
+out 0, r1;>51
 
 
 ld int r3, STR_CN
 ld int r2, 0
 in r1, 12
-out 0, r1; 输出:-48
+out 0, r1;>-27
 
 ld int r2, 1
 in r1, 12
-out 0, r1; 输出:-95
+out 0, r1;>-80
 
 exit
 ; 选择了一个能够正确转换为浮点数的数值

@@ -6,7 +6,7 @@ import (
 	"encoding/binary"
 )
 
-
+var ErrDataToShort = errors.New("Data to short to UnmarshalBinary")
 
 type Inst struct {
 	DataType DataType
@@ -18,38 +18,40 @@ type Inst struct {
 
 	VM *vm
 }
+
 type Operand struct {
 	Val uint32
 	AddrMode AddressMode
-	Vm *vm
+	VM *vm
 }
+
 func (o *Operand)Get() int {
 	switch (o.AddrMode) {
 		case AM_REGISTER:
-		return o.Vm.Register(RegisterType(o.Val)).Get();
+		return o.VM.Register(RegisterType(o.Val)).Get();
 		case AM_REGISTER_DEFERRED:
-		return o.Vm.GetInt(o.Vm.Register(RegisterType(o.Val)).Get());
+		return o.VM.GetInt(o.VM.Register(RegisterType(o.Val)).Get());
 		case AM_IMMEDIATE:
 		return int(o.Val);
 		case AM_DIRECT:
-		return o.Vm.GetInt(int(o.Val));
+		return o.VM.GetInt(int(o.Val));
 	}
 	panic("Unexcepted")
 }
 func (o *Operand)Uint() uint {
 	return uint(o.Get())
 }
-func (o *Operand)Float() float32 {
+func (o *Operand)Float32() float32 {
 	return math.Float32frombits(uint32(o.Get()))
 }
-func (o *Operand)SetFloat(v float32) {
+func (o *Operand)SetFloat32(v float32) {
 	o.Set(int(math.Float32bits(v)))
 }
 func (o *Operand)StrRes() Res {
-	return o.Vm.StrPool().Get(o.Get())
+	return o.VM.StrPool().Get(o.Get())
 }
 func (o *Operand)Str() string {
-	if s, ok := o.Vm.GetStr(o.Get()); ok {
+	if s, ok := o.VM.GetStr(o.Get()); ok {
 		return s
 	}else {
 		log.Error("Operand string res %d not exists", o.Get())
@@ -66,13 +68,13 @@ func (o *Operand)SetStr(v string) {
 func (o *Operand)Set(i int) {
 	switch (o.AddrMode) {
 		case AM_REGISTER:
-		o.Vm.Register(RegisterType(o.Val)).Set(i);
+		o.VM.Register(RegisterType(o.Val)).Set(i);
 		case AM_REGISTER_DEFERRED:
-		o.Vm.SetInt(o.Vm.Register(RegisterType(o.Val)).Get(), i);
+		o.VM.SetInt(o.VM.Register(RegisterType(o.Val)).Get(), i);
 		case AM_IMMEDIATE:
 		log.Error("ERR Set a IMMEDIATE operand")
 		case AM_DIRECT:
-		o.Vm.SetInt(int(o.Val), i);
+		o.VM.SetInt(int(o.Val), i);
 		default:
 		log.Error("ERR Unknown address mode when set operand")
 	}
@@ -90,7 +92,6 @@ func (o Operand)String() string {
 	}
 	return "ERR Unknown address mode"
 }
-var ErrDataToShort = errors.New("Data to short to UnmarshalBinary")
 
 func (i *Inst)MarshalBinary() ([]byte, error) {
 	data := make([]byte, i.Opcode.Len())

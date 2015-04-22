@@ -73,7 +73,7 @@ func (v *vm)Proc() {
 		{
 			var oc float32
 			if i.DataType == T_FLOAT {
-				oc = i.A.Float() - i.B.Float()
+				oc = i.A.Float32() - i.B.Float32()
 			}else {
 				oc = float32(i.A.Get() - i.B.Get())
 			}

@@ -21,12 +21,12 @@ func testByBAsm(file string, t *testing.T) bool {
 	if err!= nil { panic(err) }
 	basm := string(b)
 
-	regIO := regexp.MustCompile(`(?m)^\s*;\s*(\|?\<|\>)([^\r\n]*)`)
+	regIO := regexp.MustCompile(`(?m);\s*(\|?(\<|\>))([^\r\n]*)`)
 
 	matches := regIO.FindAllStringSubmatch(basm, -1)
 	//	t.Log(matches)
 	for _, v := range matches {
-		val := string(v[2])
+		val := string(v[3])
 		val = strings.TrimRight(val, " ")
 		val = strings.Replace(val, `\n`, "\n", -1)
 		//		t.Logf("%s %#v",string(v[1]),string(v[2]))
@@ -44,8 +44,8 @@ func testByBAsm(file string, t *testing.T) bool {
 		}
 	}
 
-	t.Logf("%10s: %#v\n","expected", string(expected.Bytes()))
-	t.Logf("%10s: %#v\n","input", string(input.Bytes()))
+	t.Logf("%10s: %#v\n", "expected", string(expected.Bytes()))
+	t.Logf("%10s: %#v\n", "input", string(input.Bytes()))
 
 	v := NewVM()
 
@@ -55,23 +55,41 @@ func testByBAsm(file string, t *testing.T) bool {
 		t.Fail()
 	}
 	v.Load(rom[16:])
-	HandInStr(v)
-	OUT.OutputToWriter(v,output)
-	OUT.InputByReader(v,input)
+	IN.StrFunc(v)
+	IN.ConvFunc(v)
+	OUT.OutputToWriter(v, output)
+	OUT.InputByReader(v, input)
 	logging.SetLevel(logging.INFO, "bbvm")
 	for !v.IsExited() {
 		v.Loop()// call
-		//		t.Log(v.Report())
+		//				t.Log(v.Report())
 	}
-	t.Logf("%10s: %#v\n","output", string(output.Bytes()))
+	t.Logf("%10s: %#v\n", "output", string(output.Bytes()))
 
-	if bytes.Compare(output.Bytes(), expected.Bytes())!= 0 {
-		t.Error("Output is not expected")
-		return false
+	for {
+		o, oe := output.ReadString('\n')
+		e, ee := expected.ReadString('\n')
+		if len(o) > 1 {o = o[:len(o)-1]}
+		if len(e) > 1 {e = e[:len(e)-1]}
+
+		// support skip syntax
+		if e == "skip" { continue }
+
+		if o != e {
+			t.Errorf("Output is not expected: %s != %s", o, e)
+			return false
+		}
+		if oe != nil || ee != nil {
+			if len(expected.Bytes()) != len(output.Bytes()) {
+				t.Error("Final output is not expected")
+				return false
+			}
+			break
+		}
 	}
 	return true
 }
 
 func TestIn9(t *testing.T) {
-	testByBAsm("case/out/10.basm", t)
+	testByBAsm("case/in/11.basm", t)
 }

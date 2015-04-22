@@ -7,32 +7,66 @@ import (
 type InstHandler func(*Inst)
 const HANDLE_ALL = math.MaxInt32
 
+
+type VM interface {
+	SetOut(int, int, InstHandler)
+	SetIn(int, int, InstHandler)
+	StrPool() ResPool
+	MustGetStr(int) string
+}
+
 type Register interface {
 	Get() int
 	Set(int)
 }
 type register struct {
-	val int
+	Val int
+	VM *vm
 }
+
 func (r *register)Get() int {
-	return r.val
+	return r.Val
 }
 func (r *register)Set(v int) {
-	r.val = v
+	r.Val = v
+}
+func (o *register)Float32() float32 {
+	return math.Float32frombits(uint32(o.Get()))
+}
+func (o *register)SetFloat32(v float32) {
+	o.Set(int(math.Float32bits(v)))
+}
+func (o *register)StrRes() Res {
+	return o.VM.StrPool().Get(o.Get())
+}
+func (o *register)Str() string {
+	if s, ok := o.VM.GetStr(o.Get()); ok {
+		return s
+	}else {
+		log.Error("register string res %d not exists", o.Get())
+		return ""
+	}
+}
+func (o *register)SetStr(v string) {
+	if r := o.StrRes(); r!= nil {
+		o.StrRes().Set(v)
+	}else {
+		log.Error("register string res %d not exists", o.Get())
+	}
 }
 
 type monitorRegister struct {
-	val int
+	register
 	Changed bool
 }
 
 func (r *monitorRegister)Set(v int) {
-	r.val=v
+	r.Val=v
 	r.Changed = true
 }
 
 func (r *monitorRegister)Get() int {
-	return r.val
+	return r.Val
 }
 
 
@@ -110,7 +144,7 @@ func (v *vm)Register(t RegisterType) Register {
 func (v *vm)Loop() {
 	v.rp.Changed = false
 
-	if v.rp.Get() >= len(v.mem){
+	if v.rp.Get() >= len(v.mem) {
 		log.Info("Run over, exit")
 		v.Exit()
 		return
@@ -150,14 +184,20 @@ func NewVM() *vm {
 	}
 	v.strPool = newStrPool()
 	v.inst.VM = v
-	v.inst.A.Vm = v
-	v.inst.B.Vm = v
+	v.inst.A.VM = v
+	v.inst.B.VM = v
+	v.r0.VM = v
+	v.r1.VM = v
+	v.r2.VM = v
+	v.r3.VM = v
+	v.rs.VM = v
+	v.rb.VM = v
+	v.rp.VM = v
+
+	v.Reset()
+
 	return v
 }
 
-type VM interface {
-	SetOut(int, int, InstHandler)
-	SetIn(int, int, InstHandler)
-}
 
 

@@ -22,19 +22,6 @@ func init() {
 	logging.SetBackend(backend1Formatter)
 }
 
-type GeneralVal interface {
-	Str() string
-	Res(ResPool) Res
-	Int() int
-	UInt() uint
-	Float() float32
-}
-
-type intBasedVal struct {
-	Val int
-	VM VM
-}
-
 func calculate(a int, b int, t CalculateType, d DataType) int {
 	var oa, ob, oc float64
 	if d == T_FLOAT {
