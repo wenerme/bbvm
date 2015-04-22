@@ -32,7 +32,7 @@ func (o *Operand)Get() int {
 		case AM_REGISTER_DEFERRED:
 		return o.VM.GetInt(o.VM.Register(RegisterType(o.Val)).Get());
 		case AM_IMMEDIATE:
-		return int(o.Val);
+		return int(int32(o.Val));// must convert to int32 first
 		case AM_DIRECT:
 		return o.VM.GetInt(int(o.Val));
 	}
@@ -45,7 +45,7 @@ func (o *Operand)Float32() float32 {
 	return math.Float32frombits(uint32(o.Get()))
 }
 func (o *Operand)SetFloat32(v float32) {
-	o.Set(int(math.Float32bits(v)))
+	o.Set(int(int32(math.Float32bits(v))))// Must conver to int32 first
 }
 func (o *Operand)StrRes() Res {
 	return o.VM.StrPool().Get(o.Get())

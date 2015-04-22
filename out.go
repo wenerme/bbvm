@@ -24,12 +24,6 @@ func (out)InputByReader(v VM, input io.Reader) {
 		}
 		s = s[:len(s)-1]
 		switch p{
-			//			case 10:
-			//			i, err := strconv.Atoi(s)
-			//			if err != nil {
-			//				log.Error("Input int failed, got '%s': %s", s, err)
-			//			}
-			//			v.r3.Set(i)
 			case 11:
 			v.StrPool().Get(v.r3.Get()).Set(s)
 			case 10:
@@ -60,7 +54,7 @@ func (out)OutputToWriter(v VM, o io.Writer) {
 			case 2: msg = i.B.Str()
 			case 3: msg = strconv.Itoa(i.B.Get())
 			case 4: msg = fmt.Sprintf("%c", i.B.Get())
-			case 5: msg = fmt.Sprintf(FORMAT_FLOAT, i.B.Float32())
+			case 5: msg = float32ToStr(i.B.Float32())
 		}
 		fmt.Fprint(o, msg)
 	}

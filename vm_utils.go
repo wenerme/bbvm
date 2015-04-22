@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"github.com/op/go-logging"
 	"os"
+	"fmt"
 )
 
 
@@ -89,4 +90,9 @@ func newStrPool() ResPool {
 	}
 }
 
-
+func float32ToStr(f float32)string {
+	if f == 0 {
+		return "000.000000"
+	}
+	return fmt.Sprintf("%.6f", f)
+}

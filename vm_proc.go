@@ -19,7 +19,7 @@ func (v *vm)Jump(addr int) {
 }
 
 func (v *vm)GetInt(addr int) int {
-	return int(binary.LittleEndian.Uint32(v.mem[addr:]))
+	return int(int32(binary.LittleEndian.Uint32(v.mem[addr:])))// must convert to int32 first
 }
 
 func (v *vm)SetInt(addr int, i int) {

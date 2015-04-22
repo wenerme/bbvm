@@ -3,7 +3,6 @@ import (
 	"bytes"
 	"math"
 	"strconv"
-	"fmt"
 	"time"
 )
 type in struct { }
@@ -62,7 +61,7 @@ func inStrFunc(i *Inst) {
 			s := r.Get().(string)
 			b := []byte(s)
 			if len(b)<i {
-				log.Error("Set char of '%s'@%d at %d to '%c' failed:out of range", s,v.r3.Get(), i, c)
+				log.Error("Set char of '%s'@%d at %d to '%c' failed:out of range", s, v.r3.Get(), i, c)
 			}else {
 				b[i] = byte(c%256)
 				r.Set(string(b))
@@ -112,7 +111,7 @@ func inConvFunc(i *Inst) {
 			log.Error("GetStr faield")
 		}
 		case 10:
-		v.r2.SetStr(fmt.Sprintf(FORMAT_FLOAT, float32(v.r3.Get())))
+		v.r2.SetStr(float32ToStr(float32(v.r3.Get())))
 		o.Set(v.r3.Get())
 		case 11:
 		f, err := strconv.ParseFloat(v.r3.Str(), 32)
@@ -127,7 +126,7 @@ func inConvFunc(i *Inst) {
 	}
 }
 
-func (in)StrFunc(v VM) {
+func (in)Str(v VM) {
 	v.SetIn(HANDLE_ALL, 2, inStrFunc)
 	v.SetIn(HANDLE_ALL, 5, inStrFunc)
 	v.SetIn(HANDLE_ALL, 8, inStrFunc)
@@ -135,7 +134,7 @@ func (in)StrFunc(v VM) {
 	v.SetIn(HANDLE_ALL, 12, inStrFunc)
 	v.SetIn(HANDLE_ALL, 13, inStrFunc)
 }
-func (in)ConvFunc(v VM) {
+func (in)Conv(v VM) {
 	v.SetIn(HANDLE_ALL, 0, inConvFunc)
 	v.SetIn(HANDLE_ALL, 1, inConvFunc)
 	v.SetIn(HANDLE_ALL, 3, inConvFunc)
@@ -144,12 +143,26 @@ func (in)ConvFunc(v VM) {
 	v.SetIn(HANDLE_ALL, 11, inConvFunc)
 }
 func (in)Misc(v VM) {
-	v.SetIn(HANDLE_ALL, 14, inMisc)
-	v.SetIn(HANDLE_ALL, 15, inMisc)
+	v.SetIn(HANDLE_ALL, 14, inMiscFunc)
+	v.SetIn(HANDLE_ALL, 15, inMiscFunc)
+}
+func (in)Math(v VM) {
+	v.SetIn(HANDLE_ALL, 16, inMathFunc)
+	v.SetIn(HANDLE_ALL, 17, inMathFunc)
+	v.SetIn(HANDLE_ALL, 18, inMathFunc)
+	v.SetIn(HANDLE_ALL, 19, inMathFunc)
+	v.SetIn(HANDLE_ALL, 20, inMathFunc)
+	v.SetIn(HANDLE_ALL, 21, inMathFunc)
+}
+func (i in)All(v VM) {
+	i.Conv(v)
+	i.Str(v)
+	i.Misc(v)
+	i.Math(v)
 }
 //14 | （功用不明） | 65535 |  |
 //15 | 获取嘀嗒计数 | 嘀嗒计数 |  | 这里不知道他是怎么算的这个数字,但是会随着时间增长就是了
-func inMisc(i *Inst) {
+func inMiscFunc(i *Inst) {
 	_, p, o := i.VM, i.B.Get(), i.A // port and param
 
 	switch p{
@@ -158,4 +171,36 @@ func inMisc(i *Inst) {
 		case 15:
 		o.Set(int(time.Now().Unix()))
 	}
+}
+//16 | 求正弦值 | X!的正弦值 | r3:X! |
+//17 | 求余弦值 | X!的余弦值 | r3:X! |
+//18 | 求正切值 | X!的正切值 | r3:X! |
+//19 | 求平方根值 | X!的平方根值 | r3:X! |
+//20 | 求绝对值 | X%的绝对值 | r3:X% |
+//21 | 求绝对值 | X!的绝对值 | r3:X! |
+func inMathFunc(i *Inst) {
+	v, p, o := i.VM, i.B.Get(), i.A // port and param
+	a, b := float64(v.r3.Float32()), float64(0)
+	switch p{
+		case 16:
+		b = math.Sin(a)
+		case 17:
+		b = math.Cos(a)
+		case 18:
+		b = math.Tan(a)
+		case 19:
+		b = math.Sqrt(a)
+		case 20:
+		i := v.r3.Get()
+		if i < 0 {
+			i = -i
+		}
+		o.Set(i)
+		log.Error("DO IN 20 %d", v.r3.Get())
+		return
+		case 21:
+		b = math.Abs(a)
+	}
+
+	o.SetFloat32(float32(b))
 }

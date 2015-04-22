@@ -56,9 +56,7 @@ func testByBAsm(file string, t *testing.T) bool {
 		t.Fail()
 	}
 	v.Load(rom[16:])
-	IN.StrFunc(v)
-	IN.ConvFunc(v)
-	IN.Misc(v)
+	IN.All(v)
 	OUT.OutputToWriter(v, output)
 	OUT.InputByReader(v, input)
 	logging.SetLevel(logging.INFO, "bbvm")
@@ -94,5 +92,5 @@ func testByBAsm(file string, t *testing.T) bool {
 }
 
 func TestIn9(t *testing.T) {
-	testByBAsm("case/in/13.basm", t)
+	testByBAsm("case/in/16.basm", t)
 }
