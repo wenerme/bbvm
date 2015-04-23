@@ -49,7 +49,7 @@ func (v *vm)GetStr(addr int) (string, bool) {
 func (v *vm)Proc() {
 	i := &v.inst
 
-	log.Debug("PROC: %s", i)
+//	log.Info("%s", v.Report())
 	switch v.inst.Opcode{
 		case OP_EXIT:
 		v.Exit()

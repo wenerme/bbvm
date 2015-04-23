@@ -41,9 +41,11 @@ func main() {
 	var b B = B(A{})
 	fmt.Println(b.Get())
 	fmt.Printf("%010.6f\n", 1.234)
-	i := uint32(4294967173)
-	fmt.Println(int32(i))
 
+	var i interface{}
+	i = nil
+	ia,ok:= i.(*A)
+	fmt.Print(ia, ok)
 }
 
 
