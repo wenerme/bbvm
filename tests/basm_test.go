@@ -59,11 +59,12 @@ func testByBAsm(file string, t *testing.T) bool {
 	IN.All(v)
 	OUT.OutputToWriter(v, output)
 	OUT.InputByReader(v, input)
+	Handle.All(v)
 	logging.SetLevel(logging.INFO, "bbvm")
 	for !v.IsExited() {
 		v.Loop()// call
-//		t.Log(v.Report())
-//		t.Logf("%10s: %#v\n", "output", string(output.Bytes()))
+		//		t.Log(v.Report())
+		//		t.Logf("%10s: %#v\n", "output", string(output.Bytes()))
 	}
 	t.Logf("%10s: %#v\n", "output", string(output.Bytes()))
 
@@ -92,5 +93,6 @@ func testByBAsm(file string, t *testing.T) bool {
 }
 
 func TestIn9(t *testing.T) {
-	testByBAsm("case/in/38.basm", t)
+	//	testByBAsm("case/in/38.basm", t)
+	testByBAsm("case/out/read-restore.basm", t)
 }

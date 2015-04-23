@@ -1,31 +1,31 @@
 read i
-read name$ ' Êä³ö: 1
+read name$ ' è¾“å‡º: 1
 print i
-print name$' Êä³ö: wener
+print name$' è¾“å‡º: wener
 
 read i
-read name$' Êä³ö: 2
+read name$' è¾“å‡º: 2
 print i
-print name$' Êä³ö: xiao
+print name$' è¾“å‡º: xiao
 
 restore FDATA
 read i
-read name$' Êä³ö: 1
+read name$' è¾“å‡º: 1
 print i
-print name$' Êä³ö: wener
+print name$' è¾“å‡º: wener
 
 restore SDATA
 read i
-read name$' Êä³ö: 3
+read name$' è¾“å‡º: 3
 print i
-print name$' Êä³ö: ÎÄ¶ù
+print name$' è¾“å‡º: æ–‡å„¿
 
 read i!
 read name$
-print i!' Êä³ö: 4.123
-print name$' Êä³ö: Ğ¦
+print i!' è¾“å‡º: 4.123
+print name$' è¾“å‡º: ç¬‘
 
 FDATA:
 data 1, "wener", 2,"xiao"
 SDATA:
-data 3, "ÎÄ¶ù", 4.123,"Ğ¦"
+data 3, "æ–‡å„¿", 4.123,"ç¬‘"

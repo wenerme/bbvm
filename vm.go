@@ -13,6 +13,7 @@ type VM interface {
 	SetIn(int, int, InstHandler)
 	StrPool() ResPool
 	MustGetStr(int) string
+	Attr() map[string]interface{}
 }
 
 type Register interface {
@@ -91,6 +92,8 @@ type vm struct {
 	stack []byte
 
 	strPool ResPool
+	// 存储各个模块的上下文信息
+	attr map[string]interface{}
 }
 func (v *vm)Load(rom []byte) {
 	log.Info("Load ROM. size: %d", len(rom))
@@ -175,10 +178,15 @@ func (v *vm)StrPool() ResPool {
 	return v.strPool
 }
 
+func (v *vm)Attr() map[string]interface{} {
+	return v.attr
+}
+
 
 
 func NewVM() *vm {
 	v := &vm{
+		attr: make(map[string]interface{}),
 		in:make(map[string]InstHandler),
 		out:make(map[string]InstHandler),
 	}

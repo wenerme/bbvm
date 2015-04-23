@@ -65,3 +65,4 @@ func (out)OutputToWriter(v VM, o io.Writer) {
 	v.SetOut(4, HANDLE_ALL, hdl)
 	v.SetOut(5, HANDLE_ALL, hdl)
 }
+
