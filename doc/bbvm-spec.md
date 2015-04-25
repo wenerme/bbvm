@@ -200,33 +200,33 @@ OUT
 13 | 从数据区读取整数 | 0 |  | r3的值变为读取的整数
 14 | 从数据区读取字符串 | 0 | r3:目标字符串句柄 | r3所指字符串的内容变为读取的字符串
 15 | 从数据区读取浮点数 | 0 |  | r3的值变为读取的浮点数
-16 | 设定模拟器屏幕 | 0 | r2:宽, r3:高 |  SetLcd
-17 | 申请画布句柄 | 0 ,r3:PAGE句柄 | - | CreatPage
-18 | 释放画布句柄 | 0 | r3:PAGE句柄 |  DeletePage
-19 | 申请图片句柄并从文件载入像素资源 | r3:资源句柄 | r3:文件名, r2:资源索引 |  LoadRes
-20 | 复制图片到画布上 | 0 | r3:地址,其他参数在该地址后 |  ShowPic
-21 | 显示画布 | 0 | r3:PAGE句柄 |  FlipPage
-22 | 复制画布 | 0 | r2:目标PAGE句柄,r3:源PAGE句柄 |  BitBltPage
-23 | 填充画布 | 0 | r3:参数地址 |  FillPage
-24 | 写入画布某点颜色 | 0 | r3:参数地址 |  Pixel
-25 | 读取画布某点颜色 | 0 | r3:参数地址 |  ReadPixel
-26 | 释放图片句柄 | 0 | r3:资源句柄 |  FreeRes
-27 | 延迟一段时间 | 0 | r3:延迟时间 |  MsDelay
-32 | 用种子初始化随机数生成器 | 0 | r3:SEED |  Randomize
-33 | 获取范围内随机数 | 0 | r3:RANGE |  Rnd
-34 | 判定某键是否按下 | 0 | r3:KEY |  KeyPress
+16 | 设定模拟器屏幕 | 0 | r2:宽, r3:高 |  SETLCD(WIDTH,HEIGHT)
+17 | 申请画布句柄 | 0 ,r3:PAGE句柄 | - | CREATEPAGE()
+18 | 释放画布句柄 | 0 | r3:PAGE句柄 |  DELETEPAGE(PAGE)
+19 | 申请图片句柄并从文件载入像素资源 | r3:资源句柄 | r3:文件名, r2:资源索引 |  LOADRES(FILE$,ID)
+20 | 复制图片到画布上 | 0 | r3:地址,其他参数在该地址后 |  SHOWPIC(PAGE,PIC,DX,DY,W,H,X,Y,MODE)
+21 | 显示画布 | 0 | r3:PAGE句柄 |  FLIPPAGE(PAGE)
+22 | 复制画布 | 0 | r2:目标PAGE句柄,r3:源PAGE句柄 |  BITBLTPAGE(DEST,SRC)
+23 | 填充画布 | 0 | r3:参数地址 |  FILLPAGE(PAGE,X,Y,WID,HGT,COLOR)
+24 | 写入画布某点颜色 | 0 | r3:参数地址 |  PIXEL(PAGE,X,Y,COLOR)
+25 | 读取画布某点颜色 | 0 | r3:参数地址 |  READPIXEL(PAGE,X,Y)
+26 | 释放图片句柄 | 0 | r3:资源句柄 |  FREERES(ID)
+27 | 延迟一段时间 | 0 | r3:延迟时间 |  MSDELAY(MSEC)
+32 | 用种子初始化随机数生成器 | 0 | r3:SEED |  RANDOMIZE(SEED)
+33 | 获取范围内随机数 | 0 | r3:RANGE |  RND(RANGE)
+34 | 判定某键是否按下 | 0;r3 | r3:KEY |  KEYPRESS(KEY)
 35 | 清屏 | 0 |  | 
-36 | 按行列定位光标 | 0 | r2:行,r3:列 |  Locate
-37 | 设定文字颜色 | 0 | r3:参数地址 |  Color
-38 | 设定文字字体大小 | 0 | r3:FONT |  Font
-39 | 等待按键 | r3:按键 | - |  WaitKey
-40 | 获取图片宽度 | r3 | r3 |  GetPicWid
-41 | 获取图片高度 | r3 | r3 |  GetPicHgt
-42 | 按坐标定位光标 | - | r2:行,r3:列 |  PixelLocate
-43 | 复制部分画布 | - | r3:参数地址 |  StretchBltPage
-44 | 设定背景模式 | r3:MODE | - |  SetBkMode
+36 | 按行列定位光标 | 0 | r2:行,r3:列 |  LOCATE(LINE,ROW)
+37 | 设定文字颜色 | 0 | r3:参数地址 |  COLOR(FRONT,BACK,FRAME)
+38 | 设定文字字体大小 | 0 | r3:FONT |  FONT(F)
+39 | 等待按键 | r3:按键 | - |  WAITKEY()
+40 | 获取图片宽度 | r3 | r3 |  GETPICWID(PIC)
+41 | 获取图片高度 | r3 | r3 |  GETPICHGT(PIC)
+42 | 按坐标定位光标 | - | r2:行,r3:列 |  PIXLOCATE(LINE,ROW)
+43 | 复制部分画布 | - | r3:参数地址 |  STRETCHBLTPAGE(X,Y,DEST,SRC)
+44 | 设定背景模式 | r3:MODE | - |  SETBKMODE(mode)
 45 | 获取按键的字符串 | 0 | r3:字符串句柄,用于存储结果 |  InKey$
-46 | 获取按键的ASCII码 | 0 | r3:KEYPRESS |  InKey
+46 | 获取按键的ASCII码 | 0 | r3:KEYPRESS |  INKEY()
 48 | 打开文件 | 0 | r0:打开方式<br>r1:文件号<br>r3:文件名字符串 | 打开方式目前只能为1
 49 | 关闭文件 | 文件号 |  | 
 50	| 从文件读取数据 | 16:读取整数 | r1:文件号<br>r2:位置偏移量 | r3的值变为读取的整数
@@ -237,15 +237,15 @@ OUT
 -	|  | 18:写入字符串 | r1:文件号<br>r2:位置偏移量<br>r3:字符串 | 
 52 | 判断文件位置指针是否指向文件尾 | 0;r3为0或1 | r3:文件号 |  Eof
 53 | 获取文件长度 | 0 | r3:文件号 |  Lof
-54 | 获取文件位置指针的位置 | 0;返回值在r3 | r3:文件号 |  Loc
+54 | 获取文件位置指针的位置 | 0;返回值在r3 | r3:文件号 |  LOC(FILE)
 55 | 定位文件位置指针 | 16 | r2:文件号<br>r3:目标位置 | 
-64 | 设置画笔 | 0 | r3:参数地址 |  SetPen
-65 | 设置刷子 | 0 | r2:PAGE r3:STYLE |  SetBrush
-66 | 移动画笔 | 0 | r1,r2,r3:PAGE,X,Y |  MoveTo
-67 | 画线 | 0 | r1,r2,r3:PAGE,X,Y |  LineTo
-68 | 画矩形 | 0 | r3:参数地址 |  Rectangle
-69 | 画圆 | 0 | r3:参数地址 |  Circle
-80 | 复制部分画布扩展 | 0 | r3:参数地址 |  StretchBltPageEx
+64 | 设置画笔 | 0 | r3:参数地址 |  SETPEN(PAGE,STYLE,WID,COLOR)
+65 | 设置刷子 | 0 | r2:PAGE r3:STYLE |  SETBRUSH(PAGE,STYLE)
+66 | 移动画笔 | 0 | r1,r2,r3:PAGE,X,Y |  MOVETO(PAGE,X,Y)
+67 | 画线 | 0 | r1,r2,r3:PAGE,X,Y |  LINETO(PAGE,X,Y)
+68 | 画矩形 | 0 | r3:参数地址 |  RECTANGLE(PAGE,LEFT,TOP,RIGHT,BOTTOM)
+69 | 画圆 | 0 | r3:参数地址 |  CIRCLE(PAGE,CX,CY,CR)
+80 | 复制部分画布扩展 | 0 | r3:参数地址 |  STRETCHBLTPAGEEX(X,Y,WID,HGT,CX,CY,DEST,SRC)
 255 | 虚拟机测试 | 0 | 0 |  VmTest
 
 杂项
