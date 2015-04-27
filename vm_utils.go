@@ -33,21 +33,21 @@ func calculate(a int, b int, t CalculateType, d DataType) int {
 		ob = float64(b)
 	}
 	switch t{
-		case CAL_ADD: oc = oa + ob
-		case CAL_SUB: oc = oa - ob
-		case CAL_MUL: oc = oa * ob
-		case CAL_DIV: oc = oa / ob
-		case CAL_MOD: oc = float64(int(oa) % int(ob))
-		default:
+	case CAL_ADD: oc = oa + ob
+	case CAL_SUB: oc = oa - ob
+	case CAL_MUL: oc = oa * ob
+	case CAL_DIV: oc = oa / ob
+	case CAL_MOD: oc = float64(int(oa) % int(ob))
+	default:
 		log.Error("Unhandled calculate")
 	}
 	var ret int
 	switch d{
-		case T_DWORD: ret = int(oc)
-		case T_WORD: ret = int(int16(oc))
-		case T_BYTE: ret = int(byte(oc))
-		case T_FLOAT: ret = int(math.Float32bits(float32(oc)))
-		case T_INT: ret = int(oc)
+	case T_DWORD: ret = int(oc)
+	case T_WORD: ret = int(int16(oc))
+	case T_BYTE: ret = int(byte(oc))
+	case T_FLOAT: ret = int(math.Float32bits(float32(oc)))
+	case T_INT: ret = int(oc)
 	}
 	return ret
 }
@@ -90,7 +90,7 @@ func newStrPool() ResPool {
 	}
 }
 
-func float32ToStr(f float32)string {
+func float32ToStr(f float32) string {
 	if f == 0 {
 		return "000.000000"
 	}

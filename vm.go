@@ -133,14 +133,14 @@ func (v *vm)Out(a, b int) InstHandler {
 
 func (v *vm)Register(t RegisterType) Register {
 	switch t{
-		case REG_RP: return &v.rp
-		case REG_RF: return &v.rf
-		case REG_RS: return &v.rs
-		case REG_RB: return &v.rb
-		case REG_R0: return &v.r0
-		case REG_R1: return &v.r1
-		case REG_R2: return &v.r2
-		case REG_R3: return &v.r3
+	case REG_RP: return &v.rp
+	case REG_RF: return &v.rf
+	case REG_RS: return &v.rs
+	case REG_RB: return &v.rb
+	case REG_R0: return &v.r0
+	case REG_R1: return &v.r1
+	case REG_R2: return &v.r2
+	case REG_R3: return &v.r3
 	}
 	return nil
 }
@@ -163,8 +163,8 @@ func (v *vm)Loop() {
 
 func (v *vm)Report() string {
 	s := fmt.Sprintf("%s #rp:%d rf:%d rs:%d rb:%d r0:%d r1:%d r2:%d r3:%d",
-	v.inst, v.rp.Get(), v.rf.Get(), v.rs.Get(), v.rb.Get(),
-	v.r0.Get(), v.r1.Get(), v.r2.Get(), v.r3.Get(), )
+		v.inst, v.rp.Get(), v.rf.Get(), v.rs.Get(), v.rb.Get(),
+		v.r0.Get(), v.r1.Get(), v.r2.Get(), v.r3.Get(), )
 	return s
 }
 func (v *vm)Exit() {

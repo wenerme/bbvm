@@ -5,6 +5,8 @@ import (
 	"io"
 	"bufio"
 	"math"
+	"math/rand"
+	"time"
 )
 
 type out struct { }
@@ -24,11 +26,11 @@ func (out)InputByReader(v VM, input io.Reader) {
 		}
 		s = s[:len(s)-1]
 		switch p{
-			case 11:
+		case 11:
 			v.StrPool().Get(v.r3.Get()).Set(s)
-			case 10:
+		case 10:
 			fallthrough
-			case 12:
+		case 12:
 			i, err := strconv.ParseFloat(s, 32)
 			if err != nil {
 				log.Error("Input %d failed, got '%s': %s", p, s, err)
@@ -49,12 +51,12 @@ func (out)OutputToWriter(v VM, o io.Writer) {
 	hdl := func(i *Inst) {
 		var msg string
 		switch i.A.Get(){
-			case 0: msg = strconv.Itoa(i.B.Get()) +"\n"
-			case 1: msg = i.B.Str() + "\n"
-			case 2: msg = i.B.Str()
-			case 3: msg = strconv.Itoa(i.B.Get())
-			case 4: msg = fmt.Sprintf("%c", i.B.Get())
-			case 5: msg = float32ToStr(i.B.Float32())
+		case 0: msg = strconv.Itoa(i.B.Get()) +"\n"
+		case 1: msg = i.B.Str() + "\n"
+		case 2: msg = i.B.Str()
+		case 3: msg = strconv.Itoa(i.B.Get())
+		case 4: msg = fmt.Sprintf("%c", i.B.Get())
+		case 5: msg = float32ToStr(i.B.Float32())
 		}
 		fmt.Fprint(o, msg)
 	}
@@ -66,3 +68,35 @@ func (out)OutputToWriter(v VM, o io.Writer) {
 	v.SetOut(5, HANDLE_ALL, hdl)
 }
 
+/*
+27 | 延迟一段时间 | 0 | r3:延迟时间 |  MSDELAY(MSEC)
+32 | 用种子初始化随机数生成器 | 0 | r3:SEED |  RANDOMIZE(SEED)
+33 | 获取范围内随机数 | 0 | r3:RANGE |  RND(RANGE)
+255 | 虚拟机测试 | 0 | 0 |  VmTest
+ */
+func (out)Misc(v VM) {
+	v.Attr()["rand"]=rand.New(rand.NewSource(0))
+	v.SetOut(27, 0, outMiscFunc)
+	v.SetOut(32, 0, outMiscFunc)
+	v.SetOut(33, 0, outMiscFunc)
+	v.SetOut(255, 0, outMiscFunc)
+}
+func outMiscFunc(i *Inst) {
+	v, p, _ := i.VM, i.A.Get(), i.B // port and param
+	r3 := &v.r3
+	rand := v.Attr()["rand"].(*rand.Rand)
+	switch p{
+	case 27:
+		log.Info("MSDELAY(%d)", r3.Get())
+		time.Sleep(r3.Get() * time.Millisecond)
+	case 32:
+		log.Info("RANDOMIZE(%d)", r3.Get())
+		rand.Seed(int64(r3.Get()))
+	case 33:
+		r := rand.Int31n(r3.Get())
+		log.Info("RND(%d) -> %d", r3.Get(), r)
+		r3.Set(r)
+	case 255:
+		log.Info("VMTEST()")
+	}
+}

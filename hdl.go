@@ -29,17 +29,17 @@ func hdlDataFunc(i *Inst) {
 		v, p, _ := i.VM, i.A.Get(), i.B // port and param
 		pos, r3 := v.attr["data-ptr"].(int), &v.r3
 		switch p{
-			case 13:
+		case 13:
 			r := v.GetInt(pos)
 			log.Debug("Read int at %d get %d", pos, r)
 			r3.Set(r)
 			pos += 4
-			case 14:
+		case 14:
 			s := v.MustGetStr(pos)
 			log.Debug("Read str at %d get '%s'", pos, s)
 			pos += len(s)+1// +1 for \0
 			r3.SetStr(s)
-			case 15:
+		case 15:
 			r3.Set(v.GetInt(pos))
 			log.Debug("Read float at %d get %.6f", pos, r3.Float32())
 			pos += 4

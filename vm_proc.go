@@ -49,27 +49,27 @@ func (v *vm)GetStr(addr int) (string, bool) {
 func (v *vm)Proc() {
 	i := &v.inst
 
-//	log.Info("%s", v.Report())
+	//	log.Info("%s", v.Report())
 	switch v.inst.Opcode{
-		case OP_EXIT:
+	case OP_EXIT:
 		v.Exit()
-		case OP_NOP:
-		// NOP
-		case OP_CAL:
+	case OP_NOP:
+	// NOP
+	case OP_CAL:
 		i.B.Set(calculate(i.A.Get(), i.B.Get(), i.CalculateType, i.DataType))
-		case OP_CALL:
+	case OP_CALL:
 		v.Call(i.A.Get())
-		case OP_JMP:
+	case OP_JMP:
 		v.Jump(i.A.Get())
-		case OP_IN:
+	case OP_IN:
 		h := v.In(i.A.Get(), i.B.Get())
 		if h == nil {log.Error("Can not handle %s", i)}else {h(i)}
-		case OP_OUT:
+	case OP_OUT:
 		h := v.Out(i.A.Get(), i.B.Get())
 		if h == nil {log.Error("Can not handle %s", i)}else {h(i)}
-		case OP_RET:
+	case OP_RET:
 		v.Jump(v.Pop())
-		case OP_CMP:
+	case OP_CMP:
 		{
 			var oc float32
 			if i.DataType == T_FLOAT {
@@ -78,20 +78,20 @@ func (v *vm)Proc() {
 				oc = float32(i.A.Get() - i.B.Get())
 			}
 			switch {
-				case oc > 0:v.rf.Set(int(COM_GT))
-				case oc < 0:v.rf.Set(int(COM_LT))
-				default:v.rf.Set(int(COM_EQ))
+			case oc > 0:v.rf.Set(int(COM_GT))
+			case oc < 0:v.rf.Set(int(COM_LT))
+			default:v.rf.Set(int(COM_EQ))
 			}
 		}
-		case OP_JPC:
+	case OP_JPC:
 		if i.CompareType.IsMatch(CompareType(v.rf.Get())) {
 			v.Jump(i.A.Get())
 		}
-		case OP_PUSH:
+	case OP_PUSH:
 		v.Push(i.A.Get())
-		case OP_POP:
+	case OP_POP:
 		i.A.Set(v.Pop())
-		case OP_LD:
+	case OP_LD:
 		// 没考虑类型
 		i.A.Set(i.B.Get())
 	}

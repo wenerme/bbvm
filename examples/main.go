@@ -12,30 +12,24 @@ import (
 type A struct {
 	V int
 }
-func (a *A)Get() int {
-	return a.V
-}
 
-func (a A)Inc() int {
-	return a.Get()+1
-}
-type VA interface {
-	Get() int
-	Inc() int
-}
-type B A
-func (a B)Get() int {
-	return (A)(a).Inc() + 10
+type B struct {
+	A
 }
 //func (b B)Inc()int{
 //	return b.Get()+2
 //}
 func main() {
-	t2()
+	t3()
+}
+func t3(){
+	var i interface{} = &B{}
+	a := i.(*A);
+	fmt.Println(a)
 }
 func t2() {
 	i := image.NewRGBA(image.Rect(0, 0, 101, 101))
-	p := &Pen{}
+	p := &Graphic{}
 	p.Image = i
 	//	r := image.Rect(20, 20, 80, 80)
 	p.Set(50, 50, color.RGBA{0xff, 0, 0, 0xff})
@@ -67,18 +61,6 @@ func saveTemp(i image.Image) {
 func t1() {
 	vm := NewVM()
 	_ = vm
-
-	//	b := make([]byte, 4)
-	//	i := -1
-	//	Codec.PutInt(b, i)
-	//	log.Print(Codec.Int(b))
-	//	log.Print(len(int(1)))
-	//	v := NewVal()
-	//	fmt.Print(v.Get())
-
-	var b B = B(A{})
-	fmt.Println(b.Get())
-	fmt.Printf("%010.6f\n", 1.234)
 
 	var i interface{}
 	i = nil

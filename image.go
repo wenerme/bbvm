@@ -4,11 +4,25 @@ import (
 	"image/color"
 	"image"
 )
+type Graphic interface {
+	Rect(r image.Rectangle)
+	Line(a image.Point, b image.Point)
+	LineTo(b image.Point)
+	Circle(x0 int, y0 int, r int)
+	Color() color.Color
+	SetColor(color.Color)
+}
 // Use pen to draw a image
 type Pen struct {
 	draw.Image
 	Color color.Color
 	Pos image.Point
+}
+func (p *Pen)Color() color.Color {
+	return p.Color
+}
+func (p *Pen)SetColor(c color.Color) {
+	p.Color = c
 }
 func (p *Pen)Rect(r image.Rectangle) {
 	rect := r.Intersect(p.Bounds())
@@ -34,7 +48,7 @@ func (p *Pen)DrawLine(x0, y0, x1, y1 int) {
 	sx := -1
 	if x0 < x1 {sx = 1}
 	sy := -1
-	if y0 < y1 { sy = 1}
+	if y0 < y1 {sy = 1}
 
 	err := dx-dy
 	var e2 int

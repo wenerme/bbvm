@@ -27,13 +27,13 @@ type Operand struct {
 
 func (o *Operand)Get() int {
 	switch (o.AddrMode) {
-		case AM_REGISTER:
+	case AM_REGISTER:
 		return o.VM.Register(RegisterType(o.Val)).Get();
-		case AM_REGISTER_DEFERRED:
+	case AM_REGISTER_DEFERRED:
 		return o.VM.GetInt(o.VM.Register(RegisterType(o.Val)).Get());
-		case AM_IMMEDIATE:
+	case AM_IMMEDIATE:
 		return int(int32(o.Val));// must convert to int32 first
-		case AM_DIRECT:
+	case AM_DIRECT:
 		return o.VM.GetInt(int(o.Val));
 	}
 	panic("Unexcepted")
@@ -67,27 +67,27 @@ func (o *Operand)SetStr(v string) {
 }
 func (o *Operand)Set(i int) {
 	switch (o.AddrMode) {
-		case AM_REGISTER:
+	case AM_REGISTER:
 		o.VM.Register(RegisterType(o.Val)).Set(i);
-		case AM_REGISTER_DEFERRED:
+	case AM_REGISTER_DEFERRED:
 		o.VM.SetInt(o.VM.Register(RegisterType(o.Val)).Get(), i);
-		case AM_IMMEDIATE:
+	case AM_IMMEDIATE:
 		log.Error("ERR Set a IMMEDIATE operand")
-		case AM_DIRECT:
+	case AM_DIRECT:
 		o.VM.SetInt(int(o.Val), i);
-		default:
+	default:
 		log.Error("ERR Unknown address mode when set operand")
 	}
 }
 func (o Operand)String() string {
 	switch o.AddrMode{
-		case AM_REGISTER:
+	case AM_REGISTER:
 		return fmt.Sprintf("%s", RegisterType(o.Val))
-		case AM_REGISTER_DEFERRED:
+	case AM_REGISTER_DEFERRED:
 		return fmt.Sprintf("[ %s ]", RegisterType(o.Val))
-		case AM_IMMEDIATE:
+	case AM_IMMEDIATE:
 		return fmt.Sprintf("%d", o.Val)
-		case AM_DIRECT:
+	case AM_DIRECT:
 		return fmt.Sprintf("[ %d ]", o.Val)
 	}
 	return "ERR Unknown address mode"
@@ -98,12 +98,12 @@ func (i *Inst)MarshalBinary() ([]byte, error) {
 	data[0] = uint8(i.Opcode) << 4
 
 	switch i.Opcode.Len() {
-		case 1: // 无操作数
-		case 5: // 一个操作数
+	case 1: // 无操作数
+	case 5: // 一个操作数
 		data[0] |= uint8(i.A.AddrMode)
 		i.A.AddrMode = AddressMode(data[0] & 0xF)
 		binary.LittleEndian.PutUint32(data[1:], i.A.Val)
-		case 10: // 两个操作数
+	case 10: // 两个操作数
 		data[0] |= uint8(i.DataType)
 
 		data[1] |= uint8(i.A.AddrMode << 2 | i.B.AddrMode)
@@ -114,7 +114,7 @@ func (i *Inst)MarshalBinary() ([]byte, error) {
 			data[1] |= uint8(i.CalculateType) << 4
 		}
 
-		case 6: // JPC
+	case 6: // JPC
 		data[0] |= uint8(i.CompareType)
 		data[1] |= uint8(i.A.AddrMode)
 		binary.LittleEndian.PutUint32(data[2:], i.A.Val)
@@ -144,11 +144,11 @@ JPC指令 6byte
 		return ErrDataToShort
 	}
 	switch i.Opcode.Len() {
-		case 1: // 无操作数
-		case 5: // 一个操作数
+	case 1: // 无操作数
+	case 5: // 一个操作数
 		i.A.AddrMode = AddressMode(data[0] & 0xF)
 		i.A.Val = binary.LittleEndian.Uint32(data[1:])
-		case 10: // 两个操作数
+	case 10: // 两个操作数
 		i.DataType = DataType(data[0] & 0xF)
 
 		addrMode := data[1] & 0xF
@@ -161,7 +161,7 @@ JPC指令 6byte
 			i.CalculateType = CalculateType(data[1] >> 4)
 		}
 
-		case 6: // JPC
+	case 6: // JPC
 		i.CompareType = CompareType(data[0] & 0xF)
 		i.A.AddrMode = AddressMode(data[1] & 0xF)
 		i.A.Val = binary.LittleEndian.Uint32(data[2:])
@@ -171,21 +171,21 @@ JPC指令 6byte
 
 func (i Inst)String() string {
 	switch i.Opcode.Len(){
-		case 1:
+	case 1:
 		return fmt.Sprint(i.Opcode)
-		case 5:
+	case 5:
 		return fmt.Sprintf("%s %s", i.Opcode, i.A)
-		case 10:
+	case 10:
 		switch i.Opcode{
-			case OP_CAL:
+		case OP_CAL:
 			return fmt.Sprintf("%s %s %s %s, %s", i.Opcode, i.DataType, i.CalculateType, i.A, i.B)
-			case OP_LD:
+		case OP_LD:
 			return fmt.Sprintf("%s %s %s, %s", i.Opcode, i.DataType, i.A, i.B)
-			case OP_CMP:
+		case OP_CMP:
 			return fmt.Sprintf("%s %s %s, %s", i.Opcode, i.CompareType, i.A, i.B)
 		}
 		return fmt.Sprintf("%s %s %s", i.Opcode, i.A, i.B)
-		case 6:
+	case 6:
 		return fmt.Sprintf("%s %s %s", i.Opcode, i.CompareType, i.A)
 	}
 	return "ERR Unknown opcode len"

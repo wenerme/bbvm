@@ -26,18 +26,18 @@ func inStrFunc(i *Inst) {
 	v, p, o := i.VM, i.B.Get(), i.A // port and param
 
 	switch p{
-		case 2:
+	case 2:
 		if r, err := v.StrPool().Acquire(); err == nil {
 			rlog.Info("Acquire StrRes %d", r.Id())
 			o.Set(r.Id())
 		}else {
 			rlog.Error("Acquire StrRes faield: %s", err)
 		}
-		case 5:
+	case 5:
 		rlog.Info("StrRes copy '%s' to %d", v.r2.Str(), v.Register(REG_R3).Get())
 		v.r3.SetStr(v.r2.Str())
 		o.Set(v.r3.Get())
-		case 8:
+	case 8:
 		hdl := v.Register(REG_R3).Get()
 		r := v.StrPool().Get(hdl)
 		if r != nil {
@@ -48,13 +48,13 @@ func inStrFunc(i *Inst) {
 		}
 		// TODO 确认是否返回r3的值
 		o.Set(v.r3.Get())
-		case 9:
+	case 9:
 
 		r := bytes.Compare([]byte(v.MustGetStr(v.r3.Get())), []byte(v.MustGetStr(v.r2.Get())))
 		//		rlog.Info("Str compare %s %s = %d",v.MustGetStr(v.r2.Get()),v.MustGetStr(v.r3.Get()),r)
 		o.Set(r)
 
-		case 12:
+	case 12:
 		s, i := v.r3.Str(), v.r2.Get()
 		if len(s) <i {
 			log.Error("Get char of '%s' at %d out of rang", s, i)
@@ -62,7 +62,7 @@ func inStrFunc(i *Inst) {
 		}else {
 			o.Set(int(int8(s[i])))
 		}
-		case 13:
+	case 13:
 
 		r, c, i := v.r3.StrRes(), v.r1.Get(), v.r2.Get()
 		if r != nil {
@@ -80,7 +80,7 @@ func inStrFunc(i *Inst) {
 		}
 		o.Set(v.r3.Get())
 
-		case 34:
+	case 34:
 		s, i := v.r3.Str(), 0
 		if len(s) < i {
 			log.Error("Get char of '%s' at %d out of rang", s, i)
@@ -88,7 +88,7 @@ func inStrFunc(i *Inst) {
 		}else {
 			o.Set(int(int8(s[i])))
 		}
-		case 35:
+	case 35:
 		s, l, r := v.r2.Str(), v.r1.Get(), v.r3.StrRes()
 		if len(s) < l {
 			log.Error("Left substring('%s',%d) failed:", s, l)
@@ -96,7 +96,7 @@ func inStrFunc(i *Inst) {
 			r.Set(string(s[:l]))
 		}
 		o.Set(v.r3.Get())
-		case 36:
+	case 36:
 		s, l, r := v.r2.Str(), v.r1.Get(), v.r3.StrRes()
 		if len(s) < l {
 			log.Error("Right substring('%s',%d) failed:", s, l)
@@ -104,11 +104,11 @@ func inStrFunc(i *Inst) {
 			r.Set(string(s[len(s)-l:]))
 		}
 		o.Set(v.r3.Get())
-		case 37:
+	case 37:
 		l, p, s, r := v.r0.Get(), v.r1.Get(), v.r2.Str(), v.r3.StrRes()
 		r.Set(string(s[p:p+l]))
 		o.Set(l)
-		case 38:
+	case 38:
 		s, sub, i := v.r3.Str(), v.r2.Str(), v.r1.Get()
 		if len(s) > i {
 			o.Set(strings.Index(s[i:], sub)+i)
@@ -116,7 +116,7 @@ func inStrFunc(i *Inst) {
 			log.Error("Index '%s' of '%s' at %d: out of range", sub, s, i)
 			o.Set(-1)
 		}
-		case 39:
+	case 39:
 		o.Set(len(v.r3.Str()))
 	}
 }
@@ -135,28 +135,28 @@ func inConvFunc(i *Inst) {
 	v, p, o := i.VM, i.B.Get(), i.A // port and param
 
 	switch p {
-		case 0:
+	case 0:
 		o.Set(int(math.Float32frombits(uint32(v.r3.Get()))))
-		case 1:
+	case 1:
 		o.SetFloat32(float32(v.r3.Get()))
-		case 3:
+	case 3:
 		s := v.MustGetStr(v.r3.Get())
 		if r, ok := strconv.Atoi(s); ok == nil {
 			o.Set(r)
 		}else {
 			log.Error("Convert atoi faield:"+s)
 		}
-		case 4:
+	case 4:
 		s := v.MustGetStr(v.r3.Get())
 		if r, ok := strconv.Atoi(s); ok == nil {
 			o.Set(r)
 		}else {
 			log.Error("Convert atoi faield:"+s)
 		}
-		case 10:
+	case 10:
 		v.r2.SetStr(float32ToStr(float32(v.r3.Get())))
 		o.Set(v.r3.Get())
-		case 11:
+	case 11:
 		f, err := strconv.ParseFloat(v.r3.Str(), 32)
 		if err!= nil {
 			log.Error(err.Error())
@@ -165,10 +165,10 @@ func inConvFunc(i *Inst) {
 			o.SetFloat32(float32(f))
 		}
 
-		case 32:
+	case 32:
 		v.r3.SetStr(fmt.Sprint(v.r1.Get()))
 		o.Set(v.r3.Get())
-		case 33:
+	case 33:
 		if f, ok := strconv.ParseFloat(v.r3.Str(), 32); ok== nil {
 			o.Set(int(int32(f)))
 		}else {
@@ -232,16 +232,16 @@ func inMiscFunc(i *Inst) {
 	v, p, o := i.VM, i.B.Get(), i.A // port and param
 
 	switch p{
-		case 14:
+	case 14:
 		o.Set(65535)
-		case 15:
+	case 15:
 		o.Set(int(time.Now().Unix()))
-		case 23:
+	case 23:
 		o.Set(v.GetInt(v.r3.Get()))
-		case 24:
+	case 24:
 		v.SetInt(v.r3.Get(), v.r2.Get())
 		o.Set(v.r3.Get())
-		case 25:
+	case 25:
 		o.Set(0)// FIXME 环境值为0
 	}
 }
@@ -255,15 +255,15 @@ func inMathFunc(i *Inst) {
 	v, p, o := i.VM, i.B.Get(), i.A // port and param
 	a, b := float64(v.r3.Float32()), float64(0)
 	switch p{
-		case 16:
+	case 16:
 		b = math.Sin(a)
-		case 17:
+	case 17:
 		b = math.Cos(a)
-		case 18:
+	case 18:
 		b = math.Tan(a)
-		case 19:
+	case 19:
 		b = math.Sqrt(a)
-		case 20:
+	case 20:
 		i := v.r3.Get()
 		if i < 0 {
 			i = -i
@@ -271,7 +271,7 @@ func inMathFunc(i *Inst) {
 		o.Set(i)
 		log.Error("DO IN 20 %d", v.r3.Get())
 		return
-		case 21:
+	case 21:
 		b = math.Abs(a)
 	}
 

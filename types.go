@@ -11,11 +11,11 @@ const (
 
 func (t DataType)String() string {
 	switch t{
-		case T_DWORD: return "DWORD"
-		case T_WORD: return "WORD"
-		case T_BYTE: return "BYTE"
-		case T_FLOAT: return "FLOAT"
-		case T_INT: return "INT"
+	case T_DWORD: return "DWORD"
+	case T_WORD: return "WORD"
+	case T_BYTE: return "BYTE"
+	case T_FLOAT: return "FLOAT"
+	case T_INT: return "INT"
 	}
 	panic("UNKNOWN DataType")
 }
@@ -35,35 +35,35 @@ func (a CompareType)IsMatch(b CompareType) bool {
 		return true
 	}
 	switch a{
-		case COM_GT: {
-			switch b{case COM_GE, COM_NE: return true}
-		}
-		case COM_LT: {
-			switch b{case COM_LE, COM_NE: return true}
-		}
-		case COM_EQ: {
-			switch b{case COM_LE, COM_GE: return true}
-		}
-		case COM_NE: {
-			switch b{case COM_LT, COM_GT: return true}
-		}
-		case COM_GE: {
-			switch b{case COM_GT, COM_EQ: return true}
-		}
-		case COM_LE: {
-			switch b{case COM_LT, COM_EQ: return true}
-		}
+	case COM_GT: {
+		switch b{case COM_GE, COM_NE: return true}
+	}
+	case COM_LT: {
+		switch b{case COM_LE, COM_NE: return true}
+	}
+	case COM_EQ: {
+		switch b{case COM_LE, COM_GE: return true}
+	}
+	case COM_NE: {
+		switch b{case COM_LT, COM_GT: return true}
+	}
+	case COM_GE: {
+		switch b{case COM_GT, COM_EQ: return true}
+	}
+	case COM_LE: {
+		switch b{case COM_LT, COM_EQ: return true}
+	}
 	}
 	return false
 }
 func (c CompareType)String() string {
 	switch c{
-		case COM_EQ: return "Z"
-		case COM_LT: return "B"
-		case COM_LE: return "BE"
-		case COM_GT: return "A"
-		case COM_GE: return "AE"
-		case COM_NE: return "NZ"
+	case COM_EQ: return "Z"
+	case COM_LT: return "B"
+	case COM_LE: return "BE"
+	case COM_GT: return "A"
+	case COM_GE: return "AE"
+	case COM_NE: return "NZ"
 	}
 	return "UNKNOWN CompareType"
 }
@@ -78,11 +78,11 @@ const (
 )
 func (c CalculateType)String() string {
 	switch c{
-		case CAL_ADD: return "ADD"
-		case CAL_SUB: return "SUB"
-		case CAL_MUL: return "MUL"
-		case CAL_DIV: return "DIV"
-		case CAL_MOD: return "MOD"
+	case CAL_ADD: return "ADD"
+	case CAL_SUB: return "SUB"
+	case CAL_MUL: return "MUL"
+	case CAL_DIV: return "DIV"
+	case CAL_MOD: return "MOD"
 	}
 	return "UNKNOWN CalculateType"
 }
@@ -104,28 +104,28 @@ const (
 )
 func (o Opcode)Len() int {
 	switch o {
-		case OP_NOP, OP_RET, OP_EXIT: return 1
-		case OP_PUSH, OP_POP, OP_JMP, OP_CALL: return 5
-		case OP_JPC: return 6
-		case OP_LD, OP_IN, OP_OUT, OP_CMP, OP_CAL: return 10
+	case OP_NOP, OP_RET, OP_EXIT: return 1
+	case OP_PUSH, OP_POP, OP_JMP, OP_CALL: return 5
+	case OP_JPC: return 6
+	case OP_LD, OP_IN, OP_OUT, OP_CMP, OP_CAL: return 10
 	}
 	panic("Unexcepted")
 }
 func (o Opcode)String() string {
 	switch o {
-		case OP_NOP: return "NOP"
-		case OP_LD: return "LD"
-		case OP_PUSH: return "PUSH"
-		case OP_POP: return "POP"
-		case OP_IN: return "IN"
-		case OP_OUT: return "OUT"
-		case OP_JMP: return "JMP"
-		case OP_JPC: return "JPC"
-		case OP_CALL: return "CALL"
-		case OP_RET: return "RET"
-		case OP_CMP: return "CMP"
-		case OP_CAL: return "CAL"
-		case OP_EXIT: return "EXIT"
+	case OP_NOP: return "NOP"
+	case OP_LD: return "LD"
+	case OP_PUSH: return "PUSH"
+	case OP_POP: return "POP"
+	case OP_IN: return "IN"
+	case OP_OUT: return "OUT"
+	case OP_JMP: return "JMP"
+	case OP_JPC: return "JPC"
+	case OP_CALL: return "CALL"
+	case OP_RET: return "RET"
+	case OP_CMP: return "CMP"
+	case OP_CAL: return "CAL"
+	case OP_EXIT: return "EXIT"
 	}
 	return "UNKNOWN Opcode"
 }
@@ -162,14 +162,14 @@ const (
 
 func (r RegisterType)String() string {
 	switch r{
-		case REG_RP: return "RP"
-		case REG_RF: return "RF"
-		case REG_RS: return "RS"
-		case REG_RB: return "RB"
-		case REG_R0: return "R0"
-		case REG_R1: return "R1"
-		case REG_R2: return "R2"
-		case REG_R3: return "R3"
+	case REG_RP: return "RP"
+	case REG_RF: return "RF"
+	case REG_RS: return "RS"
+	case REG_RB: return "RB"
+	case REG_R0: return "R0"
+	case REG_R1: return "R1"
+	case REG_R2: return "R2"
+	case REG_R3: return "R3"
 	}
 	return "UNKNOW RegisterType"
 }

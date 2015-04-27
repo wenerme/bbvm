@@ -39,7 +39,7 @@ func outFileFunc(i *Inst) {
 	r0, r1, r2, r3 := &v.r0, &v.r1, &v.r2, &v.r3
 	fp := v.attr["file-pool"].(ResPool)
 	switch p{
-		case 48:
+	case 48:
 		mode, fd, fn := r0.Get(), r1.Get(), r3.Str()
 		log.Debug("Open file '%s' as #%d mode %d", fn, fd, mode)
 
@@ -65,7 +65,7 @@ func outFileFunc(i *Inst) {
 		}else {
 			res.Set(f)
 		}
-		case 49:
+	case 49:
 		fd := o.Get()
 
 		res := fp.Get(fd)
@@ -83,7 +83,7 @@ func outFileFunc(i *Inst) {
 				log.Error("Close file '%s' as #%d with error:%s", f.Name(), fd, err)
 			}
 		}
-		case 50:// READ
+	case 50:// READ
 		var err error
 		fd := r1.Get()
 		f := getFile(fd, fp)
@@ -93,12 +93,12 @@ func outFileFunc(i *Inst) {
 		_, err = f.Seek(int64(pos), os.SEEK_SET)
 		if err != nil {goto READ_FAILED}
 		switch o.Get(){
-			case 16, 17:// float 和 int 操作相同
+		case 16, 17:// float 和 int 操作相同
 			b := make([]byte, 4)
 			_, err = f.Read(b)
 			if err != nil {goto READ_FAILED}
 			r3.Set(int(int32(Codec.Uint32(b))))
-			case 18:
+		case 18:
 			b := make([]byte, 1)
 			str := make([]byte, 0)
 			for {
@@ -112,7 +112,7 @@ func outFileFunc(i *Inst) {
 		break
 		READ_FAILED:
 		log.Error("Read failed '%s' as #%d at %d:%s", f.Name(), fd, pos, err.Error())
-		case 51:// WRITE
+	case 51:// WRITE
 		var err error
 		fd := r1.Get()
 		f := getFile(fd, fp)
@@ -122,12 +122,12 @@ func outFileFunc(i *Inst) {
 		_, err = f.Seek(int64(pos), os.SEEK_SET)
 		if err != nil {goto WRITE_FAILED}
 		switch o.Get(){
-			case 16, 17:// float 和 int 操作相同
+		case 16, 17:// float 和 int 操作相同
 			b := make([]byte, 4)
 			Codec.PutUint32(b, uint32(r3.Get()))
 			_, err = f.Write(b)
 			if err != nil {goto WRITE_FAILED}
-			case 18:
+		case 18:
 			b := []byte(r3.Str())
 			b = append(b, 0)
 			_, err = f.Write(b)
@@ -136,7 +136,7 @@ func outFileFunc(i *Inst) {
 		break
 		WRITE_FAILED:
 		log.Error("Write failed '%s' as #%d at %d:%s", f.Name(), fd, pos, err.Error())
-		case 52:
+	case 52:
 		fd := r3.Get()
 		f := getFile(fd, fp)
 		if f != nil {
@@ -159,7 +159,7 @@ func outFileFunc(i *Inst) {
 				r3.Set(1)
 			}
 		}
-		case 53:
+	case 53:
 		fd := r3.Get()
 		f := getFile(fd, fp)
 		if f != nil {
@@ -178,7 +178,7 @@ func outFileFunc(i *Inst) {
 			}
 			r3.Set(int(l))
 		}
-		case 54:
+	case 54:
 		fd := r3.Get()
 		f := getFile(fd, fp)
 		if f != nil {
@@ -188,7 +188,7 @@ func outFileFunc(i *Inst) {
 			}
 			r3.Set(int(ret))
 		}
-		case 55:
+	case 55:
 		fd := r2.Get()
 		f := getFile(fd, fp)
 		if f != nil {
