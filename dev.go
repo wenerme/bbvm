@@ -102,16 +102,3 @@ const (
 	MouseUp
 	MouseMove
 )
-
-type bgrIntColor int
-func (i bgrIntColor)RGBA() (r, g, b, a uint32) {
-	r = uint32(i&0xff)
-	r |= r << 8
-	g = uint32(i>>8&0xff)
-	g |= g << 8
-	b = uint32(i>>16&0xff)
-	b |= b << 8
-	a = 0xff
-	a |= a << 8
-	return
-}

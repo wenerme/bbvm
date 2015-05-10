@@ -1,6 +1,5 @@
 package bbvm
 import (
-	"image/color"
 	"image"
 )
 
@@ -75,7 +74,7 @@ func outGraphicFunc(i *Inst) {
 		log.Debug("PIXEL(%d,%d,%d,%d)", pi, x, y, c)
 		if pg := getPage(gdev, pi); pg != nil {
 			// TODO 边界检查
-			pg.Set(x, y, rgbInt2Color(c))
+			pg.Set(x, y, BGR888Color(c))
 		}
 	case 25:
 		args := newArgs(r3.Get(), v, 4)
@@ -83,7 +82,7 @@ func outGraphicFunc(i *Inst) {
 		log.Debug("READPIXEL(%d,%d,%d)", pageId, x, y)
 		if pg := getPage(gdev, pageId); pg != nil {
 			// TODO 边界检查
-			r3.Set(color2BGRInt(pg.At(x, y)))
+			r3.Set(BGR888Model.Convert(pg.At(x, y)).(BGR888Color).Int())
 		}
 	/*
 26 | 释放图片句柄 | 0 | r3:资源句柄 |  FREERES(ID)
@@ -118,7 +117,7 @@ func outGraphicFunc(i *Inst) {
 		pi, style, w, c := args.Next4Int()
 		log.Debug("SETPEN(%d,%d,%d,%d)", pi, style, w, c)
 		if pg := getPage(gdev, pi); pg != nil {
-			pg.SetPen(PenStyle(style), w, bgrIntColor(c))
+			pg.SetPen(PenStyle(style), w, BGR888Color(c))
 		}
 	case 68:
 		// RECTANGLE(PAGE,LEFT,TOP,RIGHT,BOTTOM)
@@ -155,16 +154,6 @@ func getPic(p ResPool, id int) Picture {
 	r := p.Get(id)
 	if r == nil || r.Get() == nil {return nil}
 	return r.Get().(Picture)
-}
-func color2BGRInt(c color.Color) int {
-	r, g, b, _ := c.RGBA()
-	r >>= 8
-	g >>= 8
-	b >>= 8
-	return int(b<<16|g<<8|r)
-}
-func rgbInt2Color(i int) color.Color {
-	return color.RGBA{uint8(i >> 16&0xff), uint8(i>>8&0xff), uint8(i&0xff), 0xff}
 }
 
 func newArgs(addr int, vm VM, n int) args {

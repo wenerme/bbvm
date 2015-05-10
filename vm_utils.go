@@ -17,7 +17,6 @@ func init() {
 	backend1 := logging.NewLogBackend(os.Stdout, "", 0)
 	backend1Formatter := logging.NewBackendFormatter(backend1, format)
 	logging.SetBackend(backend1Formatter)
-
 }
 
 func calculate(a int, b int, t CalculateType, d DataType) int {
