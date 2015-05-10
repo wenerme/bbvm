@@ -1,42 +1,25 @@
 package bbvm
 import (
 	"image/color"
+	"image"
 )
 
 func (out)Graphic(v VM) {
-	v.Attr()["graph-dev"] = NewGraphDev()
+	v.Attr()["graph-dev"] = NewGraphDev(240, 320)
 	v.SetOut(16, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(17, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(18, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(19, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(20, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(21, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(22, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(23, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(24, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(25, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(64, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(68, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(69, HANDLE_ALL, outGraphicFunc)
 }
-type args struct {
-	addr int
-	vm *vm
-	step int
-}
-func (a *args)NextInt() int {
-	i := a.vm.GetInt(a.addr)
-	a.addr+=a.step
-	return i
-}
-func (a *args)Next2Int() (int, int) {
-	return a.NextInt(), a.NextInt()
-}
-func (a *args)Next3Int() (int, int, int) {
-	return a.NextInt(), a.NextInt(), a.NextInt()
-}
-func (a *args)Next4Int() (int, int, int, int) {
-	return a.NextInt(), a.NextInt(), a.NextInt(), a.NextInt()
-}
-func (a *args)Next5Int() (int, int, int, int, int) {
-	return a.NextInt(), a.NextInt(), a.NextInt(), a.NextInt(), a.NextInt()
-}
-func (a *args)Next6Int() (int, int, int, int, int, int) {
-	return a.NextInt(), a.NextInt(), a.NextInt(), a.NextInt(), a.NextInt(), a.NextInt()
-}
-
-func (a *args)Int() int {
-	return a.vm.GetInt(a.addr)
-}
-
 func outGraphicFunc(i *Inst) {
 	v, p, _ := i.VM, i.A.Get(), i.B // port and param
 	r2, r3 := &v.r2, &v.r3
@@ -75,33 +58,32 @@ func outGraphicFunc(i *Inst) {
 		r3.Set(0)
 		log.Debug("LOADRES(%s,%d) -> %d", fn, idx, r3.Get())
 	case 20:
-		args := args{r3.Get()+36, v, -4}
-		pageId, picId, dx, dy, w, h := args.Next6Int()
-		x, y, mode := args.Next3Int()
-		log.Debug("SHOWPIC(%d,%d,%d,%d,%d,%d,%d,%d,%d)", pageId, picId, dx, dy, w, h, x, y, mode)
+		args := newArgs(r3.Get(), v, 9)
+		pi, picId, dx, dy, w, h, x, y, mode := args.Next9Int()
+		log.Debug("SHOWPIC(%d,%d,%d,%d,%d,%d,%d,%d,%d)", pi, picId, dx, dy, w, h, x, y, mode)
 	case 21:
 		log.Debug("FLIPPAGE(%d)", r3.Get())
 	case 22:
 		log.Debug("BITBLTPAGE(%d,%d)", r2.Get(), r3.Get())
 	case 23:
-		args := args{r3.Get()+26, v, -4}
-		pageId, x, y, wid, hgt, color := args.Next6Int()
-		log.Debug("FILLPAGE(%d,%d,%d,%d,%d,%d)", pageId, x, y, wid, hgt, color)
+		args := newArgs(r3.Get(), v, 6)
+		pi, x, y, wid, hgt, c := args.Next6Int()
+		log.Debug("FILLPAGE(%d,%d,%d,%d,%d,%d)", pi, x, y, wid, hgt, c)
 	case 24:
-		args := args{r3.Get()+16, v, -4}
-		pageId, x, y, color := args.Next4Int()
-		log.Debug("PIXEL(%d,%d,%d,%d)", pageId, x, y, color)
-		if pg := getPage(pagePool, pageId); pg != nil {
+		args := newArgs(r3.Get(), v, 4)
+		pi, x, y, c := args.Next4Int()
+		log.Debug("PIXEL(%d,%d,%d,%d)", pi, x, y, c)
+		if pg := getPage(pagePool, pi); pg != nil {
 			// TODO 边界检查
-			pg.Set(x, y, rgbInt2Color(color))
+			pg.Set(x, y, rgbInt2Color(c))
 		}
 	case 25:
-		args := args{r3.Get()+12, v, -4}
+		args := newArgs(r3.Get(), v, 4)
 		pageId, x, y := args.Next3Int()
 		log.Debug("READPIXEL(%d,%d,%d)", pageId, x, y)
 		if pg := getPage(pagePool, pageId); pg != nil {
 			// TODO 边界检查
-			r3.Set(color2RGBInt(pg.At(x, y)))
+			r3.Set(color2BGRInt(pg.At(x, y)))
 		}
 	/*
 26 | 释放图片句柄 | 0 | r3:资源句柄 |  FREERES(ID)
@@ -131,6 +113,28 @@ func outGraphicFunc(i *Inst) {
 			log.Warning("GETPICHGT(%d) faield: Picture not exists", r3.Get())
 			r3.Set(0)
 		}
+	case 64:
+		args := newArgs(r3.Get(), v, 4)
+		pi, style, w, c := args.Next4Int()
+		log.Debug("SETPEN(%d,%d,%d,%d)", pi, style, w, c)
+		if pg := getPage(pagePool, pi); pg != nil {
+			pg.SetPen(PenStyle(style), w, bgrIntColor(c))
+		}
+	case 68:
+		// RECTANGLE(PAGE,LEFT,TOP,RIGHT,BOTTOM)
+		args := newArgs(r3.Get(), v, 5)
+		pi, left, top, right, bottom := args.Next5Int()
+		log.Debug("RECTANGLE(%d,%d,%d,%d,%d)", pi, left, top, right, bottom)
+		if pg := getPage(pagePool, pi); pg != nil {
+			pg.Rect(image.Rect(left, top, right, bottom))
+		}
+	case 69:
+		args := newArgs(r3.Get(), v, 4)
+		pi, cx, cy, cr := args.Next4Int()
+		log.Debug("CIRCLE(%d,%d,%d,%d)", pi, cx, cy, cr)
+		if pg := getPage(pagePool, pi); pg != nil {
+			pg.Circle(cx, cy, cr)
+		}
 	}
 }
 
@@ -144,10 +148,42 @@ func getPic(p ResPool, id int) Picture {
 	if r == nil || r.Get() == nil {return nil}
 	return r.Get().(Picture)
 }
-func color2RGBInt(c color.Color) int {
+func color2BGRInt(c color.Color) int {
 	r, g, b, _ := c.RGBA()
-	return int(r<<16|g<<8|b)
+	r >>= 8
+	g >>= 8
+	b >>= 8
+	return int(b<<16|g<<8|r)
 }
 func rgbInt2Color(i int) color.Color {
 	return color.RGBA{uint8(i >> 16&0xff), uint8(i>>8&0xff), uint8(i&0xff), 0xff}
+}
+
+func newArgs(addr int, vm VM, n int) args {
+	a := args(make([]int, n))
+	for i := 0; i < n; i ++ {
+		a[i] = vm.GetInt(addr)
+		addr += 4
+	}
+	return a
+}
+type args []int
+func (a args)Next2Int() (int, int) {
+	return a[1], a[0]
+}
+func (a args)Next3Int() (int, int, int) {
+	return a[2], a[1], a[0]
+}
+func (a args)Next4Int() (int, int, int, int) {
+	return a[3], a[2], a[1], a[0]
+}
+func (a args)Next5Int() (int, int, int, int, int) {
+	return a[4], a[3], a[2], a[1], a[0]
+}
+func (a args)Next6Int() (int, int, int, int, int, int) {
+	return a[5], a[4], a[3], a[2], a[1], a[0]
+}
+
+func (a args)Next9Int() (int, int, int, int, int, int, int, int, int) {
+	return a[8], a[7], a[6], a[5], a[4], a[3], a[2], a[1], a[0]
 }

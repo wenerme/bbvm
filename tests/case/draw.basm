@@ -22,12 +22,11 @@ out 64,0
 ld int r1, r3
 out 0,[r1]'>255
 CAL int ADD r1,4
-out 0,[r1]'>0
+out 0,[r1]'>1
 CAL int ADD r1,4
 out 0,[r1]'>0
 CAL int ADD r1,4
 out 0,[r1]'>1
-
 
 
 

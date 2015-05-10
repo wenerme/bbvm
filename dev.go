@@ -41,12 +41,14 @@ import (
 80 | 复制部分画布扩展 | 0 | r3:参数地址 |  STRETCHBLTPAGEEX(X,Y,WID,HGT,CX,CY,DEST,SRC)
 */
 type (
-
+PenStyle int
 Page interface {
 	Graphic
-	SetBrushStyle(BrushStyle)
-	SetPen()
+	//	SetBrushStyle(BrushStyle)
+	SetPen(PenStyle, int, color.Color)
 }
+
+
 
 Picture interface {
 	image.Image
@@ -99,3 +101,16 @@ const (
 	MouseUp
 	MouseMove
 )
+
+type bgrIntColor int
+func (i bgrIntColor)RGBA() (r, g, b, a uint32) {
+	r = uint32(i&0xff)
+	r |= r << 8
+	g = uint32(i>>8&0xff)
+	g |= g << 8
+	b = uint32(i>>16&0xff)
+	b |= b << 8
+	a = 0xff
+	a |= a << 8
+	return
+}

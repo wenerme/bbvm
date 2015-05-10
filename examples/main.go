@@ -20,12 +20,7 @@ func main() {
 	t3()
 }
 func t3() {
-	a := []byte("ABCDEF")
-	b := make([]byte, 0)
-	b = append(b, a[1:3]...)
-	b[0]=57
-	fmt.Println(string(b))
-	fmt.Println(string(a))
+	fmt.Println("")
 
 }
 func t2() {

@@ -7,6 +7,9 @@ import (
 	"strings"
 	. "../."
 	"github.com/op/go-logging"
+	"image"
+	"os"
+	"image/png"
 )
 
 
@@ -48,6 +51,9 @@ func testByBAsm(file string, t *testing.T) bool {
 		//		t.Logf("%10s: %#v\n", "output", string(output.Bytes()))
 	}
 	t.Logf("%10s: %#v\n", "output", string(output.Bytes()))
+
+	// Debug page 1
+	saveTemp(v.Attr()["graph-dev"].(GraphDev).PagePool().Get(1).Get().(Page))
 
 	for {
 		o, oe := output.ReadString('\n')
@@ -101,5 +107,13 @@ func extractIO(basm string, input *bytes.Buffer, expected *bytes.Buffer) {
 func TestIn9(t *testing.T) {
 	//	testByBAsm("case/in/38.basm", t)
 	//	testByBAsm("case/out/read-restore.basm", t)
-	testByBAsm("case/cal.basm", t)
+	testByBAsm("case/draw.basm", t)
+}
+
+
+func saveTemp(i image.Image) {
+	p, err := os.Create("temp.png")
+	if err != nil {panic(err)}
+	err = png.Encode(p, i)
+	if err != nil {panic(err)}
 }

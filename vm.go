@@ -14,6 +14,7 @@ type VM interface {
 	StrPool() ResPool
 	MustGetStr(int) string
 	Attr() map[string]interface{}
+	GetInt(int) int
 }
 
 type Register interface {
