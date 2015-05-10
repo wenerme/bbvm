@@ -1,5 +1,9 @@
 package bbvm
-import "encoding/binary"
+import (
+	"encoding/binary"
+	"errors"
+	"fmt"
+)
 
 
 func (v *vm)Pop() int {
@@ -27,36 +31,40 @@ func (v *vm)SetInt(addr int, i int) {
 }
 
 func (v *vm)MustGetStr(addr int) (string) {
-	s, _ := v.GetStr(addr)
+	s, err := v.GetStr(addr)
+	if err !=nil { log.Error(err.Error())}
 	return s
 }
-func (v *vm)GetStr(addr int) (string, bool) {
+func (v *vm)GetStr(addr int) (string, error) {
 	if addr < 0 {
-		if s, ok := v.strPool.Get(addr).Get().(string); ok {
-			return s, true
+		if r := v.strPool.Get(addr); r != nil {
+			if s, ok := r.Get().(string); ok {
+				return s, nil
+			}
+			return "", errors.New("Resource is not string "+fmt.Sprint(r.Get()))
 		}
-		return "", false
+		return "", errors.New("String resource not exits "+fmt.Sprint(addr))
 	}
 	if len(v.mem) < addr {
-		log.Error("GetStr address bigger than mem: %d > %d", addr, len(v.mem))
-		return "", false
+		return "", errors.New(fmt.Sprintf("Address out of memory range: %d > %d", addr, len(v.mem)))
 	}
 	end := addr
 	for ; v.mem[end] != 0; end +=1 {}
-	if end == addr { return "", true}
-	return string(v.mem[addr:end]), true
+	if end == addr { return "", nil}
+	// Make sure the origin memory is not changed
+	return ""+string(v.mem[addr:end]), nil
 }
 func (v *vm)Proc() {
 	i := &v.inst
 
-	//	log.Info("%s", v.Report())
+	log.Debug("%s", v.Report())
 	switch v.inst.Opcode{
 	case OP_EXIT:
 		v.Exit()
 	case OP_NOP:
 	// NOP
 	case OP_CAL:
-		i.B.Set(calculate(i.A.Get(), i.B.Get(), i.CalculateType, i.DataType))
+		i.A.Set(calculate(i.A.Get(), i.B.Get(), i.CalculateType, i.DataType))
 	case OP_CALL:
 		v.Call(i.A.Get())
 	case OP_JMP:

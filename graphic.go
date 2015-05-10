@@ -5,39 +5,54 @@ import (
 	"image"
 )
 type Graphic interface {
+	draw.Image
 	Rect(r image.Rectangle)
+	FillRect(r image.Rectangle)
 	Line(a image.Point, b image.Point)
 	LineTo(b image.Point)
 	Circle(x0 int, y0 int, r int)
+	//	FillCircle(x0 int, y0 int, r int)
 	Color() color.Color
 	SetColor(color.Color)
 }
-// Use pen to draw a image
-type Pen struct {
+func NewImageGraphic(i draw.Image) Graphic {
+	return &graphic{i, nil, image.Point{0, 0}}
+}
+// A graphic impl
+type graphic struct {
 	draw.Image
-	Color color.Color
-	Pos image.Point
+	c color.Color
+	p image.Point
 }
-func (p *Pen)Color() color.Color {
-	return p.Color
+func (p *graphic)Color() color.Color {
+	return p.c
 }
-func (p *Pen)SetColor(c color.Color) {
-	p.Color = c
+func (p *graphic)SetColor(c color.Color) {
+	p.c = c
 }
-func (p *Pen)Rect(r image.Rectangle) {
+func (p *graphic)Rect(r image.Rectangle) {
 	rect := r.Intersect(p.Bounds())
 	//	old := p.Pos
 	min, max := rect.Min, rect.Max
-	p.Pos = min
+	p.p = min
 	p.LineTo(image.Point{min.X, max.Y})
 	p.LineTo(max)
 	p.LineTo(image.Point{max.X, min.Y})
 	p.LineTo(min)
 }
-func (p *Pen)Line(a image.Point, b image.Point) {
+func (p *graphic)FillRect(r image.Rectangle) {
+	rect := r.Intersect(p.Bounds())
+	//	old := p.Pos
+	//	dx := rect.Dx()
+	min, max := rect.Min, rect.Max
+	for x := min.X; x <=max.X; x+=1 {
+		p.DrawLine(x, min.Y, x, max.Y)
+	}
+}
+func (p *graphic)Line(a image.Point, b image.Point) {
 	p.DrawLine(a.X, a.Y, b.X, b.Y)
 }
-func (p *Pen)DrawLine(x0, y0, x1, y1 int) {
+func (p *graphic)DrawLine(x0, y0, x1, y1 int) {
 	// http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 	dx := x1-x0
 	dy := y1-y0
@@ -56,7 +71,7 @@ func (p *Pen)DrawLine(x0, y0, x1, y1 int) {
 	y := y0
 
 	for {
-		p.Set(x, y, p.Color)
+		p.Set(x, y, p.c)
 
 		if (x == x1 && y == y1) {
 			break;
@@ -74,23 +89,23 @@ func (p *Pen)DrawLine(x0, y0, x1, y1 int) {
 		}
 	}
 }
-func (p *Pen)LineTo(b image.Point) {
-	p.Line(p.Pos, b)
-	p.Pos = b
+func (p *graphic)LineTo(b image.Point) {
+	p.Line(p.p, b)
+	p.p = b
 }
-func (p *Pen)Circle(x0 int, y0 int, r int) {
+func (p *graphic)Circle(x0 int, y0 int, r int) {
 	// http://en.wikipedia.org/wiki/Midpoint_circle_algorithm
 	x, y := r, 0
 	re := 1-x
 	for x >= y {
-		p.Set(+x + x0, +y + y0, p.Color)
-		p.Set(+y + x0, +x + y0, p.Color)
-		p.Set(-x + x0, +y + y0, p.Color)
-		p.Set(-y + x0, +x + y0, p.Color)
-		p.Set(-x + x0, -y + y0, p.Color)
-		p.Set(-y + x0, -x + y0, p.Color)
-		p.Set(+x + x0, -y + y0, p.Color)
-		p.Set(+y + x0, -x + y0, p.Color)
+		p.Set(+x + x0, +y + y0, p.c)
+		p.Set(+y + x0, +x + y0, p.c)
+		p.Set(-x + x0, +y + y0, p.c)
+		p.Set(-y + x0, +x + y0, p.c)
+		p.Set(-x + x0, -y + y0, p.c)
+		p.Set(-y + x0, -x + y0, p.c)
+		p.Set(+x + x0, -y + y0, p.c)
+		p.Set(+y + x0, -x + y0, p.c)
 		y +=1
 		if (re<0) {
 			re += 2 * y + 1;

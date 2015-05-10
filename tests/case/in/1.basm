@@ -1,0 +1,38 @@
+;0 | 浮点数转换为整数 | 整数 | r3:浮点数 | int(r3.float)
+;1 | 整数转换为浮点数 | 浮点数 | r3:整数 | float(r3.int)
+;2 | 申请字符串句柄 | 申请到的句柄 |  |  strPool.acquire
+;3 | 字符串转换为整数 | 整数 | r3:字符串句柄,__地址__ | float(r3.str);若r3的值不是合法的字符串句柄则返回r3的值
+;4 | 整数转换为字符串 | 返回的值为r3:整数 | r2:目标字符串_句柄_<br>r3:整数 | r2.str=str(r3.int);return r3.int;r2所代表字符串的内容被修改
+
+ld int r3, 3
+in r1, 1
+out 5, r1;>3.000000
+out 4, 10
+
+ld int r3, r1
+in r1, 0
+out 0,r1;>3
+
+ld int r3, STR
+in r1, 3
+out 0, r1;>123
+
+in r2, 2
+out 0, r2;>-1
+ld int r3, 456
+in r0, 4
+out 0, r0;>456
+out 0, r3;>456
+out 1, r2;>456
+
+; 错误的字符串返回 r3 的值
+ld int r3, 19999
+in r1, 3
+out 0, r1;>19999
+
+ld int r3, -10
+in r1, 3
+out 0, r1;>-10
+
+exit
+data STR char "123",0

@@ -9,10 +9,6 @@ import (
 
 
 var log = logging.MustGetLogger("bbvm")
-// 资源相关的日志
-var rlog = logging.MustGetLogger("res")
-// 处理相关的日志
-var plog = logging.MustGetLogger("proc")
 
 // 初始化 Log
 func init() {
@@ -21,6 +17,7 @@ func init() {
 	backend1 := logging.NewLogBackend(os.Stdout, "", 0)
 	backend1Formatter := logging.NewBackendFormatter(backend1, format)
 	logging.SetBackend(backend1Formatter)
+
 }
 
 func calculate(a int, b int, t CalculateType, d DataType) int {
@@ -91,8 +88,5 @@ func newStrPool() ResPool {
 }
 
 func float32ToStr(f float32) string {
-	if f == 0 {
-		return "000.000000"
-	}
 	return fmt.Sprintf("%.6f", f)
 }

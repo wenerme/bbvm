@@ -19,31 +19,8 @@ func testByBAsm(file string, t *testing.T) bool {
 
 	b, err := ioutil.ReadFile(file)
 	if err!= nil { panic(err) }
-	basm := string(b)
 
-	regIO := regexp.MustCompile(`;\s*(\|?(\<|\>))([^\r\n]*)`)
-
-	matches := regIO.FindAllStringSubmatch(basm, -1)
-	//	t.Log(matches)
-	for _, v := range matches {
-		val := string(v[3])
-		val = strings.TrimRight(val, " ")
-		val = strings.Replace(val, `\n`, "\n", -1)
-		//		t.Logf("%#v", v)
-		switch string(v[1]){
-			case "|>":
-			expected.WriteString(val)
-			case ">":
-			expected.WriteString(val)
-			expected.WriteString("\n")
-			//			t.Logf("APPEND LINE %s =  %s\n", val, expected.String())
-			case "|<":
-			input.WriteString(val)
-			case "<":
-			input.WriteString(val)
-			input.WriteString("\n")
-		}
-	}
+	extractIO(string(b), input, expected)
 
 	t.Logf("%10s: %#v\n", "expected", string(expected.Bytes()))
 	t.Logf("%10s: %#v\n", "input", string(input.Bytes()))
@@ -60,8 +37,11 @@ func testByBAsm(file string, t *testing.T) bool {
 	OUT.OutputToWriter(v, output)
 	OUT.InputByReader(v, input)
 	OUT.File(v)
-	Handle.All(v)
-	logging.SetLevel(logging.INFO, "bbvm")
+	OUT.Graphic(v)
+	Misc.All(v)
+
+
+	logging.SetLevel(logging.DEBUG, "bbvm")
 	for !v.IsExited() {
 		v.Loop()// call
 		//		t.Log(v.Report())
@@ -93,8 +73,33 @@ func testByBAsm(file string, t *testing.T) bool {
 	return true
 }
 
+func extractIO(basm string, input *bytes.Buffer, expected *bytes.Buffer) {
+	regIO := regexp.MustCompile(`(?:;|')\s*(\|?(\<|\>))([^\r\n]*)`)
+
+	matches := regIO.FindAllStringSubmatch(basm, -1)
+	//	t.Log(matches)
+	for _, v := range matches {
+		val := string(v[3])
+		val = strings.TrimRight(val, " ")
+		val = strings.Replace(val, `\n`, "\n", -1)
+		//		t.Logf("%#v", v)
+		switch string(v[1]){
+		case "|>":
+			expected.WriteString(val)
+		case ">":
+			expected.WriteString(val)
+			expected.WriteString("\n")
+		//			t.Logf("APPEND LINE %s =  %s\n", val, expected.String())
+		case "|<":
+			input.WriteString(val)
+		case "<":
+			input.WriteString(val)
+			input.WriteString("\n")
+		}
+	}
+}
 func TestIn9(t *testing.T) {
 	//	testByBAsm("case/in/38.basm", t)
-//	testByBAsm("case/out/read-restore.basm", t)
-	testByBAsm("case/file.basm", t)
+	//	testByBAsm("case/out/read-restore.basm", t)
+	testByBAsm("case/cal.basm", t)
 }

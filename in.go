@@ -6,12 +6,15 @@ import (
 	"time"
 	"fmt"
 	"strings"
+	"github.com/op/go-logging"
 )
 type in struct { }
 var IN in
 
 // 2 | 申请字符串句柄 | 申请到的句柄 |  |  IN():SHDL<br>从-1开始查询
 // 5 | 复制字符串 | r3的值 | r2:源字符串句柄<br>r3:目标字符串句柄 | IN(r2:SHDL,r3:SHDL):SHDL<br>r3所代表字符串的内容被修改
+// 6 | 连接字符串 | r3的值 | r2:源字符串<br>r3:目标字符串 | r3.str=r3.str+r2.str
+// 7 | 获取字符串长度 | 字符串长度 | r3:字符串 | strlen(r3.str)
 // 8 | 释放字符串句柄 | r3的值 | r3:字符串句柄 | IN(r3:SHDL):SHDL
 // 9 | 比较字符串 | 两字符串的差值 相同为0，大于为1,小于为-1 | r2:基准字符串<br>r3:比较字符串 | IN(r2:SHDL,r3:SHDL):int
 //12 | 获取字符的ASCII码 | ASCII码 | r2:字符位置<br>r3:字符串 | GBK编码,返回的结果范围为有符号的 8bit值,因此对中文操作时返回负数
@@ -24,34 +27,45 @@ var IN in
 //39 | 获取字符串长度 | 字符串长度 | r3:字符串 |
 func inStrFunc(i *Inst) {
 	v, p, o := i.VM, i.B.Get(), i.A // port and param
-
+	r2, r3 := v.Register(REG_R2), v.Register(REG_R3)
 	switch p{
 	case 2:
 		if r, err := v.StrPool().Acquire(); err == nil {
-			rlog.Info("Acquire StrRes %d", r.Id())
+			log.Info("Acquire StrRes %d", r.Id())
 			o.Set(r.Id())
 		}else {
-			rlog.Error("Acquire StrRes faield: %s", err)
+			log.Error("Acquire StrRes faield: %s", err)
+			o.Set(r3.Get())
 		}
 	case 5:
-		rlog.Info("StrRes copy '%s' to %d", v.r2.Str(), v.Register(REG_R3).Get())
-		v.r3.SetStr(v.r2.Str())
+		log.Debug("strcpy '%s' to %d", r2, r3.Get())
+		r3.SetStr(r2.Str())
+		o.Set(r3.Get())
+	case 6:
+		if log.IsEnabledFor(logging.DEBUG) {log.Debug("strcat(%s,%s)", r2.Str(), r3.Str())}
+		v.r3.SetStr(r3.Str()+r2.Str())
 		o.Set(v.r3.Get())
+	case 7:
+		log.Debug("strlen(%s)", r3.Str())
+		if s, err := v.GetStr(r3.Get()); err == nil {
+			o.Set(len(s))
+		}else {
+			log.Error("strlen failed: %s", err.Error())
+			o.Set(r3.Get())
+		}
 	case 8:
-		hdl := v.Register(REG_R3).Get()
+		hdl := r3.Get()
 		r := v.StrPool().Get(hdl)
 		if r != nil {
-			rlog.Info("Release StrRes %d '%v'", r.Id(), r.Get())
+			log.Info("Release StrRes %d '%v'", r.Id(), r.Get())
 			v.StrPool().Release(r)
 		}else {
-			rlog.Info("Release StrRes %d failed: not exists", hdl)
+			log.Info("Release StrRes %d failed: not exists", hdl)
 		}
-		// TODO 确认是否返回r3的值
-		o.Set(v.r3.Get())
+		o.Set(r3.Get())
 	case 9:
-
 		r := bytes.Compare([]byte(v.MustGetStr(v.r3.Get())), []byte(v.MustGetStr(v.r2.Get())))
-		//		rlog.Info("Str compare %s %s = %d",v.MustGetStr(v.r2.Get()),v.MustGetStr(v.r3.Get()),r)
+		log.Debug(`strcmp("%s", '%s") = %d`, v.MustGetStr(v.r2.Get()), v.MustGetStr(v.r3.Get()), r)
 		o.Set(r)
 
 	case 12:
@@ -140,19 +154,19 @@ func inConvFunc(i *Inst) {
 	case 1:
 		o.SetFloat32(float32(v.r3.Get()))
 	case 3:
-		s := v.MustGetStr(v.r3.Get())
-		if r, ok := strconv.Atoi(s); ok == nil {
+		s, err := v.GetStr(v.r3.Get())
+		if err != nil {
+			o.Set(v.r3.Get())
+			break
+		}
+		if r, err := strconv.Atoi(s); err == nil {
 			o.Set(r)
 		}else {
-			log.Error("Convert atoi faield:"+s)
+			log.Error("Atoi(%s) faield: %s", s, err)
 		}
 	case 4:
-		s := v.MustGetStr(v.r3.Get())
-		if r, ok := strconv.Atoi(s); ok == nil {
-			o.Set(r)
-		}else {
-			log.Error("Convert atoi faield:"+s)
-		}
+		v.r2.SetStr(strconv.Itoa(v.r3.Get()))
+		o.Set(v.r3.Get())
 	case 10:
 		v.r2.SetStr(float32ToStr(float32(v.r3.Get())))
 		o.Set(v.r3.Get())
@@ -181,6 +195,8 @@ func inConvFunc(i *Inst) {
 func (in)Str(v VM) {
 	v.SetIn(HANDLE_ALL, 2, inStrFunc)
 	v.SetIn(HANDLE_ALL, 5, inStrFunc)
+	v.SetIn(HANDLE_ALL, 6, inStrFunc)
+	v.SetIn(HANDLE_ALL, 7, inStrFunc)
 	v.SetIn(HANDLE_ALL, 8, inStrFunc)
 	v.SetIn(HANDLE_ALL, 9, inStrFunc)
 	v.SetIn(HANDLE_ALL, 12, inStrFunc)

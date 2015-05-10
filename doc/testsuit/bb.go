@@ -97,9 +97,9 @@ func main() {
 	//	fmt.Println(os.Args)
 	//	app.Run(os.Args)
 	os.Chdir("doc/testsuit")
-//	os.Args = []string{"bb", "--bb", "doc/testsuit/BB", "prepare", "in/read-restore.basm"}
-//	os.Args = []string{"bb", "--bb", "doc/testsuit/BB", "prepare", "file.basm"}
-	os.Args = []string{"bb", "--bb", "doc/testsuit/BB", "prepare", "../../tests/case/file.basm"}
+	//	os.Args = []string{"bb", "--bb", "doc/testsuit/BB", "prepare", "in/read-restore.basm"}
+	//	os.Args = []string{"bb", "--bb", "doc/testsuit/BB", "prepare", "file.basm"}
+	os.Args = []string{"bb", "--bb", "doc/testsuit/BB", "prepare", "../../tests/case/cal.basm"}
 	app.RunAndExitOnError()
 	//	app.Run([]string{"bb", "--bb", "BB/Tool", "help"})
 	//	fmt.Println("BBDIR ", bbDir.Value)
@@ -270,14 +270,14 @@ func run(fn string, doRun bool) (bool) {
 
 	var bin string = fn
 	switch filepath.Ext(fn){
-		case ".bas", ".basm", ".obj":
+	case ".bas", ".basm", ".obj":
 
 		var ok bool
 		if bin, ok = compile(fn); !ok {
 			return false
 		}
 		fallthrough
-		case ".bin":
+	case ".bin":
 
 		dest := path.Join(path.Dir(env["gamdev"]), "../BBasic", "test.bin")
 		//		fmt.Println("Will copy to ", bin, dest)
@@ -291,12 +291,11 @@ func run(fn string, doRun bool) (bool) {
 		if doRun {
 			tool("gamdev")
 		}
-
-		default:
+	default:
 		fmt.Println("Can not run %s, need bas|basm|obj|bin", fn)
 		return false
 	}
-	return false
+	return true
 }
 
 

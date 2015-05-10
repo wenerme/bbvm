@@ -51,10 +51,10 @@ func (o *Operand)StrRes() Res {
 	return o.VM.StrPool().Get(o.Get())
 }
 func (o *Operand)Str() string {
-	if s, ok := o.VM.GetStr(o.Get()); ok {
+	if s, err := o.VM.GetStr(o.Get()); err == nil {
 		return s
 	}else {
-		log.Error("Operand string res %d not exists", o.Get())
+		log.Error("Operand string res %d not exists: %s", o.Get(), err.Error())
 		return ""
 	}
 }
@@ -184,7 +184,7 @@ func (i Inst)String() string {
 		case OP_CMP:
 			return fmt.Sprintf("%s %s %s, %s", i.Opcode, i.CompareType, i.A, i.B)
 		}
-		return fmt.Sprintf("%s %s %s", i.Opcode, i.A, i.B)
+		return fmt.Sprintf("%s %s, %s", i.Opcode, i.A, i.B)
 	case 6:
 		return fmt.Sprintf("%s %s %s", i.Opcode, i.CompareType, i.A)
 	}

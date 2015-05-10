@@ -1,6 +1,7 @@
 package bbvm
 import (
 	"image"
+	"image/color"
 )
 
 /*
@@ -42,23 +43,31 @@ import (
 type (
 
 Page interface {
-	ShowPic(Picture)
-	FillPage()
-	Locate(int, int)
-	Font() Font
-	SetFont(Font)
-	SetBGMode(BGMode)
-	BGMode(BGMode) BGMode
+	Graphic
+	SetBrushStyle(BrushStyle)
+	SetPen()
 }
 
-Font interface {
+Picture interface {
+	image.Image
+	// 图片名,可能为 nil
 	Name() string
 }
 
-Picture struct {
-	image.Image
-	Name string
+GraphDev interface {
+	LoadPicture(fn string, i int) (Picture, error)
+	SetLcd(int, int)
+	PagePool() ResPool
+	PicPool() ResPool
+	FlipPage(Page)
+	SetFont(FontType)
+	SetFontStyle(color.Color, color.Color)
+	SetBackgroundMode(BackgroundMode)
+	Print(string, ... interface{})
+	Locate(int, int)
+	LocatePixel(int, int)
 }
+
 KeyEventType int
 KeyEvent struct {
 	Type KeyEventType
@@ -69,18 +78,17 @@ MouseEventType int
 MouseEvent struct {
 	Type MouseEventType
 }
-InputDevice interface {
+InputDev interface {
 	IsPressed(KeyCode) bool
 	//	InKey() KeyCode
 	WaitKey() KeyEvent
 	KeyEvent() chan KeyEvent
 	MouseEvent() chan MouseEvent
 }
+
+
 )
 
-func LoadPicture(fn string, n int) (*Picture, error) {
-	return nil, nil
-}
 
 const (
 	KeyUp KeyEventType = iota
@@ -90,5 +98,4 @@ const (
 	MouseDown MouseEventType = iota
 	MouseUp
 	MouseMove
-
 )

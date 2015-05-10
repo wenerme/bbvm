@@ -1,11 +1,11 @@
 package bbvm
 // 非单独的 IN 和 OUT 端口处理
-type handle struct { }
-var Handle handle
-func (o handle)All(v VM) {
+type miscHandler struct { }
+var Misc miscHandler
+func (o miscHandler)All(v VM) {
 	o.Data(v)
 }
-func (handle)Data(v VM) {
+func (miscHandler)Data(v VM) {
 	v.Attr()["data-ptr"]= 0
 	v.SetOut(13, 0, hdlDataFunc)
 	v.SetOut(14, 0, hdlDataFunc)

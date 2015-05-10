@@ -19,6 +19,8 @@ type VM interface {
 type Register interface {
 	Get() int
 	Set(int)
+	Str() string
+	SetStr(string)
 }
 type register struct {
 	Val int
@@ -41,18 +43,13 @@ func (o *register)StrRes() Res {
 	return o.VM.StrPool().Get(o.Get())
 }
 func (o *register)Str() string {
-	if s, ok := o.VM.GetStr(o.Get()); ok {
-		return s
-	}else {
-		log.Error("register string res %d not exists", o.Get())
-		return ""
-	}
+	return o.VM.MustGetStr(o.Val)
 }
 func (o *register)SetStr(v string) {
 	if r := o.StrRes(); r!= nil {
 		o.StrRes().Set(v)
 	}else {
-		log.Error("register string res %d not exists", o.Get())
+		log.Error("Register string res %d not exists", o.Get())
 	}
 }
 

@@ -1,11 +1,11 @@
 package bbvm
 
-type BGMode int
+type BackgroundMode int
 const (
 //透明显示，即字体的背景颜色无效。
-	TRANSPARENT BGMode = 1
+	TRANSPARENT BackgroundMode = 1
 //不透明显示，即字体的背景颜色有效
-	OPAQUE BGMode = 2
+	OPAQUE BackgroundMode = 2
 )
 
 type EnvType int

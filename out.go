@@ -88,14 +88,14 @@ func outMiscFunc(i *Inst) {
 	switch p{
 	case 27:
 		log.Info("MSDELAY(%d)", r3.Get())
-		time.Sleep(r3.Get() * time.Millisecond)
+		time.Sleep(time.Duration(r3.Get()) * time.Millisecond)
 	case 32:
 		log.Info("RANDOMIZE(%d)", r3.Get())
 		rand.Seed(int64(r3.Get()))
 	case 33:
-		r := rand.Int31n(r3.Get())
+		r := rand.Int31n(int32(r3.Get()))
 		log.Info("RND(%d) -> %d", r3.Get(), r)
-		r3.Set(r)
+		r3.Set(int(r))
 	case 255:
 		log.Info("VMTEST()")
 	}

@@ -1,6 +1,7 @@
 package bbvm
 import (
 	"errors"
+	"io"
 )
 
 
@@ -68,6 +69,12 @@ func (p *resPool)create() Res {
 }
 
 func (p *resPool)Release(r Res) {
+	if c, ok := r.(io.Closer); ok {
+		if err := c.Close(); err != nil {
+			log.Error("Release resource failed: %s", err.Error())
+		}
+	}
+
 	delete(p.pool, r.Id())
 }
 func (p *resPool)Get(i int) Res {
