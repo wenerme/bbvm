@@ -64,6 +64,9 @@ func (g *graphDev)PagePool() ResPool {
 func (g *graphDev)PicPool() ResPool {
 	return g.picPool
 }
+func (g *graphDev)Screen() Page {
+	return g.screen
+}
 
 func (g *graphDev)FlipPage(Page) {
 }

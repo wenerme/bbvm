@@ -73,7 +73,7 @@ func outGraphicFunc(i *Inst) {
 		args := newArgs(r3.Get(), v, 4)
 		pi, x, y, c := args.Next4Int()
 		log.Debug("PIXEL(%d,%d,%d,%d)", pi, x, y, c)
-		if pg := getPage(pagePool, pi); pg != nil {
+		if pg := getPage(gdev, pi); pg != nil {
 			// TODO 边界检查
 			pg.Set(x, y, rgbInt2Color(c))
 		}
@@ -81,7 +81,7 @@ func outGraphicFunc(i *Inst) {
 		args := newArgs(r3.Get(), v, 4)
 		pageId, x, y := args.Next3Int()
 		log.Debug("READPIXEL(%d,%d,%d)", pageId, x, y)
-		if pg := getPage(pagePool, pageId); pg != nil {
+		if pg := getPage(gdev, pageId); pg != nil {
 			// TODO 边界检查
 			r3.Set(color2BGRInt(pg.At(x, y)))
 		}
@@ -117,7 +117,7 @@ func outGraphicFunc(i *Inst) {
 		args := newArgs(r3.Get(), v, 4)
 		pi, style, w, c := args.Next4Int()
 		log.Debug("SETPEN(%d,%d,%d,%d)", pi, style, w, c)
-		if pg := getPage(pagePool, pi); pg != nil {
+		if pg := getPage(gdev, pi); pg != nil {
 			pg.SetPen(PenStyle(style), w, bgrIntColor(c))
 		}
 	case 68:
@@ -125,20 +125,28 @@ func outGraphicFunc(i *Inst) {
 		args := newArgs(r3.Get(), v, 5)
 		pi, left, top, right, bottom := args.Next5Int()
 		log.Debug("RECTANGLE(%d,%d,%d,%d,%d)", pi, left, top, right, bottom)
-		if pg := getPage(pagePool, pi); pg != nil {
+		if pg := getPage(gdev, pi); pg != nil {
 			pg.Rect(image.Rect(left, top, right, bottom))
 		}
 	case 69:
 		args := newArgs(r3.Get(), v, 4)
 		pi, cx, cy, cr := args.Next4Int()
 		log.Debug("CIRCLE(%d,%d,%d,%d)", pi, cx, cy, cr)
-		if pg := getPage(pagePool, pi); pg != nil {
+		if pg := getPage(gdev, pi); pg != nil {
 			pg.Circle(cx, cy, cr)
 		}
 	}
 }
 
-func getPage(p ResPool, id int) Page {
+func getPage(g GraphDev, id int) Page {
+	if id == -1 {
+		return g.Screen()
+	}
+	if id < 0 {
+		log.Error("Page handle is invalid: %d", id)
+		return nil
+	}
+	p := g.PagePool()
 	r := p.Get(id)
 	if r == nil || r.Get() == nil {return nil}
 	return r.Get().(Page)

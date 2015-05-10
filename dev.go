@@ -68,6 +68,7 @@ GraphDev interface {
 	Print(string, ... interface{})
 	Locate(int, int)
 	LocatePixel(int, int)
+	Screen() Page
 }
 
 KeyEventType int

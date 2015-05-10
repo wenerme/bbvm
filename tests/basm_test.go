@@ -53,7 +53,7 @@ func testByBAsm(file string, t *testing.T) bool {
 	t.Logf("%10s: %#v\n", "output", string(output.Bytes()))
 
 	// Debug page 1
-	saveTemp(v.Attr()["graph-dev"].(GraphDev).PagePool().Get(1).Get().(Page))
+	saveTemp(v.Attr()["graph-dev"].(GraphDev).Screen())
 
 	for {
 		o, oe := output.ReadString('\n')
@@ -107,7 +107,7 @@ func extractIO(basm string, input *bytes.Buffer, expected *bytes.Buffer) {
 func TestIn9(t *testing.T) {
 	//	testByBAsm("case/in/38.basm", t)
 	//	testByBAsm("case/out/read-restore.basm", t)
-	testByBAsm("case/draw.basm", t)
+	testByBAsm("case/draw2.basm", t)
 }
 
 
