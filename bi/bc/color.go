@@ -1,16 +1,17 @@
-package bi
+package bc
 import "image/color"
 
 var (
 	BGR888Model color.Model = color.ModelFunc(bgr888Model)
 	BGR565Model color.Model = color.ModelFunc(bgr565Model)
 	RGB565Model color.Model = color.ModelFunc(rgb565Model)
+	Gray2Model color.Model = color.ModelFunc(gray2Model)
 )
-type BGR888Color int
-func (i BGR888Color)Int() int {
+type BGR888 int
+func (i BGR888)Int() int {
 	return int(i)
 }
-func (i BGR888Color)RGBA() (r, g, b, a uint32) {
+func (i BGR888)RGBA() (r, g, b, a uint32) {
 	r = uint32(i&0xff)
 	r |= r << 8
 	g = uint32(i>>8&0xff)
@@ -22,18 +23,18 @@ func (i BGR888Color)RGBA() (r, g, b, a uint32) {
 	return
 }
 func bgr888Model(c color.Color) color.Color {
-	if _, ok := c.(BGR888Color); ok {
+	if _, ok := c.(BGR888); ok {
 		return c
 	}
 	r, g, b, _ := c.RGBA()
 	r >>= 8
 	g >>= 8
 	b >>= 8
-	return BGR888Color(b<<16|g<<8|r)
+	return BGR888(b<<16|g<<8|r)
 }
 
-type BGR565Color uint16
-func (i BGR565Color)RGBA() (r, g, b, a uint32) {
+type BGR565 uint16
+func (i BGR565)RGBA() (r, g, b, a uint32) {
 	r = uint32(i&0x1f)
 	r |= r << 11
 	g = uint32(i>>5&0x3f)
@@ -46,7 +47,7 @@ func (i BGR565Color)RGBA() (r, g, b, a uint32) {
 	return
 }
 func bgr565Model(c color.Color) color.Color {
-	if _, ok := c.(BGR565Color); ok {
+	if _, ok := c.(BGR565); ok {
 		return c
 	}
 	r, g, b, _ := c.RGBA()
@@ -58,11 +59,11 @@ func bgr565Model(c color.Color) color.Color {
 	g >>= 2 & 0x3f
 	b >>= 3 & 0x1f
 
-	return BGR565Color(b<<11|g<<5|r)
+	return BGR565(b<<11|g<<5|r)
 }
 
-type RGB565Color uint16
-func (i RGB565Color)RGBA() (r, g, b, a uint32) {
+type RGB565 uint16
+func (i RGB565)RGBA() (r, g, b, a uint32) {
 	b = uint32(i&0x1f)
 	b |= b << 11
 	g = uint32(i>>5&0x3f)
@@ -76,7 +77,7 @@ func (i RGB565Color)RGBA() (r, g, b, a uint32) {
 	return
 }
 func rgb565Model(c color.Color) color.Color {
-	if _, ok := c.(BGR565Color); ok {
+	if _, ok := c.(BGR565); ok {
 		return c
 	}
 	r, g, b, _ := c.RGBA()
@@ -84,5 +85,25 @@ func rgb565Model(c color.Color) color.Color {
 	g >>= 10 & 0x3f
 	b >>= 11 & 0x1f
 
-	return RGB565Color(r<<11|g<<5|b)
+	return RGB565(r<<11|g<<5|b)
+}
+
+// Gray16 represents a 2-bit grayscale color.
+type Gray2 struct {
+	Y uint8
+}
+
+func (c Gray2) RGBA() (r, g, b, a uint32) {
+	y := uint32(c.Y) << 14
+	return y, y, y, 0xffff
+}
+
+
+func gray2Model(c color.Color) color.Color {
+	if _, ok := c.(Gray2); ok {
+		return c
+	}
+	r, g, b, _ := c.RGBA()
+	y := (299*r + 587*g + 114*b + 500) / 1000
+	return Gray2{uint8(y >> 14)}
 }
