@@ -65,13 +65,16 @@ func bgr565Model(c color.Color) color.Color {
 	return BGR565{uint16(b<<11|g<<5|r)}
 }
 
-type RGB565 uint16
+type RGB565 struct {
+	V uint16
+}
 func (i RGB565)RGBA() (r, g, b, a uint32) {
-	b = uint32(i&0x1f)
+	v := i.V
+	b = uint32(v&0x1f)
 	b |= b << 11
-	g = uint32(i>>5&0x3f)
+	g = uint32(v>>5&0x3f)
 	g |= g << 10
-	r = uint32(i>>11&0x1f)
+	r = uint32(v>>11&0x1f)
 	r |= r << 11
 
 	a = 0xff
@@ -88,7 +91,7 @@ func rgb565Model(c color.Color) color.Color {
 	g >>= 10 & 0x3f
 	b >>= 11 & 0x1f
 
-	return RGB565(r<<11|g<<5|b)
+	return RGB565{uint16(r<<11|g<<5|b)}
 }
 
 // Gray16 represents a 2-bit grayscale color.

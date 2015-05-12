@@ -3,7 +3,6 @@ import (
 	"image"
 	"image/color"
 	"./bc"
-	"encoding/binary"
 )
 
 
@@ -31,10 +30,10 @@ func (i *RGB565)At(x, y int) color.Color {
 
 func (p *RGB565) RGB565At(x, y int) bc.RGB565 {
 	if !(image.Point{x, y}.In(p.Rect)) {
-		return bc.RGB565(0)
+		return bc.RGB565{0}
 	}
 	i := p.PixOffset(x, y)
-	return bc.RGB565(binary.LittleEndian.Uint16(p.Pix[i:]))
+	return bc.RGB565{uint16(p.Pix[i+1]) | uint16(p.Pix[i+0])<<8}
 }
 
 // PixOffset returns the index of the first element of Pix that corresponds to
@@ -49,7 +48,7 @@ func NewRGB565(r image.Rectangle) *RGB565 {
 	return &RGB565{buf, 2*w, r}
 }
 
-// Gray16 is an in-memory image whose At method returns color.Gray2 values.
+// Gray2 is an in-memory image whose At method returns color.Gray2 values.
 type Gray2 struct {
 	// Pix holds the image's pixels, as gray values in big-endian format. The pixel at
 	// (x, y) starts at Pix[(y-Rect.Min.Y)*Stride + (x-Rect.Min.X)/4].
@@ -75,7 +74,7 @@ func (p *Gray2) Gray2At(x, y int) bc.Gray2 {
 	i := p.PixOffset(x, y)
 
 	l := p.Pix[i]
-	l = l >> uint((3-(x % 4))*2)
+	l = l >> uint((x % 4)*2)
 	return bc.Gray2{l & 0x3}
 }
 

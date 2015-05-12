@@ -60,7 +60,7 @@ func DecodeLibRGB565OneConfig(r *bytes.Reader) (image.Config, error) {
 	return cfg, nil
 }
 
-func DecodeLibRGB565One(r *bytes.Reader) (image.Image, error) {
+func DecodeLibRGB565One(r *bytes.Reader) (*RGB565, error) {
 	buf := make([]byte, 4)
 	_, err := r.Read(buf)
 	if err != nil { return nil, err }
@@ -82,6 +82,7 @@ func DecodeLibRGB565One(r *bytes.Reader) (image.Image, error) {
 	i := NewRGB565(image.Rect(0, 0, w, h))
 	_, err=r.Read(i.Pix)
 	if err != nil { return i, err }
+	reverseBit16(i.Pix)
 
 	return i, nil
 }
@@ -106,6 +107,7 @@ func DecodeLibGray2One(r *bytes.Reader) (image.Image, error) {
 	i := NewGray2(image.Rect(0, 0, w, h))
 	_, err=r.Read(i.Pix)
 	if err != nil { return i, err }
+	reverseBit2(i.Pix)
 
 	return i, nil
 }
@@ -134,4 +136,22 @@ func DecodeLibGray2(r *bytes.Reader, bo binary.ByteOrder) (*Gray2, error) {
 	if err != nil { return i, err }
 
 	return i, nil
+}
+
+func reverseBit2(b []byte) {
+	// 00 10 11 01 ->
+	// 01 11 10 00
+	l := len(b)
+	for i := 0; i < l; i ++ {
+		v := b[i]
+		b[i] = v&3 << 6 | (v >> 2)& 3 << 4 | (v >> 4)& 3 << 2 | (v >> 6)
+	}
+}
+
+func reverseBit16(b []byte) {
+	l := len(b)
+	if l % 2 != 0 { l -= 1 }
+	for i := 0; i < l; i += 2 {
+		b[i], b[i+1] = b[i+1], b[i]
+	}
 }
