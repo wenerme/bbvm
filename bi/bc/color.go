@@ -7,16 +7,16 @@ var (
 	RGB565Model color.Model = color.ModelFunc(rgb565Model)
 	Gray2Model color.Model = color.ModelFunc(gray2Model)
 )
-type BGR888 int
-func (i BGR888)Int() int {
-	return int(i)
+type BGR888 struct {
+	V uint32
 }
 func (i BGR888)RGBA() (r, g, b, a uint32) {
-	r = uint32(i&0xff)
+	v := i.V
+	r = uint32(v&0xff)
 	r |= r << 8
-	g = uint32(i>>8&0xff)
+	g = uint32(v>>8&0xff)
 	g |= g << 8
-	b = uint32(i>>16&0xff)
+	b = uint32(v>>16&0xff)
 	b |= b << 8
 	a = 0xff
 	a |= a << 8
@@ -30,16 +30,19 @@ func bgr888Model(c color.Color) color.Color {
 	r >>= 8
 	g >>= 8
 	b >>= 8
-	return BGR888(b<<16|g<<8|r)
+	return BGR888{b<<16|g<<8|r}
 }
 
-type BGR565 uint16
+type BGR565 struct {
+	V uint16
+}
 func (i BGR565)RGBA() (r, g, b, a uint32) {
-	r = uint32(i&0x1f)
+	v := i.V
+	r = uint32(v&0x1f)
 	r |= r << 11
-	g = uint32(i>>5&0x3f)
+	g = uint32(v>>5&0x3f)
 	g |= g << 10
-	b = uint32(i>>11&0x1f)
+	b = uint32(v>>11&0x1f)
 	b |= b << 11
 	a = 0xff
 	a |= a << 8
@@ -59,7 +62,7 @@ func bgr565Model(c color.Color) color.Color {
 	g >>= 2 & 0x3f
 	b >>= 3 & 0x1f
 
-	return BGR565(b<<11|g<<5|r)
+	return BGR565{uint16(b<<11|g<<5|r)}
 }
 
 type RGB565 uint16

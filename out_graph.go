@@ -75,7 +75,7 @@ func outGraphicFunc(i *Inst) {
 		log.Debug("PIXEL(%d,%d,%d,%d)", pi, x, y, c)
 		if pg := getPage(gdev, pi); pg != nil {
 			// TODO 边界检查
-			pg.Set(x, y, BGR888(c))
+			pg.Set(x, y, BGR888{uint32(c)})
 		}
 	case 25:
 		args := newArgs(r3.Get(), v, 4)
@@ -83,7 +83,7 @@ func outGraphicFunc(i *Inst) {
 		log.Debug("READPIXEL(%d,%d,%d)", pageId, x, y)
 		if pg := getPage(gdev, pageId); pg != nil {
 			// TODO 边界检查
-			r3.Set(BGR888Model.Convert(pg.At(x, y)).(BGR888).Int())
+			r3.Set(int(BGR888Model.Convert(pg.At(x, y)).(BGR888).V))
 		}
 	/*
 26 | 释放图片句柄 | 0 | r3:资源句柄 |  FREERES(ID)
@@ -118,7 +118,7 @@ func outGraphicFunc(i *Inst) {
 		pi, style, w, c := args.Next4Int()
 		log.Debug("SETPEN(%d,%d,%d,%d)", pi, style, w, c)
 		if pg := getPage(gdev, pi); pg != nil {
-			pg.SetPen(PenStyle(style), w, BGR888(c))
+			pg.SetPen(PenStyle(style), w, BGR888{uint32(c)})
 		}
 	case 68:
 		// RECTANGLE(PAGE,LEFT,TOP,RIGHT,BOTTOM)
