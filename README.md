@@ -15,20 +15,20 @@ BBvm - BeBasic Virtual Machine
 TODO
 ----
 * 图片格式支持
-	* [x]RLB 解码
-	* [ ]RLB 编码
-	* [X]LIB BE/LE 解码
-	* []LIB BE/LE 编码
-	* []DLX 解码
-	* []DLX 编码
+	* [x] RLB 解码
+	* [ ] RLB 编码
+	* [X] LIB BE/LE 解码
+	* [] LIB BE/LE 编码
+	* [] DLX 解码
+	* [] DLX 编码
 * 支持图像端口操作
-	* [x]页面操作 CREATEPAGE,DELETEPAGE,FLIPPAGE
-	* [X]页面绘图 CIRCLE,RECTANGE,PIXEL,READPIXEL
-	* []页面文字输出
-	* []字体选择端口
-	* []资源操作 LOADRES,DELETERES
-	* []显示图片资源
-	* []页面互操作
+	* [x] 页面操作 CREATEPAGE,DELETEPAGE,FLIPPAGE
+	* [X] 页面绘图 CIRCLE,RECTANGE,PIXEL,READPIXEL
+	* [ ] 页面文字输出
+	* [ ] 字体选择端口
+	* [ ] 资源操作 LOADRES,DELETERES
+	* [ ] 显示图片资源
+	* [ ] 页面互操作
 * 使用 SDL 输出图像
 * 编译器
 	

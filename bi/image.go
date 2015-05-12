@@ -7,10 +7,12 @@ import (
 
 
 
+// RGB565 is an in-memory image whose At method returns bc.RGB565 values.
 type RGB565 struct {
-	// Tow byte pre pixel
+	// Pix holds the image's pixels, as gray values in big-endian format. The pixel at
+	// (x, y) starts at Pix[(y-Rect.Min.Y)*Stride + (x-Rect.Min.X)*2].
 	Pix []uint8
-
+	// Stride is the Pix stride (in bytes) between vertically adjacent pixels.
 	Stride int
 	// Rect is the image's bounds.
 	Rect image.Rectangle
@@ -47,6 +49,11 @@ func NewRGB565(r image.Rectangle) *RGB565 {
 	buf := make([]uint8, 2*w*h)
 	return &RGB565{buf, 2*w, r}
 }
+
+
+
+
+
 
 // Gray2 is an in-memory image whose At method returns color.Gray2 values.
 type Gray2 struct {
