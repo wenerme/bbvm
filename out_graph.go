@@ -1,6 +1,7 @@
 package bbvm
 import (
 	"image"
+	. "./bi"
 )
 
 func (out)Graphic(v VM) {

@@ -1,4 +1,4 @@
-package rlb
+package bi
 import (
 	"image"
 	"bytes"
