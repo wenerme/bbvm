@@ -52,7 +52,7 @@ Page interface {
 
 Picture interface {
 	image.Image
-	// 图片名,可能为 nil
+	// 图片名
 	Name() string
 }
 

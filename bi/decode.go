@@ -41,9 +41,9 @@ func DecodeAt(r io.ReadSeeker, n int) (i image.Image, err error) {
 		return
 	}
 
-	f, err := detectImageFormat(i)
+	f, err := detectImageFormat(r)
 	if err != nil {return }
-	i = decodeOneImage(f, r, configs[n])
+	i,err = decodeOneImage(f, r, configs[n])
 	return
 }
 
@@ -92,7 +92,7 @@ func decodeImage(r io.ReadSeeker, decodeImages bool) (images []image.Image, conf
 		// rlb got 32 byte for name
 		if f  == rlbFormat {
 			_, err = r.Read(name)
-			if err != nil { return configs, err }
+			if err != nil { return }
 			c.Name = bytesToName(name)
 		}
 

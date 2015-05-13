@@ -18,9 +18,9 @@ TODO
 	* [x] RLB 解码
 	* [ ] RLB 编码
 	* [X] LIB BE/LE 解码
-	* [] LIB BE/LE 编码
-	* [] DLX 解码
-	* [] DLX 编码
+	* [ ] LIB BE/LE 编码
+	* [ ] DLX 解码
+	* [ ] DLX 编码
 * 支持图像端口操作
 	* [x] 页面操作 CREATEPAGE,DELETEPAGE,FLIPPAGE
 	* [X] 页面绘图 CIRCLE,RECTANGE,PIXEL,READPIXEL
@@ -32,7 +32,11 @@ TODO
 * 使用 SDL 输出图像
 * 编译器
 	
-	
+动机
+===
+* 祭奠曾经
+* 学习 Go
+* 完成自己的梦想
 
 参考
 ====

@@ -2,6 +2,9 @@ package bbvm
 import (
 	"image/color"
 	"image"
+	"os"
+	"./bi"
+	"fmt"
 )
 
 
@@ -19,6 +22,15 @@ func (p *page)SetPen(ps PenStyle, w int, c color.Color) {
 	p.ps, p.wid = ps, w
 	p.SetColor(c)
 }
+
+type picture struct {
+	image.Image
+	name string
+}
+func (p *picture)Name() string {
+	return p.name
+}
+
 /*
 LoadPicture(fn string, i int) (Picture, error)
 SetLcd(int, int)
@@ -51,8 +63,13 @@ func NewGraphDev(w, h int) GraphDev {
 	return g
 }
 
-func (*graphDev)LoadPicture(fn string, i int) (Picture, error) {
-	return nil, nil
+func (*graphDev)LoadPicture(fn string, n int) (p Picture, err error) {
+	fp, err := os.Open(fn)
+	if err != nil {return }
+	i, err := bi.DecodeAt(fp, n)
+	if err != nil {return }
+	p = &picture{i, fmt.Sprintf("%s#%d", fn, n)}
+	return
 }
 func (*graphDev)SetLcd(w int, h int) {
 	log.Info("SetLcd(%d,%d)", w, h)

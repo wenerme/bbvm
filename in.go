@@ -11,6 +11,54 @@ import (
 type in struct { }
 var IN in
 
+func (in)Str(v VM) {
+	v.SetIn(HANDLE_ALL, 2, inStrFunc)
+	v.SetIn(HANDLE_ALL, 5, inStrFunc)
+	v.SetIn(HANDLE_ALL, 6, inStrFunc)
+	v.SetIn(HANDLE_ALL, 7, inStrFunc)
+	v.SetIn(HANDLE_ALL, 8, inStrFunc)
+	v.SetIn(HANDLE_ALL, 9, inStrFunc)
+	v.SetIn(HANDLE_ALL, 12, inStrFunc)
+	v.SetIn(HANDLE_ALL, 13, inStrFunc)
+	v.SetIn(HANDLE_ALL, 34, inStrFunc)
+	v.SetIn(HANDLE_ALL, 35, inStrFunc)
+	v.SetIn(HANDLE_ALL, 36, inStrFunc)
+	v.SetIn(HANDLE_ALL, 37, inStrFunc)
+	v.SetIn(HANDLE_ALL, 38, inStrFunc)
+	v.SetIn(HANDLE_ALL, 39, inStrFunc)
+}
+func (in)Conv(v VM) {
+	v.SetIn(HANDLE_ALL, 0, inConvFunc)
+	v.SetIn(HANDLE_ALL, 1, inConvFunc)
+	v.SetIn(HANDLE_ALL, 3, inConvFunc)
+	v.SetIn(HANDLE_ALL, 4, inConvFunc)
+	v.SetIn(HANDLE_ALL, 10, inConvFunc)
+	v.SetIn(HANDLE_ALL, 11, inConvFunc)
+	v.SetIn(HANDLE_ALL, 32, inConvFunc)
+	v.SetIn(HANDLE_ALL, 33, inConvFunc)
+}
+func (in)Misc(v VM) {
+	v.SetIn(HANDLE_ALL, 14, inMiscFunc)
+	v.SetIn(HANDLE_ALL, 15, inMiscFunc)
+	v.SetIn(HANDLE_ALL, 23, inMiscFunc)
+	v.SetIn(HANDLE_ALL, 24, inMiscFunc)
+	v.SetIn(HANDLE_ALL, 25, inMiscFunc)
+}
+func (in)Math(v VM) {
+	v.SetIn(HANDLE_ALL, 16, inMathFunc)
+	v.SetIn(HANDLE_ALL, 17, inMathFunc)
+	v.SetIn(HANDLE_ALL, 18, inMathFunc)
+	v.SetIn(HANDLE_ALL, 19, inMathFunc)
+	v.SetIn(HANDLE_ALL, 20, inMathFunc)
+	v.SetIn(HANDLE_ALL, 21, inMathFunc)
+}
+func (i in)All(v VM) {
+	i.Conv(v)
+	i.Str(v)
+	i.Misc(v)
+	i.Math(v)
+}
+
 // 2 | 申请字符串句柄 | 申请到的句柄 |  |  IN():SHDL<br>从-1开始查询
 // 5 | 复制字符串 | r3的值 | r2:源字符串句柄<br>r3:目标字符串句柄 | IN(r2:SHDL,r3:SHDL):SHDL<br>r3所代表字符串的内容被修改
 // 6 | 连接字符串 | r3的值 | r2:源字符串<br>r3:目标字符串 | r3.str=r3.str+r2.str
@@ -192,53 +240,6 @@ func inConvFunc(i *Inst) {
 	}
 }
 
-func (in)Str(v VM) {
-	v.SetIn(HANDLE_ALL, 2, inStrFunc)
-	v.SetIn(HANDLE_ALL, 5, inStrFunc)
-	v.SetIn(HANDLE_ALL, 6, inStrFunc)
-	v.SetIn(HANDLE_ALL, 7, inStrFunc)
-	v.SetIn(HANDLE_ALL, 8, inStrFunc)
-	v.SetIn(HANDLE_ALL, 9, inStrFunc)
-	v.SetIn(HANDLE_ALL, 12, inStrFunc)
-	v.SetIn(HANDLE_ALL, 13, inStrFunc)
-	v.SetIn(HANDLE_ALL, 34, inStrFunc)
-	v.SetIn(HANDLE_ALL, 35, inStrFunc)
-	v.SetIn(HANDLE_ALL, 36, inStrFunc)
-	v.SetIn(HANDLE_ALL, 37, inStrFunc)
-	v.SetIn(HANDLE_ALL, 38, inStrFunc)
-	v.SetIn(HANDLE_ALL, 39, inStrFunc)
-}
-func (in)Conv(v VM) {
-	v.SetIn(HANDLE_ALL, 0, inConvFunc)
-	v.SetIn(HANDLE_ALL, 1, inConvFunc)
-	v.SetIn(HANDLE_ALL, 3, inConvFunc)
-	v.SetIn(HANDLE_ALL, 4, inConvFunc)
-	v.SetIn(HANDLE_ALL, 10, inConvFunc)
-	v.SetIn(HANDLE_ALL, 11, inConvFunc)
-	v.SetIn(HANDLE_ALL, 32, inConvFunc)
-	v.SetIn(HANDLE_ALL, 33, inConvFunc)
-}
-func (in)Misc(v VM) {
-	v.SetIn(HANDLE_ALL, 14, inMiscFunc)
-	v.SetIn(HANDLE_ALL, 15, inMiscFunc)
-	v.SetIn(HANDLE_ALL, 23, inMiscFunc)
-	v.SetIn(HANDLE_ALL, 24, inMiscFunc)
-	v.SetIn(HANDLE_ALL, 25, inMiscFunc)
-}
-func (in)Math(v VM) {
-	v.SetIn(HANDLE_ALL, 16, inMathFunc)
-	v.SetIn(HANDLE_ALL, 17, inMathFunc)
-	v.SetIn(HANDLE_ALL, 18, inMathFunc)
-	v.SetIn(HANDLE_ALL, 19, inMathFunc)
-	v.SetIn(HANDLE_ALL, 20, inMathFunc)
-	v.SetIn(HANDLE_ALL, 21, inMathFunc)
-}
-func (i in)All(v VM) {
-	i.Conv(v)
-	i.Str(v)
-	i.Misc(v)
-	i.Math(v)
-}
 //14 | （功用不明） | 65535 |  |
 //15 | 获取嘀嗒计数 | 嘀嗒计数 |  | 这里不知道他是怎么算的这个数字,但是会随着时间增长就是了
 //23 | 读内存数据 | 地址内容 | r3:地址 |

@@ -264,6 +264,38 @@ TIPS
 * 资源句柄: 0 开始 失败会返回 -1
 * 文件句柄: 自己指定 0 开始
 
+图片格式
+=======
+
+后缀 | 机型 | 说明 | ByteOrder
+----|----|----|----|
+rlb | n/a  | 用于 PC 端的 ResMaker<br>存储的主要是 BMP 数据| Litter-Endian
+lib | 9688 | RGB565 格式| Litter-Endian
+lib | 9288 | 4阶灰| Litter-Endian
+lib | 9188 | 4阶灰| Big-Endian
+dlx | 9688 | 用于存储系统图像| Litter-Endian
+
+rlb
+----
+```
+number.uint32 
+(offset.uint32 name.[32]byte)*number
+(length.uint32 data.[length - 4]byte)*number
+```
+
+lib
+----
+```
+number.uint32 
+(offset.uint32)*number
+(length.uint32 width.uint16 height.uint16 data.[length - 12]byte)*number
+```
+
+dlx
+----
+__TODO__
+
+
 Note
 ======
 
@@ -275,7 +307,9 @@ Note
 	; SHOWPIC(PAGE,PIC,DX,DY,W,H,X,Y,MODE)
 	data SHOWPIC_PARAM_INV int MODE, 0, 0, 320, 240, 0, 0, 0, PAGE
 	```
-	
+* BBAsm 的数据标签和跳转标签大小写敏感
+* BBAsm 的指令大小写不敏感
+
 BB 函数
 -------
  
