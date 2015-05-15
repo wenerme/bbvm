@@ -1,0 +1,71 @@
+; 加载 wener.rlb#1
+; 显示到 屏幕
+
+; 19 | 申请图片句柄并从文件载入像素资源 | r3:资源句柄 | r3:文件名, r2:资源索引 |  LOADRES(FILE$,ID)
+; 20 | 复制图片到画布上 | 0 | r3:地址,其他参数在该地址后 |  SHOWPIC(PAGE,PIC,DX,DY,W,H,X,Y,MODE)
+; 40 | 获取图片宽度 | r3 | r3 |  GETPICWID(PIC)
+; 41 | 获取图片高度 | r3 | r3 |  GETPICHGT(PIC)
+;
+jmp CODE
+data P10 int 0
+data P9 int 0
+data P8 int 0
+data P7 int 0
+data P6 int 0
+data P5 int 0
+data P4 int 0
+data P3 int 0
+data P2 int 0
+data P1 int 0
+
+data FN byte "WENER.RLB",0
+data page int 0
+CODE:
+
+ld int r2, 240
+ld int r3, 320
+' setlcd(240,320)
+out 16,0
+
+' LOADRES("WENER.RLB",1)
+' 如果 ID 为 0 会返回 -1
+' 资源句柄从 0 开始
+ld int r3, FN
+ld int r2, 1
+out 19, r1
+out 0, r1; >0
+out 0, r3; >0
+
+ld int r3, FN
+ld int r2, 1
+out 19, 0
+out 0, r3; >1
+
+' 在 PC 虚拟机上,如果页面句柄未创建,则会使用 SCREEN
+'  FIXME 在我的实现里面暂不采用这个
+ld int [P1],-1
+ld int [P2],r3
+ld int [P3],0
+ld int [P4],0
+ld int [P5],240
+ld int [P6],320
+ld int [P7],0
+ld int [P8],0
+ld int [P9],0
+
+ld int r3,P9
+out 20, r1
+out 0, r1; >0
+out 0, r3; >9
+
+' GETPICWID(1)
+ld int r3, 1
+out 40, r1
+out 0, r1; >0
+out 0, r3; >240
+
+' GETPICHGT(1)
+ld int r3, 1
+out 41, r1
+out 0, r1; >0
+out 0, r3; >320

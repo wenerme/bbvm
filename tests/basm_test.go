@@ -10,6 +10,7 @@ import (
 	"image"
 	"os"
 	"image/png"
+	"golang.org/x/image/bmp"
 )
 
 
@@ -53,7 +54,8 @@ func testByBAsm(file string, t *testing.T) bool {
 	t.Logf("%10s: %#v\n", "output", string(output.Bytes()))
 
 	// Debug page 1
-	saveTemp(v.Attr()["graph-dev"].(GraphDev).Screen())
+	saveImage(v.Attr()["graph-dev"].(GraphDev).Screen(), "screen.bmp")
+	saveImage(v.Attr()["graph-dev"].(GraphDev).PicPool().Get(0).Get().(Picture), "pic.bmp")
 
 	for {
 		o, oe := output.ReadString('\n')
@@ -107,7 +109,7 @@ func extractIO(basm string, input *bytes.Buffer, expected *bytes.Buffer) {
 func TestIn9(t *testing.T) {
 	//	testByBAsm("case/in/38.basm", t)
 	//	testByBAsm("case/out/read-restore.basm", t)
-	testByBAsm("case/draw2.basm", t)
+	testByBAsm("case/showpic.basm", t)
 }
 
 
@@ -115,5 +117,13 @@ func saveTemp(i image.Image) {
 	p, err := os.Create("temp.png")
 	if err != nil {panic(err)}
 	err = png.Encode(p, i)
+	if err != nil {panic(err)}
+}
+
+
+func saveImage(i image.Image, fn string) {
+	p, err := os.Create(fn)
+	if err != nil {panic(err)}
+	err = bmp.Encode(p, i)
 	if err != nil {panic(err)}
 }

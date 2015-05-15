@@ -160,7 +160,7 @@ func (v *vm)Loop() {
 }
 
 func (v *vm)Report() string {
-	s := fmt.Sprintf("%s #rp:%d rf:%d rs:%d rb:%d r0:%d r1:%d r2:%d r3:%d",
+	s := fmt.Sprintf("%s 'rp:%d rf:%d rs:%d rb:%d r0:%d r1:%d r2:%d r3:%d",
 		v.inst, v.rp.Get(), v.rf.Get(), v.rs.Get(), v.rb.Get(),
 		v.r0.Get(), v.r1.Get(), v.r2.Get(), v.r3.Get(), )
 	return s

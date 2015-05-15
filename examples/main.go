@@ -2,26 +2,62 @@ package main
 
 import (
 	. "../."
-	"fmt"
+	"../bi"
 	"image"
 	"os"
 	"image/png"
 	"image/color"
+	"fmt"
+	"image/draw"
 )
 
-type A struct {
-	V int
-}
-
-type B struct {
-	A
-}
 func main() {
 	t3()
 }
-func t3() {
-	fmt.Println("")
+func t4() {
+	cd, _ := os.Getwd()
+	fmt.Println(cd)
+	fp, _ := os.Open("tests/WENER.RLB")
+	fp.Seek(0x28 +4, os.SEEK_SET)
+	i, f, err := image.Decode(fp)
+	fmt.Print(f, err)
+	xi := i.(*image.NRGBA)
+	fmt.Println(xi.NRGBAAt(10, 10))
+	fmt.Println(xi.At(10, 10))
+	xi.Set(10, 10, color.RGBA{0xff, 0xff, 0, 0xff})
 
+	dy, dx := i.Bounds().Dy(), i.Bounds().Dx()
+	for y := 0; y < dy; y +=1 {
+		for x := 0; x < dx; x +=1 {
+			i.(draw.Image).Set(x, y, setAlpha(i.At(x, y), 0xff))
+		}
+	}
+
+	saveTemp(i)
+}
+func setAlpha(c color.Color, alpha uint8) (result color.Color) {
+	switch c.(type){
+		case color.NRGBA:
+		xc := c.(color.NRGBA)
+		xc.A = alpha
+		result = xc
+		default:
+		r, g, b, _ := c.RGBA()
+		result = color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), alpha}
+	}
+	return
+}
+func t3() {
+	cd, _ := os.Getwd()
+	fmt.Println(cd)
+	fp, err := os.Open("tests/WENER.RLB")
+	if err != nil {panic(err)}
+	img, err := bi.DecodeAt(fp, 0)
+	if err != nil {panic(err)}
+	fmt.Printf("SIZE: %v\n", img.Bounds())
+	fmt.Printf("0,0: %v\n", img.At(0, 0))
+	fmt.Printf("100,100: %v\n", img.At(0, 0))
+	saveTemp(img)
 }
 func t2() {
 	i := image.NewRGBA(image.Rect(0, 0, 101, 101))
@@ -57,14 +93,4 @@ func saveTemp(i image.Image) {
 	err = png.Encode(p, i)
 	if err != nil {panic(err)}
 }
-func t1() {
-	vm := NewVM()
-	_ = vm
-
-	var i interface{}
-	i = nil
-	ia, ok := i.(*A)
-	fmt.Print(ia, ok)
-}
-
 

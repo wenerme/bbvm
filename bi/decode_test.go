@@ -10,30 +10,28 @@ import (
 	"golang.org/x/image/bmp"
 	"image"
 	"image/draw"
+	"log"
 )
 
 
 
 func TestReadLibConfig(t *testing.T) {
-	b, err := ioutil.ReadFile("../tests/case/9688-wener.lib")
+	b, err := ioutil.ReadFile("../tests/9688-wener.lib")
 	//	b, err := ioutil.ReadFile("../tests/case/9288-wener.lib")
 	if err != nil {panic(err)}
 	r := bytes.NewReader(b)
-	images, configs, err := decodeImage(r, true)
-	_ = images
+	configs, err := DecodeConfig(r)
 	_ = configs
 	if err != nil {panic(err)}
-
-	saveTemp(images[0])
 }
 
 func TestDetectImageFormat(t *testing.T) {
 	assert := assert.New(t)
 	tests := map[string]imageFormat{
-		"../tests/case/9688-wener.lib": libRGB565Format,
-		"../tests/case/9188-wener.lib": libGray2BEFormat,
-		"../tests/case/9288-wener.lib": libGray2LEFormat,
-		"../tests/case/wener.rlb": rlbFormat,
+		"../tests/9688-wener.lib": libRGB565Format,
+		"../tests/9188-wener.lib": libGray2BEFormat,
+		"../tests/9288-wener.lib": libGray2LEFormat,
+		"../tests/wener.rlb": rlbFormat,
 	}
 
 
@@ -43,6 +41,7 @@ func TestDetectImageFormat(t *testing.T) {
 		f, err := detectImageFormat(fp)
 		if err != nil {panic(err)}
 		assert.EqualValues(fe, f)
+		log.Printf("%s -> %s", fn, f)
 	}
 }
 

@@ -18,6 +18,8 @@ func (out)Graphic(v VM) {
 	v.SetOut(24, HANDLE_ALL, outGraphicFunc)
 	v.SetOut(25, HANDLE_ALL, outGraphicFunc)
 	v.SetOut(26, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(40, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(41, HANDLE_ALL, outGraphicFunc)
 	v.SetOut(64, HANDLE_ALL, outGraphicFunc)
 	v.SetOut(68, HANDLE_ALL, outGraphicFunc)
 	v.SetOut(69, HANDLE_ALL, outGraphicFunc)
@@ -37,6 +39,8 @@ func outDrawFunc(i *Inst) {
 19 | 申请图片句柄并从文件载入像素资源 | r3:资源句柄 | r3:文件名, r2:资源索引 |  LOADRES(FILE$,ID)
 20 | 复制图片到画布上 | 0 | r3:地址,其他参数在该地址后 |  SHOWPIC(PAGE,PIC,DX,DY,W,H,X,Y,MODE)
 26 | 释放图片句柄 | 0 | r3:资源句柄 |  FREERES(ID)
+40 | 获取图片宽度 | r3 | r3 |  GETPICWID(PIC)
+41 | 获取图片高度 | r3 | r3 |  GETPICHGT(PIC)
  */
 func outPictureFunc(i *Inst) {
 

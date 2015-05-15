@@ -60,14 +60,22 @@ func NewGraphDev(w, h int) GraphDev {
 		start:0, step:1, reuse:true, limit: 999,
 		creator:func(ResPool) interface{} {return g.createPage()},
 	}
+	g.picPool = &resPool{
+		pool: make(map[int]Res),
+		start:0, step:1, reuse:true, limit: 999,
+		//		creator:func(ResPool) interface{} {return g.createPage()},
+	}
 	return g
 }
-
+// 加载图片资源
+// 资源索引从 1 开始
 func (*graphDev)LoadPicture(fn string, n int) (p Picture, err error) {
 	fp, err := os.Open(fn)
 	if err != nil {return }
-	i, err := bi.DecodeAt(fp, n)
+	i, err := bi.DecodeAt(fp, n - 1)// 该索引需要从 0 开始
 	if err != nil {return }
+	saveImage(i, fmt.Sprintf("load-picture-%d.bmp", n))
+
 	p = &picture{i, fmt.Sprintf("%s#%d", fn, n)}
 	return
 }
