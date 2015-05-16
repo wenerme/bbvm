@@ -12,6 +12,7 @@ type page struct {
 	Graphic
 	ps PenStyle
 	wid int
+	bs BrushStyle
 }
 func NewPage(w, h int) Page {
 	p := &page{}
@@ -21,6 +22,9 @@ func NewPage(w, h int) Page {
 func (p *page)SetPen(ps PenStyle, w int, c color.Color) {
 	p.ps, p.wid = ps, w
 	p.SetColor(c)
+}
+func (p *page)SetBrushStyle(bs BrushStyle) {
+	p.bs = bs
 }
 
 type picture struct {

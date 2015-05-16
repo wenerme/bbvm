@@ -55,7 +55,7 @@ func testByBAsm(file string, t *testing.T) bool {
 
 	// Debug page 1
 	saveImage(v.Attr()["graph-dev"].(GraphDev).Screen(), "screen.bmp")
-	saveImage(v.Attr()["graph-dev"].(GraphDev).PicPool().Get(0).Get().(Picture), "pic.bmp")
+	//	saveImage(v.Attr()["graph-dev"].(GraphDev).PicPool().Get(0).Get().(Picture), "pic.bmp")
 
 	for {
 		o, oe := output.ReadString('\n')
@@ -109,7 +109,7 @@ func extractIO(basm string, input *bytes.Buffer, expected *bytes.Buffer) {
 func TestIn9(t *testing.T) {
 	//	testByBAsm("case/in/38.basm", t)
 	//	testByBAsm("case/out/read-restore.basm", t)
-	testByBAsm("case/showpic.basm", t)
+	testByBAsm("case/draw-line.basm", t)
 }
 
 

@@ -9,7 +9,8 @@ type Graphic interface {
 	Rect(r image.Rectangle)
 	FillRect(r image.Rectangle)
 	Line(a image.Point, b image.Point)
-	LineTo(b image.Point)
+	MoveTo(image.Point)
+	LineTo(image.Point)
 	Circle(x0 int, y0 int, r int)
 	//	FillCircle(x0 int, y0 int, r int)
 	Color() color.Color
@@ -32,13 +33,14 @@ func (p *graphic)SetColor(c color.Color) {
 }
 func (p *graphic)Rect(r image.Rectangle) {
 	rect := r.Intersect(p.Bounds())
-	//	old := p.Pos
+	old := p.p
 	min, max := rect.Min, rect.Max
 	p.p = min
 	p.LineTo(image.Point{min.X, max.Y})
 	p.LineTo(max)
 	p.LineTo(image.Point{max.X, min.Y})
 	p.LineTo(min)
+	p.p = old// restore position
 }
 func (p *graphic)FillRect(r image.Rectangle) {
 	rect := r.Intersect(p.Bounds())
@@ -91,6 +93,9 @@ func (p *graphic)DrawLine(x0, y0, x1, y1 int) {
 }
 func (p *graphic)LineTo(b image.Point) {
 	p.Line(p.p, b)
+	p.p = b
+}
+func (p *graphic)MoveTo(b image.Point) {
 	p.p = b
 }
 func (p *graphic)Circle(x0 int, y0 int, r int) {

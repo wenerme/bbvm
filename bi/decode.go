@@ -166,11 +166,6 @@ func decodeOneImage(f imageFormat, r io.ReadSeeker, c Config) (i image.Image, er
 		if err != nil {return }
 	}
 
-	mg := make([]byte, 2)
-	r.Read(mg)
-	fmt.Printf("I got magic: %s for %s\n", string(mg), f)
-	_, _ = r.Seek(int64(c.Offset + 4), os.SEEK_SET)
-
 	switch f{
 	case rlbFormat:
 		i, _, err = image.Decode(r)
@@ -186,7 +181,8 @@ func decodeOneImage(f imageFormat, r io.ReadSeeker, c Config) (i image.Image, er
 		img := NewGray2(image.Rect(0, 0, c.Width, c.Height))
 		_, err = r.Read(img.Pix)
 		if err != nil {return }
-		if f == libGray2BEFormat {
+		// 保证所有数据为 BG
+		if f == libGray2LEFormat {
 			reverseBit2(img.Pix)
 		}
 		i = img

@@ -46,6 +46,7 @@ Page interface {
 	Graphic
 	//	SetBrushStyle(BrushStyle)
 	SetPen(PenStyle, int, color.Color)
+	SetBrushStyle(BrushStyle)
 }
 
 

@@ -21,6 +21,9 @@ func (out)Graphic(v VM) {
 	v.SetOut(40, HANDLE_ALL, outGraphicFunc)
 	v.SetOut(41, HANDLE_ALL, outGraphicFunc)
 	v.SetOut(64, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(65, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(66, HANDLE_ALL, outGraphicFunc)
+	v.SetOut(67, HANDLE_ALL, outGraphicFunc)
 	v.SetOut(68, HANDLE_ALL, outGraphicFunc)
 	v.SetOut(69, HANDLE_ALL, outGraphicFunc)
 }
@@ -70,7 +73,7 @@ func outPrintFunc(i *Inst) {
  */
 func outGraphicFunc(i *Inst) {
 	v, p, _ := i.VM, i.A.Get(), i.B // port and param
-	r2, r3 := &v.r2, &v.r3
+	r1, r2, r3 := &v.r1, &v.r2, &v.r3
 	gd := v.Attr()["graph-dev"].(GraphDev)
 	pagePool := gd.PagePool()
 	picPool := gd.PicPool()
@@ -177,12 +180,38 @@ func outGraphicFunc(i *Inst) {
 			r3.Set(0)
 		}
 		log.Debug("GETPICHGT(%d) -> %d", pi, r3.Get())
+	/*
+64 | 设置画笔 | 0 | r3:参数地址 |  SETPEN(PAGE,STYLE,WID,COLOR)
+65 | 设置刷子 | 0 | r2:PAGE r3:STYLE |  SETBRUSH(PAGE,STYLE)
+66 | 移动画笔 | 0 | r1,r2,r3:PAGE,X,Y |  MOVETO(PAGE,X,Y)
+67 | 画线 | 0 | r1,r2,r3:PAGE,X,Y |  LINETO(PAGE,X,Y)
+68 | 画矩形 | 0 | r3:参数地址 |  RECTANGLE(PAGE,LEFT,TOP,RIGHT,BOTTOM)
+69 | 画圆 | 0 | r3:参数地址 |  CIRCLE(PAGE,CX,CY,CR)
+*/
 	case 64:
 		args := newArgs(r3.Get(), v, 4)
 		pi, style, w, c := args.Next4Int()
 		log.Debug("SETPEN(%d,%d,%d,%d)", pi, style, w, c)
 		if pg := getPage(gd, pi); pg != nil {
 			pg.SetPen(PenStyle(style), w, bc.BGR888{uint32(c)})
+		}
+	case 65:
+		pi, style := r2.Get(), BrushStyle(r3.Get())
+		log.Debug("SETBRUSH(%d,%d)", pi, style)
+		if pg := getPage(gd, pi); pg != nil {
+			pg.SetBrushStyle(style)
+		}
+	case 66:
+		pi, x, y := r1.Get(), r2.Get(), r3.Get()
+		log.Debug("MOVETO(%d,%d,%d)", pi, x, y)
+		if pg := getPage(gd, pi); pg != nil {
+			pg.MoveTo(image.Pt(x, y))
+		}
+	case 67:
+		pi, x, y := r1.Get(), r2.Get(), r3.Get()
+		log.Debug("LINETO(%d,%d,%d)", pi, x, y)
+		if pg := getPage(gd, pi); pg != nil {
+			pg.LineTo(image.Pt(x, y))
 		}
 	case 68:
 		// RECTANGLE(PAGE,LEFT,TOP,RIGHT,BOTTOM)
