@@ -154,6 +154,14 @@ func outGraphicFunc(i *Inst) {
 			// TODO 边界检查
 			r3.Set(int(bc.BGR888Model.Convert(pg.At(x, y)).(bc.BGR888).V))
 		}
+	case 26:
+		idx := r3.Get()
+		if res := picPool.Get(idx); res != nil {
+			log.Error("FREERES(%d)", idx)
+			picPool.Release(res)
+		}else {
+			log.Error("FREERES(%d) faield: not exists", idx)
+		}
 	/*
 36 | 按行列定位光标 | 0 | r2:行,r3:列 |  LOCATE(LINE,ROW)
 

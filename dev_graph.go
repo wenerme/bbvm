@@ -5,6 +5,7 @@ import (
 	"os"
 	"./bi"
 	"fmt"
+	"image/draw"
 )
 
 
@@ -123,4 +124,72 @@ func (g *graphDev)createPage() Page {
 	p.SetColor(color.Black)
 	p.FillRect(image.Rect(0, 0, g.w, g.h))
 	return p
+}
+
+
+type Printer struct {
+	draw.Image
+	font Font
+	loc image.Point
+	FontColor color.Color
+	BackgroundColor color.Color
+}
+func (p *Printer)SetFont(f Font) {
+	p.font = f
+}
+func (p *Printer)Font() Font {
+	return p.font
+}
+func (p *Printer)Print(str string) (err error) {
+	for _, c := range str {
+		err = p.PrintRune(c)
+		if err != nil {return }
+	}
+	return
+}
+func (p *Printer)Write(b []byte) (int, error) {
+	for i, c := range string(b) {
+		err := p.PrintRune(c)
+		if err != nil {return i, err }
+	}
+	return len(b), nil
+}
+func (p *Printer)PrintRune(c rune) (err error) {
+	switch c{
+	case '\t':
+		p.loc.X += p.font.Width()*4
+	case ' ':
+		p.loc.X += p.font.Width()
+	case '\n':
+		p.loc.X = 0
+		p.loc.Y += p.font.Height()
+	default:
+		i, err := p.Font().Render(string(c), p.FontColor, p.BackgroundColor)
+		if err != nil {return err}
+		area := image.Rectangle{p.loc, image.Pt(p.loc.X + i.Bounds().Dx(), p.loc.Y + i.Bounds().Dy())}
+		draw.Draw(p, area, i, image.ZP, draw.Over)
+		p.loc.X += i.Bounds().Dx()// FIXME + Dx 还是+ Width(可能会遇到多字节字符)
+	}
+
+	if p.loc.Y + p.font.Height() > p.Bounds().Dy() {
+		p.NewPage()
+		p.loc.Y = 0
+	}
+	if p.loc.X + p.font.Width() > p.Bounds().Dx() {
+		p.loc.Y += p.font.Height()
+	}
+
+	return
+}
+func (p *Printer)Locate(row, col int) {
+	p.LocatePixel(row * p.font.Height(), col * p.font.Width())
+}
+func (p *Printer)LocatePixel(x, y int) {
+	p.loc = image.Pt(x, y)
+}
+func (p *Printer)render() {
+
+}
+func (p *Printer)NewPage() {
+
 }

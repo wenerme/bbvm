@@ -90,6 +90,12 @@ InputDev interface {
 	MouseEvent() chan MouseEvent
 }
 
+Font interface {
+	Render(string string, fg, bg color.Color) (image.Image, error)
+	Height() int
+	Width() int
+}
+
 
 )
 
