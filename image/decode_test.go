@@ -4,13 +4,10 @@ import (
 	"io/ioutil"
 	"bytes"
 	"os"
-	_ "image"
-	_ "image/color"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/image/bmp"
 	"image"
 	"image/draw"
-	"log"
 )
 
 
@@ -41,7 +38,6 @@ func TestDetectImageFormat(t *testing.T) {
 		f, err := detectImageFormat(fp)
 		if err != nil {panic(err)}
 		assert.EqualValues(fe, f)
-		log.Printf("%s -> %s", fn, f)
 	}
 }
 

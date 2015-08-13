@@ -51,10 +51,6 @@ func NewRGB565(r image.Rectangle) *RGB565 {
 }
 
 
-
-
-
-
 // Gray2 is an in-memory image whose At method returns color.Gray2 values.
 type Gray2 struct {
 	// Pix holds the image's pixels, as gray values in big-endian format. The pixel at
@@ -87,8 +83,8 @@ func (p *Gray2) Gray2At(x, y int) bc.Gray2 {
 
 // PixOffset returns the index of the first element of Pix that corresponds to
 // the pixel at (x, y).
-func (p *Gray2) PixOffset(x, y int) int {
-	return (y-p.Rect.Min.Y)*p.Stride + (x-p.Rect.Min.X)/4
+func (i *Gray2) PixOffset(x, y int) int {
+	return (y-i.Rect.Min.Y)*i.Stride + (x-i.Rect.Min.X)/4
 }
 
 func NewGray2(r image.Rectangle) *Gray2 {

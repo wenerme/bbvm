@@ -9,7 +9,7 @@ import (
 	_ "golang.org/x/image/bmp"
 	"image/draw"
 	"image/color"
-	. "github.com/wenerme/bbvm/image/color"
+	bc "github.com/wenerme/bbvm/image/color"
 )
 
 type Config struct {
@@ -132,9 +132,9 @@ func decodeImage(f imageFormat, r io.ReadSeeker, decodeImages bool) (images []im
 			c.Height = int(h)
 
 			if f == libRGB565Format {
-				c.ColorModel = RGB565Model
+				c.ColorModel = bc.RGB565Model
 			}else {
-				c.ColorModel = Gray2Model
+				c.ColorModel = bc.Gray2Model
 			}
 
 		default:
@@ -296,11 +296,11 @@ func bytesToName(b []byte) string {
 
 func setAlpha(c color.Color, alpha uint8) (result color.Color) {
 	switch c.(type){
-		case color.NRGBA:
+	case color.NRGBA:
 		xc := c.(color.NRGBA)
 		xc.A = alpha
 		result = xc
-		default:
+	default:
 		r, g, b, _ := c.RGBA()
 		result = color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), alpha}
 	}
