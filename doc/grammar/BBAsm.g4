@@ -1,6 +1,12 @@
-grammar BBAsm;
+grammar bbasm;
 
-// start point
+// BeBasic Assembly Grammer Definition
+// write by wener<wener@wener.me>
+// used by [BBVM](https://github.com/wenerme/bbvm)
+
+
+
+// 解析入口点
 prog
     : stat+
     ;
@@ -8,14 +14,9 @@ prog
 stat
     : NEWLINE
     | expr NEWLINE
-    | comment
+    | expr LINE_COMMENT NEWLINE
+    | LINE_COMMENT NEWLINE
     ;
-
-comment
-	: LINE_COMMENT NEWLINE
-	| COMMENT
-	;
-
 
 expr
     : instruction
@@ -24,48 +25,32 @@ expr
 
 // 所有可能的指令集
 instruction
-    : NoOperandIns
-    | OneOperandIns operand
-    | TowOperandIns operand COMMA operand
-	| INS_CAL DataType CalculateOperator operand COMMA operand // CAL int ADD r0,12
-	| INS_LD DataType operand COMMA operand  // ld int r1, 1067320848
-	| INS_JMP CompareOperator operand // jpc a some-where
+    : INS_NOP // 无操作数的指令
+    | INS_RET
+    | INS_EXIT
+
+    | INS_JMP  operand // 一个操作数的指令
+	| INS_CALL operand
+	| INS_PUSH operand
+	| INS_POP  operand
+
+    | INS_IN   operand COMMA operand
+    | INS_OUT  operand COMMA operand
+	| INS_CAL  DataType CalculateOperator operand COMMA operand // CAL int ADD r0,12
+	| INS_LD   DataType operand COMMA operand  // ld int r1, 1067320848
+	| INS_JMP  CompareOperator operand // jpc a some-where
 	| INS_BLOCK IntegerLiteral IntegerLiteral // .block 1 10
     ;
 
 operand
     : Register						// 使用寄存器
     | LBRACK Register RBRACK
-    | ConstFormula					// 使用常量表达式
-    | LBRACK ConstFormula RBRACK
     | Identifier					// 使用标识符
     | LBRACK Identifier RBRACK
+    | ConstFormula					// 使用常量表达式
+    | LBRACK ConstFormula RBRACK
+//    | literal                       // 可作为扩展
     ;
-
-// 常量表达式,在编译期间可以进行求值
-ConstFormula
-	: IntegerLiteral
-	;
-	
-// 无操作数的指令
-NoOperandIns
-    : INS_NOP
-    | INS_RET
-    | INS_EXIT
-    ;
-// 一个操作数的指令
-OneOperandIns
-    : INS_JMP
-    | INS_CALL
-    | INS_PUSH
-    | INS_POP
-    ;
-// 两个操作数的指令
-TowOperandIns
-    : INS_IN
-    | INS_OUT
-    ;
-
 
 literal
     :   IntegerLiteral
@@ -73,10 +58,15 @@ literal
     |   CharacterLiteral
     |   StringLiteral
     |   BooleanLiteral
-    |   'null'
     ;
 
 
+// 常量表达式,在编译期间可以进行求值
+ConstFormula
+	: IntegerLiteral
+	;
+
+// 寄存器名
 Register
     : RP
     | RF
@@ -100,50 +90,31 @@ fragment R3 : R '3' ;
 
 // 比较操作
 CompareOperator
-	: CMP_Z	
-	| CMP_B 	
-	| CMP_BE	
-	| CMP_A
-	| CMP_AE
-	| CMP_NZ
+	: Z
+	| B
+	| B E
+	| A
+	| A E
+	| N Z
 	;
-	
-fragment CMP_Z	: Z	  ;
-fragment CMP_B 	: B   ;
-fragment CMP_BE	: B E ;
-fragment CMP_A 	: A   ;
-fragment CMP_AE	: A E ;
-fragment CMP_NZ	: N Z ;
 
 // 计算操作
 CalculateOperator
-	: CAL_ADD
-	| CAL_SUB
-	| CAL_MUL
-	| CAL_DIV
-	| CAL_MOD
+	: A D D
+	| S U B
+	| M U L
+	| D I V
+	| M O D
 	;
-
-fragment CAL_ADD : A D D ;
-fragment CAL_SUB : S U B ;
-fragment CAL_MUL : M U L ;
-fragment CAL_DIV : D I V ;
-fragment CAL_MOD : M O D ;
 
 // 数据类型
 DataType
-	: DataType_DWORD
-	| DataType_WORD
-	| DataType_BYTE
-	| DataType_FLOAT
-	| DataType_INT
+	: D W O R D
+	| W O R D
+	| B Y T E
+	| F L O A T
+	| I N T
 	;
-
-fragment DataType_DWORD :D W O R D ;
-fragment DataType_WORD  :W O R D   ;
-fragment DataType_BYTE  :B Y T E   ;
-fragment DataType_FLOAT :F L O A T ;
-fragment DataType_INT   :I N T     ;
 
 // 所有的指令
 INS_NOP    : N O P;
@@ -163,8 +134,6 @@ INS_DATA   : D A T A;
 INS_BLOCK  : DOT? B L O C K;
 // 标签格式
 LABEL : Identifier ':' ;
-
-// 常量算式,在编译期能够得到结果的
 
 // 整数字面值
 IntegerLiteral
@@ -510,15 +479,13 @@ ELLIPSIS : '...';
 WS  :  [ \t\u000C]+ -> skip
     ;
 
-COMMENT
-    :   '/*' .*? '*/'
-    ;
-
 LINE_COMMENT
     :   ('//' | ';' | '\'') ~[\r\n]*
     ;
 
-NEWLINE:'\r'? '\n' ; // return newlines to parser (is end-statement signal)
+NEWLINE
+	:'\r'? '\n'
+	; // return newlines to parser (is end-statement signal)
 
 // 便于做大小写无关的语法
 fragment A:('a'|'A');
