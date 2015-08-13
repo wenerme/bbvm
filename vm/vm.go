@@ -1,4 +1,4 @@
-package bbvm
+package vm
 import (
 	"fmt"
 	"math"

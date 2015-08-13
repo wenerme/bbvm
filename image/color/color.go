@@ -1,4 +1,4 @@
-package bc
+package color
 import "image/color"
 
 var (

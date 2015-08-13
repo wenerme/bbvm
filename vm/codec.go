@@ -1,4 +1,4 @@
-package bbvm
+package vm
 
 var Codec codec
 

@@ -66,27 +66,18 @@ ConstFormula
 	: IntegerLiteral
 	;
 
-// 寄存器名
+// 寄存器
 Register
-    : RP
-    | RF
-    | RS
-    | RB
-    | R0
-    | R1
-    | R2
-    | R3
+    : R P
+    | R F
+    | R S
+    | R B
+    | R '0'
+    | R '1'
+    | R '2'
+    | R '3'
     ;
 
-// 寄存器类型
-fragment RP : R P ;
-fragment RF : R F ;
-fragment RS : R S ;
-fragment RB : R B ;
-fragment R0 : R '0' ;
-fragment R1 : R '1' ;
-fragment R2 : R '2' ;
-fragment R3 : R '3' ;
 
 // 比较操作
 CompareOperator

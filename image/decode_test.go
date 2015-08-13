@@ -1,4 +1,4 @@
-package bi
+package image
 import (
 	"testing"
 	"io/ioutil"

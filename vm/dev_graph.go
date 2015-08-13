@@ -1,9 +1,8 @@
-package bbvm
+package vm
 import (
 	"image/color"
 	"image"
 	"os"
-	"./bi"
 	"fmt"
 	"image/draw"
 )

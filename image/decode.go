@@ -1,15 +1,15 @@
-package bi
+package image
 import (
 	"image"
 	"os"
 	"encoding/binary"
-	"./bc"
 	"io"
 	"errors"
 	"fmt"
 	_ "golang.org/x/image/bmp"
 	"image/draw"
 	"image/color"
+	. "github.com/wenerme/bbvm/image/color"
 )
 
 type Config struct {
@@ -132,9 +132,9 @@ func decodeImage(f imageFormat, r io.ReadSeeker, decodeImages bool) (images []im
 			c.Height = int(h)
 
 			if f == libRGB565Format {
-				c.ColorModel = bc.RGB565Model
+				c.ColorModel = RGB565Model
 			}else {
-				c.ColorModel = bc.Gray2Model
+				c.ColorModel = Gray2Model
 			}
 
 		default:

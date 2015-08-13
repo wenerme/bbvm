@@ -1,13 +1,13 @@
-package bi
+package image
 import (
 	"image"
 	"image/color"
-	"./bc"
+	bc "github.com/wenerme/bbvm/image/color"
 )
 
 
 
-// RGB565 is an in-memory image whose At method returns bc.RGB565 values.
+// RGB565 is an in-memory image whose At method returns RGB565 values.
 type RGB565 struct {
 	// Pix holds the image's pixels, as gray values in big-endian format. The pixel at
 	// (x, y) starts at Pix[(y-Rect.Min.Y)*Stride + (x-Rect.Min.X)*2].

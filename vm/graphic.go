@@ -1,4 +1,4 @@
-package bbvm
+package vm
 import (
 	"image/draw"
 	"image/color"

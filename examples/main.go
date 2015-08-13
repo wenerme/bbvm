@@ -1,8 +1,7 @@
 package main
 
 import (
-	. "../."
-	"../bi"
+	. "github.com/wenerme/bbvm/pic"
 	"image"
 	"os"
 	"image/png"
@@ -52,7 +51,7 @@ func t3() {
 	fmt.Println(cd)
 	fp, err := os.Open("tests/WENER.RLB")
 	if err != nil {panic(err)}
-	img, err := bi.DecodeAt(fp, 0)
+	img, err := DecodeAt(fp, 0)
 	if err != nil {panic(err)}
 	fmt.Printf("SIZE: %v\n", img.Bounds())
 	fmt.Printf("0,0: %v\n", img.At(0, 0))
