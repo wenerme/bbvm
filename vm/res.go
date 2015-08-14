@@ -1,16 +1,20 @@
 package vm
 import (
-	"errors"
 	"io"
+	"github.com/spacemonkeygo/errors"
 )
 
+var ErrPoolLimitReached = errors.NewClass("No more resource can be acquired")
 
+// 资源对象
 type Res interface {
 	Id() int
 	Get() interface{}
 	Set(interface{})
 }
 type ResValCreator func(ResPool) interface{}
+
+// 资源池
 type ResPool interface {
 	Acquire() (Res, error)
 	Release(Res)
@@ -32,20 +36,19 @@ func (r *res)Id() int {
 	return r.id
 }
 type resPool struct {
-	pool map[int]Res
+	pool  map[int]Res
 	start int
-	step int
+	step  int
 	current int
 	reuse bool
 	limit int
 	creator ResValCreator
 }
 
-var ErrPoolLimitReached = errors.New("No more resource can acquire")
 
 func (p *resPool)Acquire() (Res, error) {
 	if len(p.pool) >= p.limit {
-		return nil, ErrPoolLimitReached
+		return nil, ErrPoolLimitReached.New("Can not acquire %v", p)
 	}
 	c := p.current
 	if p.reuse {

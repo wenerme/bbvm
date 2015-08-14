@@ -2,6 +2,7 @@ package vm
 import (
 	"image"
 	"image/color"
+	"io"
 )
 
 /*
@@ -41,61 +42,53 @@ import (
 80 | 复制部分画布扩展 | 0 | r3:参数地址 |  STRETCHBLTPAGEEX(X,Y,WID,HGT,CX,CY,DEST,SRC)
 */
 type (
-PenStyle int
-Page interface {
-	Graphic
-	//	SetBrushStyle(BrushStyle)
-	SetPen(PenStyle, int, color.Color)
-	SetBrushStyle(BrushStyle)
-}
+	PenStyle int
+	Page interface {
+		Drawer
+		//	SetBrushStyle(BrushStyle)
+		SetPen(PenStyle, int, color.Color)
+		SetBrushStyle(BrushStyle)
+	}
 
+	Picture interface {
+		image.Image
+		// 图片名
+		Name() string
+		// Index() int
+	}
 
+	Graphic interface {
+		LoadPicture(string, int) (Picture, error)
+		SetLcd(int, int)
+		PagePool() ResPool
+		PicPool() ResPool
+		FlipPage(Page)
+		SetFont(FontType)
+		// 设置前景色和背景色
+		SetFontStyle(color.Color, color.Color)
+		SetBackgroundMode(BackgroundMode)
+		Print(string, ... interface{})
+		Locate(int, int)
+		LocatePixel(int, int)
+		Screen() Page
+	}
 
-Picture interface {
-	image.Image
-	// 图片名
-	Name() string
-}
+	KeyEventType int
+	KeyEvent struct {
+		Type KeyEventType
+		Code KeyCode
+		Char rune
+	}
+	MouseEventType int
+	MouseEvent struct {
+		Type MouseEventType
+	}
 
-GraphDev interface {
-	LoadPicture(fn string, i int) (Picture, error)
-	SetLcd(int, int)
-	PagePool() ResPool
-	PicPool() ResPool
-	FlipPage(Page)
-	SetFont(FontType)
-	SetFontStyle(color.Color, color.Color)
-	SetBackgroundMode(BackgroundMode)
-	Print(string, ... interface{})
-	Locate(int, int)
-	LocatePixel(int, int)
-	Screen() Page
-}
-
-KeyEventType int
-KeyEvent struct {
-	Type KeyEventType
-	Code KeyCode
-	Char rune
-}
-MouseEventType int
-MouseEvent struct {
-	Type MouseEventType
-}
-InputDev interface {
-	IsPressed(KeyCode) bool
-	//	InKey() KeyCode
-	WaitKey() KeyEvent
-	KeyEvent() chan KeyEvent
-	MouseEvent() chan MouseEvent
-}
-
-Font interface {
-	Render(string string, fg, bg color.Color) (image.Image, error)
-	Height() int
-	Width() int
-}
-
+	Font interface {
+		Render(string string, fg, bg color.Color) (image.Image, error)
+		Height() int
+		Width() int
+	}
 
 )
 
@@ -109,3 +102,24 @@ const (
 	MouseUp
 	MouseMove
 )
+
+
+type Device interface {
+	// File IO
+	OpenFile(string) (File, error)
+	// 显示的屏幕
+	SetScreen(image.Image) error
+	// 每次有变更会调用该方法渲染
+	Render() error
+	// 等待按键
+	WaitKey() KeyEvent
+	IsPressed(KeyCode) bool
+	KeyEvent() chan KeyEvent
+	MouseEvent() chan MouseEvent
+}
+
+type File interface {
+	io.ReadWriter
+	io.Seeker
+	io.Closer
+}

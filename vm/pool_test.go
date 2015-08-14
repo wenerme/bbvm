@@ -1,10 +1,11 @@
 package vm
 import (
 	"testing"
-	"fmt"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPool(t *testing.T) {
+	assert := assert.New(t)
 	p := newStrPool()
 	r, _ := p.Acquire()
 
@@ -12,6 +13,6 @@ func TestPool(t *testing.T) {
 	r, _ = p.Acquire()
 	r.Set("No")
 
-	fmt.Print(p.Get(-1))
-	fmt.Print(p.Get(-2))
+	assert.Equal("Yes", p.Get(-1).Get())
+	assert.Equal("No", p.Get(-2).Get())
 }

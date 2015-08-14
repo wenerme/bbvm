@@ -2,27 +2,32 @@ package vm
 import (
 	"fmt"
 	"math"
-	"errors"
 	"encoding/binary"
+	"github.com/spacemonkeygo/errors"
 )
 
-var ErrDataToShort = errors.New("Data to short to UnmarshalBinary")
+var ErrDataToShort = errors.NewClass("ErrDataToShort")
+var ErrDevice = errors.NewClass("ErrDevice")
+var ErrOOM = errors.NewClass("ErrOOM")
+var ErrResourceNotFound = errors.NewClass("ErrResourceNotFound")
+var ErrWrongInst = errors.NewClass("ErrWrongInst")
 
+// 一条操作指令
 type Inst struct {
-	DataType DataType
+	DataType    DataType
 	CompareType CompareType
 	CalculateType CalculateType
-	Opcode Opcode
-	A Operand
-	B Operand
+	Opcode      Opcode
+	A           Operand
+	B           Operand
 
-	VM *vm
+	VM          *vm
 }
 
 type Operand struct {
 	Val uint32
 	AddrMode AddressMode
-	VM *vm
+	VM  *vm
 }
 
 func (o *Operand)Get() int {
@@ -37,9 +42,6 @@ func (o *Operand)Get() int {
 		return o.VM.GetInt(int(o.Val));
 	}
 	panic("Unexcepted")
-}
-func (o *Operand)Uint() uint {
-	return uint(o.Get())
 }
 func (o *Operand)Float32() float32 {
 	return math.Float32frombits(uint32(o.Get()))
@@ -141,7 +143,7 @@ JPC指令 6byte
 	*/
 	i.Opcode = Opcode(data[0] >> 4)
 	if i.Opcode.Len() > len(data) {
-		return ErrDataToShort
+		return ErrDataToShort.New("Data is not enough for inst need %s got %s", i.Opcode.Len(), len(data))
 	}
 	switch i.Opcode.Len() {
 	case 1: // 无操作数
@@ -188,5 +190,5 @@ func (i Inst)String() string {
 	case 6:
 		return fmt.Sprintf("%s %s %s", i.Opcode, i.CompareType, i.A)
 	}
-	return "ERR Unknown opcode len"
+	panic(ErrWrongInst.New("Unknown opcode len"))
 }

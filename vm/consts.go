@@ -1,4 +1,9 @@
 package vm
+import (
+	"fmt"
+)
+
+// go:vet
 
 type DataType uint8
 const (
@@ -17,7 +22,7 @@ func (t DataType)String() string {
 	case T_FLOAT: return "FLOAT"
 	case T_INT: return "INT"
 	}
-	panic("UNKNOWN DataType")
+	return fmt.Sprintf("%v", uint8(t))
 }
 
 type CompareType uint8
@@ -65,7 +70,7 @@ func (c CompareType)String() string {
 	case COM_GE: return "AE"
 	case COM_NE: return "NZ"
 	}
-	return "UNKNOWN CompareType"
+	return fmt.Sprintf("CompareType(%v)", uint8(c))
 }
 
 type CalculateType uint8
@@ -84,7 +89,7 @@ func (c CalculateType)String() string {
 	case CAL_DIV: return "DIV"
 	case CAL_MOD: return "MOD"
 	}
-	return "UNKNOWN CalculateType"
+	return fmt.Sprintf("CalculateType(%v)", uint8(c))
 }
 type Opcode uint8
 const (
@@ -127,16 +132,30 @@ func (o Opcode)String() string {
 	case OP_CAL: return "CAL"
 	case OP_EXIT: return "EXIT"
 	}
-	return "UNKNOWN Opcode"
+	return fmt.Sprintf("Opcode(%v)", uint8(o))
 }
 
 type AddressMode uint8
 const (
+// 寄存器寻址
 	AM_REGISTER AddressMode = iota
+// 寄存器间接寻址
 	AM_REGISTER_DEFERRED
+// 立即数
 	AM_IMMEDIATE
+// 直接寻址
 	AM_DIRECT
 )
+
+func (v AddressMode)String() string {
+	switch v {
+	case AM_REGISTER: return "Register"
+	case AM_REGISTER_DEFERRED: return "Register Defferred"
+	case AM_IMMEDIATE: return "Immediate"
+	case AM_DIRECT: return "Direct"
+	}
+	return fmt.Sprintf("AddressMode(%v)", uint8(v))
+}
 
 type RegisterType uint8
 const (
@@ -171,7 +190,7 @@ func (r RegisterType)String() string {
 	case REG_R2: return "R2"
 	case REG_R3: return "R3"
 	}
-	return "UNKNOW RegisterType"
+	return fmt.Sprintf("RegisterType(%v)", uint8(r))
 }
 
 

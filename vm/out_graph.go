@@ -2,7 +2,7 @@ package vm
 import (
 	"image"
 	"golang.org/x/image/draw"
-	"./bi/bc"
+	bc "github.com/wenerme/bbvm/image/color"
 )
 
 func (out)Graphic(v VM) {
@@ -74,7 +74,7 @@ func outPrintFunc(i *Inst) {
 func outGraphicFunc(i *Inst) {
 	v, p, _ := i.VM, i.A.Get(), i.B // port and param
 	r1, r2, r3 := &v.r1, &v.r2, &v.r3
-	gd := v.Attr()["graph-dev"].(GraphDev)
+	gd := v.Attr()["graph-dev"].(Graphic)
 	pagePool := gd.PagePool()
 	picPool := gd.PicPool()
 	_, _, _ = gd, picPool, pagePool
@@ -239,7 +239,7 @@ func outGraphicFunc(i *Inst) {
 	}
 }
 
-func getPage(g GraphDev, id int) Page {
+func getPage(g Graphic, id int) Page {
 	if id == -1 {
 		return g.Screen()
 	}
@@ -255,7 +255,7 @@ func getPage(g GraphDev, id int) Page {
 	}
 	return r.Get().(Page)
 }
-func getPic(g GraphDev, id int) Picture {
+func getPic(g Graphic, id int) Picture {
 	p := g.PicPool()
 	r := p.Get(id)
 	if r == nil || r.Get() == nil {

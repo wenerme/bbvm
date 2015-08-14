@@ -5,18 +5,19 @@ import (
 	"os"
 	"fmt"
 	"image/draw"
+	bi "github.com/wenerme/bbvm/image"
 )
 
 
 type page struct {
-	Graphic
+	Drawer
 	ps PenStyle
 	wid int
 	bs BrushStyle
 }
 func NewPage(w, h int) Page {
 	p := &page{}
-	p.Graphic = NewImageGraphic(image.NewRGBA(image.Rect(0, 0, w, h)))
+	p.Drawer = NewImageDrawer(image.NewRGBA(image.Rect(0, 0, w, h)))
 	return p
 }
 func (p *page)SetPen(ps PenStyle, w int, c color.Color) {
@@ -55,7 +56,7 @@ type graphDev struct {
 	w, h int
 }
 
-func NewGraphDev(w, h int) GraphDev {
+func NewGraphDev(w, h int) Graphic {
 	g := &graphDev{}
 	g.w, g.h = w, h
 	g.screen = g.createPage()

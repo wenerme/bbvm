@@ -2,22 +2,10 @@ package vm
 import (
 	"math"
 	"strconv"
-	"github.com/op/go-logging"
-	"os"
 	"fmt"
 )
 
 
-var log = logging.MustGetLogger("bbvm")
-
-// 初始化 Log
-func init() {
-	format := logging.MustStringFormatter("%{color}%{time:15:04:05} %{level:.4s} %{shortfunc} %{color:reset} %{message}", )
-	//	format := logging.MustStringFormatter("%{color}%{time:15:04:05.000} %{longfile} %{shortfunc} ▶ %{level:.4s} %{id:03x}%{color:reset} %{message}", )
-	backend1 := logging.NewLogBackend(os.Stdout, "", 0)
-	backend1Formatter := logging.NewBackendFormatter(backend1, format)
-	logging.SetBackend(backend1Formatter)
-}
 
 func calculate(a int, b int, t CalculateType, d DataType) int {
 	var oa, ob, oc float64
@@ -82,7 +70,7 @@ func newStrPool() ResPool {
 		start:-1,
 		step: -1,
 		limit: math.MaxInt32,
-		creator:func(_ ResPool) interface{} {return ""},
+		creator:func(ResPool) interface{} {return ""},
 	}
 }
 
