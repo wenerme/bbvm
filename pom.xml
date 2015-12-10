@@ -26,12 +26,12 @@
         <c3p0.version>0.9.5-pre8</c3p0.version>
         <gson.version>2.2.4</gson.version>
         <guava.version>18.0</guava.version>
-        <guice.version>4.0-beta</guice.version>
+        <guice.version>4.0</guice.version>
         <hibernate.version>4.3.5.Final</hibernate.version>
         <jetty.version>8.1.14.v20131031</jetty.version>
         <joda-time.version>2.3</joda-time.version>
         <jodd.version>3.5.2</jodd.version>
-        <junit.version>4.11</junit.version>
+        <junit.version>4.12</junit.version>
         <logback.version>1.1.2</logback.version>
         <lombok.version>1.14.8</lombok.version>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
@@ -51,5 +51,17 @@
         <cxf.version>3.0.1</cxf.version>
         <httpclient.version>4.3.4</httpclient.version>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

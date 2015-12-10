@@ -1,0 +1,129 @@
+options{
+//	DEBUG_PARSER=false;
+//  DEBUG_LOOKAHEAD=false;
+//  DEBUG_TOKEN_MANAGER=false;
+//  FORCE_LA_CHECK=true;
+
+    UNICODE_INPUT=true;
+    IGNORE_CASE=true ;
+//    MULTI=true;
+
+    VISITOR=true;
+    STATIC = false;
+    NODE_DEFAULT_VOID=true;
+    NODE_EXTENDS="BaseNode";
+    NODE_PREFIX="AST";
+    NODE_USES_PARSER=true;
+    NODE_SCOPE_HOOK=true;
+    VISITOR_DATA_TYPE="Object";
+    VISITOR_RETURN_TYPE="Object";
+    VISITOR_EXCEPTION="";
+    TRACK_TOKENS=true;
+}
+
+PARSER_BEGIN(BBAsmParser)
+package me.wener.bbvm.asm;
+import me.wener.bbvm.vm.*;
+import static me.wener.bbvm.vm.AddressingMode.*;
+import java.util.*;
+import java.math.*;
+public class BBAsmParser extends BaseBBAsmParser {
+
+}
+
+PARSER_END(BBAsmParser)
+
+SKIP:
+{
+    " "
+|   "\t"
+|   "\r"
+}
+
+// NOP LD PUSH POP IN OUT JMP JPC CALL RET CMP CAL EXIT
+TOKEN :
+{
+	<I_CAL:	    "CAL">
+	| <I_CALL:	"CALL">
+	| <I_CMP:	"CMP">
+	| <I_EXIT:	"EXIT">
+	| <I_IN:	"IN">
+	| <I_JMP:	"JMP">
+	| <I_JPC:	"JPC">
+	| <I_LD:	"LD">
+	| <I_NOP:	"NOP">
+	| <I_OUT:	"OUT">
+	| <I_POP:	"POP">
+	| <I_PUSH:	"PUSH">
+	| <I_RET:	"RET">
+	| <I_NO_OP: <I_EXIT> | <I_RET> | <I_NOP>>
+	| <I_ONE_OP: <I_CALL> | <I_PUSH> | <I_POP> | <I_JMP>>
+	| <I_TOW_OP: <I_IN> | <I_OUT>>
+}
+
+TOKEN : /* Numeric Constants */
+{
+   < S_DOUBLE: ((<S_LONG>)? "." <S_LONG> ( ["e","E"] (["+", "-"])? <S_LONG>)?
+			|
+			<S_LONG> "." (["e","E"] (["+", "-"])? <S_LONG>)?
+			|
+			<S_LONG> ["e","E"] (["+", "-"])? <S_LONG>
+			)>
+  | 	< S_LONG: ( <DIGIT> )+ >
+  | 	< #DIGIT: ["0" - "9"] >
+  |     < S_HEX: ("x'" ( <HEX_VALUE> )+ "'" | "0x" ( <HEX_VALUE> )+ ) >
+  |     < #HEX_VALUE: ["0"-"9","A"-"F"]  >
+}
+
+
+// T prefix for Token
+TOKEN :
+{
+    <T_REGISTER : "R0" | "R1" | "R2" | "R3" | "RP" | "RF" |"RS" | "RB">
+    | <DATA_TYPE: "DWORD" | "WORD" | "BYTE" | "FLOAT" | "INT">
+    | <CAL_OP: "ADD" | "SUB" | "MUL" | "DIV" | "MOD">
+    | <CMP_OP: "Z" | "B" | "BE" | "A" | "AE" | "NZ">
+}
+
+void start():{}
+{
+     "\n"
+     | (instraction() "\n")*
+    <EOF>
+}
+
+Instruction instraction():{
+    Instruction inst = new Instruction();
+    Token opcode = null,dataType = null,calType = null,cmpType = null;
+    Operand a = null,b = null;
+}
+{
+    (
+        opcode = <I_NO_OP>
+        | opcode = <I_ONE_OP> a = operand()
+        | opcode = <I_TOW_OP> a = operand() "," b = operand()
+        | opcode = <I_CAL> dataType = <DATA_TYPE> calType = <CAL_OP> a = operand() "," b = operand()
+        | opcode = <I_LD> dataType = <DATA_TYPE> a = operand() "," b = operand()
+        | opcode = <I_JMP> cmpType = <CMP_OP> a = operand()
+    )
+    {
+        inst.setOpcode(Opcode.valueOf(opcode.image)).setA(a).setB(b);
+        if(dataType != null) inst.setDataType(DataType.valueOf(dataType.image));
+
+        return inst;
+    }
+}
+
+Operand operand():{
+    Operand op = new Operand();
+    Token token;
+}
+{
+    (
+        token = <T_REGISTER> {op.setValue(RegisterType.valueOf(token.image)).setAddressingMode(REGISTER);}
+        | "[" token = <T_REGISTER> "]"{op.setValue(RegisterType.valueOf(token.image)).setAddressingMode(REGISTER_DEFERRED);}
+    )
+    {
+        return op;
+    }
+}

@@ -1,41 +1,40 @@
 package me.wener.bbvm.system.internal;
 
-import static me.wener.bbvm.utils.val.Values.fromValue;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.LinkedList;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import me.wener.bbvm.system.*;
-import me.wener.bbvm.utils.Bins;
-import me.wener.bbvm.utils.val.Values;
+import me.wener.bbvm.util.Bins;
+import me.wener.bbvm.util.val.IntEnums;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.Map;
 
 @Accessors(chain = true, fluent = true)
 @Slf4j
 public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Defines
 {
     @Getter
-    private final Register.MonitoredRegister rp = Register.monitor(new Register("rp"));
+    private final Register.MonitoredRegister rp = Register.monitor(new Register("RP"));
     @Getter
-    private final Register rb = new Register("rb");
+    private final Register rb = new Register("RB");
     @Getter
-    private final Register rs = new Register("rs");
+    private final Register rs = new Register("RS");
     @Getter
-    private final Register rf = new Register("rf");
+    private final Register rf = new Register("RF");
     @Getter
-    private final Register r0 = new Register("r0");
+    private final Register r0 = new Register("R0");
     @Getter
-    private final Register r1 = new Register("r1");
+    private final Register r1 = new Register("R1");
     @Getter
-    private final Register r2 = new Register("r2");
+    private final Register r2 = new Register("R2");
     @Getter
-    private final Register r3 = new Register("r3");
+    private final Register r3 = new Register("R3");
     private final LinkedList<Integer> stack = Lists.newLinkedList();
     @Getter
     private VmMemory memory = new VmMemory();
@@ -48,17 +47,6 @@ public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Def
     private Map<String, ResourcePool> resources = Maps.newConcurrentMap();
     private boolean isJumped = false;
 
-    static
-    {
-        Values.cache(
-                DataType.class,
-                CalculateType.class,
-                CompareType.class,
-                Opcode.class,
-                RegisterType.class,
-                AddressingMode.class
-        );
-    }
 
     public VmCPU()
     {
@@ -107,12 +95,12 @@ public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Def
 
     public boolean step()
     {
-        exit = memory.hasRemaining(rp.get());
+        exit = memory.hasRemaining(rp.asInt());
         if (!exit)
         {
             isJumped = false;
             readInstruction();
-            log.trace("[{}] {}", rp.get(), toAssembly());
+            log.trace("[{}] {}", rp.asInt(), toAssembly());
 
             if (!ignoreProcess)
             {
@@ -121,7 +109,7 @@ public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Def
             // 如果没有跳转,则正常增加
             if (!isJumped)
             {
-                rp.set(rp.get() + opcode.length());
+                rp.set(rp.asInt() + opcode.length());
             }
         }
         return !exit;
@@ -130,7 +118,7 @@ public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Def
     private void readInstruction()
     {
         ByteBuffer buf = memory.buffer();
-        buf.position(rp.get());
+        buf.position(rp.asInt());
         OpStates.readBinary(this, buf);
     }
 
@@ -199,13 +187,13 @@ public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Def
             case T_DWORD:
             case T_FLOAT:
             case T_INT:
-                a.set(b.get());
+                a.set(b.asInt());
                 break;
             case T_BYTE:
-                a.set((a.get() & 0xffffff00) | (b.get() & 0xff));
+                a.set((a.asInt() & 0xffffff00) | (b.asInt() & 0xff));
                 break;
             case T_WORD:
-                a.set((a.get() & 0xffff0000) | (b.get() & 0xffff));
+                a.set((a.asInt() & 0xffff0000) | (b.asInt() & 0xffff));
                 break;
             default:
                 throw new AssertionError("未知的数据类型:" + dataType);
@@ -214,7 +202,7 @@ public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Def
 
     void PUSH()
     {
-        push(a.get());
+        push(a.asInt());
     }
 
     void POP()
@@ -232,24 +220,24 @@ public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Def
 
     void JMP()
     {
-        rp.set(a.get());
+        rp.set(a.asInt());
     }
 
     void JPC()
     {
         // JPC 的数据类型为比较操作
         CompareType org = compareType;
-        CompareType flag = fromValue(CompareType.class, rf.get());
+        CompareType flag = IntEnums.fromInt(CompareType.class, rf.asInt());
 
 
         if (CompareType.isMatch(org, flag))
-            rp.set(a.get());
+            rp.set(a.asInt());
     }
 
     void CALL()
     {
-        push(rp.get() + opcode.length());
-        rp.set(a.get());
+        push(rp.asInt() + opcode.length());
+        rp.set(a.asInt());
     }
 
     void RET()
@@ -264,37 +252,37 @@ public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Def
 
         if (dataType == DataType.T_FLOAT)
         {
-            oa = Bins.float32(a.get());
-            ob = Bins.float32(b.get());
+            oa = Bins.float32(a.asInt());
+            ob = Bins.float32(b.asInt());
         } else
         {
-            oa = a.get();
-            ob = b.get();
+            oa = a.asInt();
+            ob = b.asInt();
         }
         float oc = oa - ob;
         if (oc > 0)
-            rf.set(CompareType.A.get());
+            rf.set(CompareType.A.asInt());
         else if (oc < 0)
-            rf.set(CompareType.B.get());
+            rf.set(CompareType.B.asInt());
         else
-            rf.set(CompareType.Z.get());
+            rf.set(CompareType.Z.asInt());
     }
 
     void CAL()
     {
-        // 返回结果为 r0
+        // 返回结果为 R0
         double oa;
         double ob;
         double oc;
 
         if (dataType == DataType.T_FLOAT)
         {
-            oa = Bins.float32(a.get());
-            ob = Bins.float32(b.get());
+            oa = Bins.float32(a.asInt());
+            ob = Bins.float32(b.asInt());
         } else
         {
-            oa = a.get();
-            ob = b.get();
+            oa = a.asInt();
+            ob = b.asInt();
         }
         switch (calculateType)
         {
@@ -342,14 +330,14 @@ public class VmCPU extends OpStates.DefaultOpState implements CPU, VmStatus, Def
     {
         // FIXME
         stack.push(v);
-//        memory.writeInt(rf.get(), v);
-//        rf.set(rf.get() + 4);
+//        memory.writeInt(RF.get(), v);
+//        RF.set(RF.get() + 4);
     }
 
     public int pop()
     {
-//        rf.set(rf.get() - 4);
-//        return memory.readInt(rf.get());
+//        RF.set(RF.get() - 4);
+//        return memory.readInt(RF.get());
         return stack.pop();
     }
 

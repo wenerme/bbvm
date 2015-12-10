@@ -2,8 +2,8 @@ package me.wener.bbvm.impl;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import me.wener.bbvm.def.DataType;
-import me.wener.bbvm.def.InstructionType;
+import me.wener.bbvm.vm.DataType;
+import me.wener.bbvm.vm.Opcode;
 
 /**
  * <pre>
@@ -15,7 +15,7 @@ import me.wener.bbvm.def.InstructionType;
 @Accessors(chain = true)
 public class Instruct
 {
-    private InstructionType instruction;
+    private Opcode instruction;
     private Operand op1;
     private Operand op2;
     private DataType dataType;

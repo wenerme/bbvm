@@ -1,8 +1,8 @@
 package me.wener.bbvm.system;
 
-import me.wener.bbvm.utils.val.IntegerHolder;
+import me.wener.bbvm.util.val.IntHolder;
 
-public interface Register extends IntegerHolder
+public interface Register extends IntHolder
 {
     /**
      * @return 寄存器名

@@ -1,11 +1,12 @@
 package me.wener.bbvm.system;
 
 import io.netty.buffer.ByteBuf;
-import java.io.OutputStreamWriter;
 import me.wener.bbvm.TestUtil;
 import me.wener.bbvm.system.internal.VmCPU;
-import me.wener.bbvm.utils.Dumper;
+import me.wener.bbvm.util.Dumper;
 import org.junit.Test;
+
+import java.io.OutputStreamWriter;
 
 public class VmCPUReadInstTest extends TestUtil
 {

@@ -1,11 +1,11 @@
 package me.wener.bbvm.system;
 
-import me.wener.bbvm.utils.val.IsInteger;
+import me.wener.bbvm.util.val.IsInt;
 
 /**
  * 算数操作符
  */
-public enum CalculateType implements IsInteger
+public enum CalculateType implements IsInt
 {
     ADD(0x0),
     SUB(0x1),
@@ -20,7 +20,7 @@ public enum CalculateType implements IsInteger
         this.value = value;
     }
 
-    public Integer get()
+    public int asInt()
     {
         return value;
     }

@@ -1,6 +1,5 @@
 package me.wener.bbvm.system.internal;
 
-import java.io.Serializable;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -9,8 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import me.wener.bbvm.system.AddressingMode;
 import me.wener.bbvm.system.Defines;
 import me.wener.bbvm.system.RegisterType;
-import me.wener.bbvm.utils.Bins;
-import me.wener.bbvm.utils.val.Values;
+import me.wener.bbvm.util.Bins;
+import me.wener.bbvm.util.val.IntEnums;
+
+import java.io.Serializable;
 
 @Data
 @Accessors(chain = true, fluent = true)
@@ -34,7 +35,7 @@ class Operand implements me.wener.bbvm.system.Operand, Serializable
     @Override
     public me.wener.bbvm.system.Resource asResource(String res)
     {
-        return cpu.resources(res).get(get());
+        return cpu.resources(res).get(asInt());
     }
 
     @Override
@@ -51,7 +52,7 @@ class Operand implements me.wener.bbvm.system.Operand, Serializable
     @Override
     public String asString()
     {
-        Integer v = get();
+        Integer v = asInt();
         if (v < 0)
         {
             return cpu.resources(Defines.RES_STRING).get(v).as();
@@ -61,14 +62,14 @@ class Operand implements me.wener.bbvm.system.Operand, Serializable
         }
     }
 
-    public Integer get()
+    public int asInt()
     {
         switch (addressingMode)
         {
             case REGISTER:
-                return asRegister().get();
+                return asRegister().asInt();
             case REGISTER_DEFERRED:
-                return cpu.memory().readInt(asRegister().get());
+                return cpu.memory().readInt(asRegister().asInt());
             case IMMEDIATE:
                 return value;
             case DIRECT:
@@ -85,13 +86,13 @@ class Operand implements me.wener.bbvm.system.Operand, Serializable
     @Override
     public RegisterType asRegisterType()
     {
-        return Values.fromValue(RegisterType.class, value);
+        return IntEnums.fromInt(RegisterType.class, value);
     }
 
     @Override
     public me.wener.bbvm.system.Operand value(RegisterType v)
     {
-        return value(v.get());
+        return value(v.asInt());
     }
 
     public me.wener.bbvm.system.Operand value(Integer v)
@@ -103,7 +104,7 @@ class Operand implements me.wener.bbvm.system.Operand, Serializable
     @Override
     public float asFloat()
     {
-        return Bins.float32(get());
+        return Bins.float32(asInt());
     }
 
     @Override
@@ -111,6 +112,11 @@ class Operand implements me.wener.bbvm.system.Operand, Serializable
     {
         set(Bins.int32(v));
         return this;
+    }
+
+    @Override
+    public Integer get() {
+        return asInt();
     }
 
     public void set(Integer value)
@@ -122,7 +128,7 @@ class Operand implements me.wener.bbvm.system.Operand, Serializable
                 break;
             case REGISTER_DEFERRED:
             case DIRECT:
-                cpu.memory().writeInt(get(), value);
+                cpu.memory().writeInt(asInt(), value);
                 break;
             default:
             case IMMEDIATE:

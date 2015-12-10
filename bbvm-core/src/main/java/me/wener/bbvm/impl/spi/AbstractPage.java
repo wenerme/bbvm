@@ -1,10 +1,10 @@
 package me.wener.bbvm.impl.spi;
 
 import me.wener.bbvm.api.Page;
-import me.wener.bbvm.def.BackgroundMode;
-import me.wener.bbvm.def.BrushStyle;
-import me.wener.bbvm.def.FontType;
-import me.wener.bbvm.def.PenStyle;
+import me.wener.bbvm.dev.BackgroundMode;
+import me.wener.bbvm.dev.BrushStyle;
+import me.wener.bbvm.dev.FontType;
+import me.wener.bbvm.dev.PenStyle;
 import me.wener.bbvm.impl.plaf.Colour;
 
 public abstract class AbstractPage implements Page

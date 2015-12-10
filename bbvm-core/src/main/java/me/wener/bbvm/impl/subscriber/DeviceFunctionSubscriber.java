@@ -26,7 +26,7 @@ public class DeviceFunctionSubscriber extends VMContext
 
     protected boolean out(InstructionContext ctx)
     {
-        Integer input = ctx.getOp2().get();
+        Integer input = ctx.getOp2().asInt();
 
         return true;
     }

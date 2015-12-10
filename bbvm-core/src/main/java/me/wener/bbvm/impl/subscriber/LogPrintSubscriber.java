@@ -1,15 +1,15 @@
 package me.wener.bbvm.impl.subscriber;
 
 import com.google.common.eventbus.Subscribe;
-import me.wener.bbvm.def.CmpOP;
-import me.wener.bbvm.def.DataType;
-import me.wener.bbvm.def.InstructionType;
 import me.wener.bbvm.event.InstEvent;
 import me.wener.bbvm.impl.InstructionContext;
 import me.wener.bbvm.impl.Operand;
 import me.wener.bbvm.impl.VMContext;
-import me.wener.bbvm.utils.Bins;
-import me.wener.bbvm.utils.val.Values;
+import me.wener.bbvm.util.Bins;
+import me.wener.bbvm.util.val.Values;
+import me.wener.bbvm.vm.CompareType;
+import me.wener.bbvm.vm.DataType;
+import me.wener.bbvm.vm.Opcode;
 
 public class LogPrintSubscriber extends VMContext
 {
@@ -37,8 +37,8 @@ public class LogPrintSubscriber extends VMContext
         if (debug)
         {
             builder.append("\n;")
-                   .append(String.format("r0= %s, r1= %s, r2= %s, r3= %s, rs= %s, rb= %s, rp= %s, rf= %s",
-                           r0.get(), r1.get(), r2.get(), r3.get(), rs.get(), rb.get(), rp.get(), rf.get()));
+                    .append(String.format("R0= %s, R1= %s, R2= %s, R3= %s, RS= %s, RB= %s, RP= %s, RF= %s",
+                            r0.asInt(), r1.asInt(), r2.asInt(), r3.asInt(), rs.asInt(), rb.asInt(), rp.asInt(), rf.asInt()));
         }
         return builder.toString();
     }
@@ -54,7 +54,7 @@ public class LogPrintSubscriber extends VMContext
         final Operand op1 = ctx.getOp1();
         final Operand op2 = ctx.getOp2();
         final DataType dataType = ctx.getDataType();
-        final InstructionType instruction = ctx.getInstruction();
+        final Opcode instruction = ctx.getInstruction();
 
         switch (instruction)
         {
@@ -86,13 +86,13 @@ public class LogPrintSubscriber extends VMContext
                 if (logInst)
                     log(instruction, op1);
 
-                rp.set(op1.get());
+                rp.set(op1.asInt());
                 break;
             case JPC:
             {
                 // JPC 的数据类型为比较操作
-                CmpOP org = Values.fromValue(CmpOP.class, (int) Bins.int4(ctx.getFirstByte(), 2));
-                CmpOP flag = Values.fromValue(CmpOP.class, rf.get());
+                CompareType org = Values.fromValue(CompareType.class, (int) Bins.int4(ctx.getFirstByte(), 2));
+                CompareType flag = Values.fromValue(CompareType.class, rf.asInt());
 
                 if (logInst)
                     log(instruction, org, op1);

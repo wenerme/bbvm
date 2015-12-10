@@ -1,7 +1,8 @@
 package me.wener.bbvm.system;
 
+import me.wener.bbvm.util.val.ValueHolder;
+
 import java.io.Closeable;
-import me.wener.bbvm.utils.val.ValueHolder;
 
 /**
  * 资源内容持有类

@@ -2,10 +2,10 @@ package me.wener.bbvm.impl;
 
 import com.google.common.base.Preconditions;
 import me.wener.bbvm.api.BBVm;
-import me.wener.bbvm.def.DataType;
-import me.wener.bbvm.def.InstructionType;
-import me.wener.bbvm.utils.Bins;
-import me.wener.bbvm.utils.val.Values;
+import me.wener.bbvm.util.Bins;
+import me.wener.bbvm.util.val.Values;
+import me.wener.bbvm.vm.DataType;
+import me.wener.bbvm.vm.Opcode;
 
 public class Instructs
 {
@@ -22,7 +22,7 @@ public class Instructs
         int specialByte;
         int addressingType;
         int firstByte;
-        InstructionType instruction;
+        Opcode instruction;
         Operand op1;
         Operand op2;
         DataType dataType;
@@ -33,7 +33,7 @@ public class Instructs
         */
         firstByte = Bins.uint16b(memory, pc);
         int opcode = firstByte >> 12;// 指令码
-        instruction = Values.fromValue(InstructionType.class, opcode);
+        instruction = Values.fromValue(Opcode.class, opcode);
         Integer length = instruction.length();
 
         if (length == 1 || length == 5)

@@ -1,8 +1,8 @@
 package me.wener.bbvm.system;
 
-import me.wener.bbvm.utils.val.IsInteger;
+import me.wener.bbvm.util.val.IsInt;
 
-public enum AddressingMode implements IsInteger
+public enum AddressingMode implements IsInt
 {
     /*
     表示	| 字节码 | 说明
@@ -43,7 +43,7 @@ n		| 0x8	| 0x9	| 0xa	| 0xb
     }
 
     @Override
-    public Integer get()
+    public int asInt()
     {
         return val;
     }

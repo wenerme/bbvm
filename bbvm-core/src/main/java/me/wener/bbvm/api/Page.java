@@ -1,10 +1,6 @@
 package me.wener.bbvm.api;
 
-import me.wener.bbvm.def.BackgroundMode;
-import me.wener.bbvm.def.BrushStyle;
-import me.wener.bbvm.def.DrawMode;
-import me.wener.bbvm.def.FontType;
-import me.wener.bbvm.def.PenStyle;
+import me.wener.bbvm.dev.*;
 import me.wener.bbvm.impl.plaf.Colour;
 
 /**

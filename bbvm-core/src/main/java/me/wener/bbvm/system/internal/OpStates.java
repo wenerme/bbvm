@@ -1,17 +1,12 @@
 package me.wener.bbvm.system.internal;
 
-import static me.wener.bbvm.utils.val.Values.fromValue;
-
-import java.nio.ByteBuffer;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import me.wener.bbvm.system.AddressingMode;
-import me.wener.bbvm.system.CalculateType;
-import me.wener.bbvm.system.CompareType;
-import me.wener.bbvm.system.DataType;
-import me.wener.bbvm.system.OpState;
-import me.wener.bbvm.system.Opcode;
-import me.wener.bbvm.utils.Bins;
+import me.wener.bbvm.system.*;
+import me.wener.bbvm.util.Bins;
+import me.wener.bbvm.util.val.IntEnums;
+
+import java.nio.ByteBuffer;
 
 public class OpStates
 {
@@ -36,7 +31,7 @@ JPC指令 6byte
         */
 
         short first = Bins.unsigned(buf.get());
-        Opcode opcode = fromValue(Opcode.class, first >> 4);
+        Opcode opcode = IntEnums.fromInt(Opcode.class, first >> 4);
         me.wener.bbvm.system.Operand a = s.a();
         me.wener.bbvm.system.Operand b = s.b();
         s.opcode(opcode);
@@ -54,7 +49,7 @@ JPC指令 6byte
             case CALL:
             case JMP:
             {
-                a.addressingMode(fromValue(AddressingMode.class, first & 0xf));
+                a.addressingMode(IntEnums.fromInt(AddressingMode.class, first & 0xf));
                 // 一个操作数
                 a.value(buf.getInt());
             }
@@ -66,19 +61,19 @@ JPC指令 6byte
             case CMP:
             {
                 // 两个操作数
-                s.dataType(fromValue(DataType.class, first & 0xf));
+                s.dataType(IntEnums.fromInt(DataType.class, first & 0xf));
                 short second = Bins.unsigned(buf.get());
                 int special = second >> 4;
                 int addressingMode = second & 0xf;
 
-                a.addressingMode(fromValue(AddressingMode.class, addressingMode / 4));
-                b.addressingMode(fromValue(AddressingMode.class, addressingMode % 4));
+                a.addressingMode(IntEnums.fromInt(AddressingMode.class, addressingMode / 4));
+                b.addressingMode(IntEnums.fromInt(AddressingMode.class, addressingMode % 4));
                 a.value(buf.getInt());
                 b.value(buf.getInt());
 
                 if (opcode == Opcode.CAL)
                 {
-                    s.calculateType(fromValue(CalculateType.class, special));
+                    s.calculateType(IntEnums.fromInt(CalculateType.class, special));
                 }
             }
             break;
@@ -87,10 +82,10 @@ JPC指令 6byte
             {
                 short second = Bins.unsigned(buf.get());
                 int addressingMode = second & 0xf;
-                // JPC A r1
+                // JPC A R1
                 // 数据类型为比较操作
-                s.compareType(fromValue(CompareType.class, first & 0xf));
-                a.addressingMode(fromValue(AddressingMode.class, addressingMode));
+                s.compareType(IntEnums.fromInt(CompareType.class, first & 0xf));
+                a.addressingMode(IntEnums.fromInt(AddressingMode.class, addressingMode));
                 a.value(buf.getInt());
             }
             break;
@@ -177,7 +172,7 @@ JPC指令 6byte
             case NOP:
             case RET:
             case EXIT:
-                bytes[0] = opcode.get().byteValue();
+//                bytes[0] = opcode.asInt().byteValue();
                 break;
             case LD:
                 break;

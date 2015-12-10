@@ -1,7 +1,7 @@
 package me.wener.bbvm.impl.spi;
 
 import me.wener.bbvm.api.FileHandle;
-import me.wener.bbvm.utils.Bins;
+import me.wener.bbvm.util.Bins;
 
 public abstract class AbstractFileHandle implements FileHandle
 {

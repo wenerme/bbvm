@@ -1,19 +1,16 @@
 package me.wener.bbvm.impl;
 
 import com.google.common.base.Preconditions;
-import java.nio.charset.Charset;
-import java.util.Scanner;
 import me.wener.bbvm.api.BBVm;
 import me.wener.bbvm.api.Device;
 import me.wener.bbvm.api.DeviceFunction;
-import me.wener.bbvm.def.CalOP;
-import me.wener.bbvm.def.CmpOP;
-import me.wener.bbvm.def.DataType;
-import me.wener.bbvm.def.EnvType;
-import me.wener.bbvm.def.InstructionType;
-import me.wener.bbvm.def.RegType;
-import me.wener.bbvm.utils.Bins;
-import me.wener.bbvm.utils.val.Values;
+import me.wener.bbvm.dev.EnvType;
+import me.wener.bbvm.util.Bins;
+import me.wener.bbvm.util.val.Values;
+import me.wener.bbvm.vm.*;
+
+import java.nio.charset.Charset;
+import java.util.Scanner;
 
 /*
 //
@@ -70,29 +67,20 @@ public class BBVmImpl implements BBVm
     private final DeviceFunction deviceFunction;
     private final StringHandlePool stringPool = new StringHandlePool();
     private final byte[] stack = new byte[1024];
-    private final Reg rp = new Reg("rp");
-    private final Reg rb = new Reg("rb");
-    private final Reg rs = new Reg("rs");
-    private final Reg rf = new Reg("rf");
-    private final Reg r0 = new Reg("r0");
-    private final Reg r1 = new Reg("r1");
-    private final Reg r2 = new Reg("r2");
-    private final Reg r3 = new Reg("r3");
+    private final Reg rp = new Reg("RP");
+    private final Reg rb = new Reg("RB");
+    private final Reg rs = new Reg("RS");
+    private final Reg rf = new Reg("RF");
+    private final Reg r0 = new Reg("R0");
+    private final Reg r1 = new Reg("R1");
+    private final Reg r2 = new Reg("R2");
+    private final Reg r3 = new Reg("R3");
     private long startTick;
     private byte[] memory;
     private InstructionContext context;
     private int stackSize = 1000;
 
     private EnvType envType = EnvType.ENV_SIM;
-
-    static
-    {
-        Values.cache(CalOP.class);
-        Values.cache(CmpOP.class);
-        Values.cache(DataType.class);
-        Values.cache(InstructionType.class);
-        Values.cache(RegType.class);
-    }
 
     private int romSize;
     /**
@@ -149,7 +137,7 @@ public class BBVmImpl implements BBVm
 
     boolean loop()
     {
-        final int pc = rp.get();// 记录位置
+        final int pc = rp.asInt();// 记录位置
 
         if (pc >= romSize)
             return false;
@@ -164,9 +152,9 @@ public class BBVmImpl implements BBVm
             e.printStackTrace();
         }
 
-        // 如果 rp 没变,则自增
-        if (pc == rp.get())
-            rp.set(pc + InstructionType.length(context.getInstruction()));
+        // 如果 RP 没变,则自增
+        if (pc == rp.asInt())
+            rp.set(pc + Opcode.length(context.getInstruction()));
 
         return true;
     }
@@ -175,10 +163,10 @@ public class BBVmImpl implements BBVm
     {
         final Operand op1 = ctx.getOp1();
         final Operand op2 = ctx.getOp2();
-        final Integer opv1 = op1.get();
-        final Integer opv2 = op2.get();
+        final Integer opv1 = op1.asInt();
+        final Integer opv2 = op2.asInt();
         final DataType dataType = ctx.getDataType();
-        final InstructionType instruction = ctx.getInstruction();
+        final Opcode instruction = ctx.getInstruction();
 
         switch (instruction)
         {
@@ -191,16 +179,16 @@ public class BBVmImpl implements BBVm
                     log(instruction, dataType, op1, op2);
                 switch (dataType)
                 {
-                    case T_DWORD:
-                    case T_FLOAT:
-                    case T_INT:
-                        op1.set(op2.get());
+                    case DWORD:
+                    case FLOAT:
+                    case INT:
+                        op1.set(op2.asInt());
                         break;
-                    case T_BYTE:
-                        op1.set(op1.get() & 0xffffff00 | (op2.get() & 0xff));
+                    case BYTE:
+                        op1.set(op1.asInt() & 0xffffff00 | (op2.asInt() & 0xff));
                         break;
-                    case T_WORD:
-                        op1.set(op1.get() & 0xffff0000 | (op2.get() & 0xffff));
+                    case WORD:
+                        op1.set(op1.asInt() & 0xffff0000 | (op2.asInt() & 0xffff));
                         break;
                     default:
                         throw unsupport("未知的数据类型: %s", dataType);
@@ -210,7 +198,7 @@ public class BBVmImpl implements BBVm
                 if (logInst)
                     log(instruction, op1);
 
-                push(op1.get());
+                push(op1.asInt());
                 break;
             case POP:
                 if (logInst)
@@ -234,13 +222,13 @@ public class BBVmImpl implements BBVm
                 if (logInst)
                     log(instruction, op1);
 
-                rp.set(op1.get());
+                rp.set(op1.asInt());
                 break;
             case JPC:
             {
                 // JPC 的数据类型为比较操作
-                CmpOP org = Values.fromValue(CmpOP.class, (int) Bins.int4(ctx.getFirstByte(), 2));
-                CmpOP flag = Values.fromValue(CmpOP.class, rf.get());
+                CompareType org = Values.fromValue(CompareType.class, (int) Bins.int4(ctx.getFirstByte(), 2));
+                CompareType flag = Values.fromValue(CompareType.class, rf.asInt());
                 boolean valid = false;
 
                 if (logInst)
@@ -250,15 +238,15 @@ public class BBVmImpl implements BBVm
                 switch (flag)
                 {
                     case A:
-                        if (org == CmpOP.AE || org == CmpOP.A || org == CmpOP.NZ)
+                        if (org == CompareType.AE || org == CompareType.A || org == CompareType.NZ)
                             valid = true;
                         break;
                     case B:
-                        if (org == CmpOP.BE || org == CmpOP.B || org == CmpOP.NZ)
+                        if (org == CompareType.BE || org == CompareType.B || org == CompareType.NZ)
                             valid = true;
                         break;
                     case Z:
-                        if (org == CmpOP.Z || org == CmpOP.AE || org == CmpOP.BE)
+                        if (org == CompareType.Z || org == CompareType.AE || org == CompareType.BE)
                             valid = true;
                         break;
                     default:
@@ -275,7 +263,7 @@ public class BBVmImpl implements BBVm
                     log(instruction, op1);
 
                 // 设置返回位置为下一句的开始
-                push(rp.get() + InstructionType.length(instruction));
+                push(rp.asInt() + Opcode.length(instruction));
                 rp.set(opv1);
                 break;
             case RET:
@@ -291,18 +279,18 @@ public class BBVmImpl implements BBVm
 
                 float a = opv1;
                 float b = opv2;
-                if (dataType == DataType.T_FLOAT)
+                if (dataType == DataType.FLOAT)
                 {
                     a = Bins.float32(opv1);
                     b = Bins.float32(opv2);
                 }
                 float c = a - b;
                 if (c > 0)
-                    rf.set(CmpOP.A.get());
+                    rf.set(CompareType.A.asInt());
                 else if (c < 0)
-                    rf.set(CmpOP.B.get());
+                    rf.set(CompareType.B.asInt());
                 else
-                    rf.set(CmpOP.Z.get());
+                    rf.set(CompareType.Z.asInt());
             }
             break;
             case CAL:
@@ -310,11 +298,11 @@ public class BBVmImpl implements BBVm
                 if (logInst)
                     log(instruction, op1);
 
-                CalOP op = Values.fromValue(CalOP.class, ctx.getSpecialByte());
-                // 返回结果为 r0
+                CalculateType op = Values.fromValue(CalculateType.class, ctx.getSpecialByte());
+                // 返回结果为 R0
                 double a = opv1;
                 double b = opv2;
-                if (dataType.equals(DataType.T_FLOAT))
+                if (dataType.equals(DataType.FLOAT))
                 {
                     a = Bins.float32(opv1);
                     b = Bins.float32(opv2);
@@ -344,13 +332,13 @@ public class BBVmImpl implements BBVm
                 // 值返回归约
                 switch (dataType)
                 {
-                    case T_FLOAT:
+                    case FLOAT:
                         ret = Bins.int32((float) c);
                         break;
-                    case T_BYTE:
+                    case BYTE:
                         ret &= 0xff;
                         break;
-                    case T_WORD:
+                    case WORD:
                         ret &= 0xffff;
                         break;
                 }
@@ -381,15 +369,15 @@ public class BBVmImpl implements BBVm
     @Override
     public void push(int v)
     {
-        Bins.int32l(memory, rs.get(), v);
-        rs.set(rs.get() - 4);
+        Bins.int32l(memory, rs.asInt(), v);
+        rs.set(rs.asInt() - 4);
     }
 
     @Override
     public int pop()
     {
-        rs.set(rs.get() + 4);
-        return Bins.int32l(memory, rs.get());
+        rs.set(rs.asInt() + 4);
+        return Bins.int32l(memory, rs.asInt());
     }
 
     protected Integer[] readParameters(int n, int offset)
@@ -417,8 +405,8 @@ public class BBVmImpl implements BBVm
 
     protected boolean out0(InstructionContext ctx)
     {
-        Integer input = ctx.getOp2().get();
-        switch (ctx.getOp1().get())
+        Integer input = ctx.getOp2().asInt();
+        switch (ctx.getOp1().asInt())
         {
             // 0 | 显示整数 | 整数 |  | 会换行
             // 1 | 显示字符串 | 字符串 |  | 会换行
@@ -457,11 +445,11 @@ public class BBVmImpl implements BBVm
                 }
             }
             break;
-            //  11 | 键入字符串 | 0 | r3:目标字符串句柄 | r3所指字符串的内容变为键入的字符串
+            //  11 | 键入字符串 | 0 | R3:目标字符串句柄 | r3所指字符串的内容变为键入的字符串
             case 11:
             {
                 String in = deviceFunction.INPUT();
-                stringHandle(r3.get()).set(deviceFunction.INPUT());
+                stringHandle(r3.asInt()).set(deviceFunction.INPUT());
             }
             break;
             //  12 | 键入浮点数 | 0 |  | r3的值变为键入的浮点数
@@ -485,13 +473,13 @@ public class BBVmImpl implements BBVm
                 dataPtr += 4;
             }
             break;
-            // 14 | 从数据区读取字符串 | 0 | r3:目标字符串句柄 | r3所指字符串的内容变为读取的字符串
+            // 14 | 从数据区读取字符串 | 0 | R3:目标字符串句柄 | r3所指字符串的内容变为读取的字符串
             case 14:
             {
                 Preconditions.checkState(input == 0, "输入的值为 %s, 要求为 0", input);
                 byte[] bytes = Bins.zByte(memory, dataPtr);
                 dataPtr += bytes.length + 1;
-                stringHandle(r3.get()).set(new String(bytes, DEFAULT_CHARSET));
+                stringHandle(r3.asInt()).set(new String(bytes, DEFAULT_CHARSET));
             }
             break;
             // 15 | 从数据区读取浮点数 | 0 |  | r3的值变为读取的浮点数
@@ -503,42 +491,42 @@ public class BBVmImpl implements BBVm
                 dataPtr += 4;
             }
             break;
-            // 16 | 设定模拟器屏幕 | 0 | r2:宽, r3:高 |  SetLcd
+            // 16 | 设定模拟器屏幕 | 0 | R2:宽, R3:高 |  SetLcd
             case 16:
             {
-                deviceFunction.SETLCD(r2.get(), r3.get());
+                deviceFunction.SETLCD(r2.asInt(), r3.asInt());
             }
             break;
-            // 17 | 申请画布句柄 | r3:PAGE句柄 | - | CreatPage
+            // 17 | 申请画布句柄 | R3:PAGE句柄 | - | CreatPage
             case 17:
             {
                 r3.set(deviceFunction.CREATEPAGE());
             }
             break;
-            // 18 | 释放画布句柄 | 0 | r3:PAGE句柄 |  DeletePage
+            // 18 | 释放画布句柄 | 0 | R3:PAGE句柄 |  DeletePage
             case 18:
             {
-                deviceFunction.DELETEPAGE(r3.get());
+                deviceFunction.DELETEPAGE(r3.asInt());
             }
             break;
-            // 19 | 申请图片句柄并从文件载入像素资源 | r3:资源句柄 | r3:文件名, r2:资源索引 |  LoadRes
+            // 19 | 申请图片句柄并从文件载入像素资源 | R3:资源句柄 | R3:文件名, R2:资源索引 |  LoadRes
             case 19:
             {
-                int handle = deviceFunction.LOADRES(string(r3.get()), r2.get());
+                int handle = deviceFunction.LOADRES(string(r3.asInt()), r2.asInt());
                 r3.set(handle);
             }
             break;
-            // ; 20 | 复制图片到画布上 | 0 | r3:地址,其他参数在该地址后<br>(PAGE,PIC,DX,DY,W,H,X,Y,MODE) |  ShowPic
+            // ; 20 | 复制图片到画布上 | 0 | R3:地址,其他参数在该地址后<br>(PAGE,PIC,DX,DY,W,H,X,Y,MODE) |  ShowPic
             case 20:
             {
-                Integer[] args = readParameters(9, r3.get());
+                Integer[] args = readParameters(9, r3.asInt());
                 deviceFunction.SHOWPIC(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
             }
             break;
-            // 21 | 显示画布 | 0 | r3:PAGE句柄 |  FlipPage
+            // 21 | 显示画布 | 0 | R3:PAGE句柄 |  FlipPage
             case 21:
             {
-                deviceFunction.FLIPPAGE(r3.get());
+                deviceFunction.FLIPPAGE(r3.asInt());
             }
             break;
 
@@ -553,8 +541,8 @@ public class BBVmImpl implements BBVm
         if (!useConsoleIO)
             return false;
 
-        Integer input = ctx.getOp2().get();
-        switch (ctx.getOp1().get())
+        Integer input = ctx.getOp2().asInt();
+        switch (ctx.getOp1().asInt())
         {
             // 0 | 显示整数 | 整数 |  | 会换行
             // 1 | 显示字符串 | 字符串 |  | 会换行
@@ -593,11 +581,11 @@ public class BBVmImpl implements BBVm
                 }
             }
             break;
-            //  11 | 键入字符串 | 0 | r3:目标字符串句柄 | r3所指字符串的内容变为键入的字符串
+            //  11 | 键入字符串 | 0 | R3:目标字符串句柄 | r3所指字符串的内容变为键入的字符串
             case 11:
             {
                 String line = new Scanner(System.in).nextLine();
-                stringHandle(r3.get()).set(line);
+                stringHandle(r3.asInt()).set(line);
             }
             break;
             //  12 | 键入浮点数 | 0 |  | r3的值变为键入的浮点数
@@ -640,72 +628,72 @@ public class BBVmImpl implements BBVm
         // o for out
         Operand o = ctx.getOp1();
         Operand op2 = ctx.getOp2();
-        Integer opv2 = op2.get();
+        Integer opv2 = op2.asInt();
         switch (opv2)
         {
-            //0 | 浮点数转换为整数 | 整数 | r3:浮点数
+            //0 | 浮点数转换为整数 | 整数 | R3:浮点数
             case 0:
-                o.set((int) Bins.float32(r3.get()));
+                o.set((int) Bins.float32(r3.asInt()));
                 break;
-            //1 | 整数转换为浮点数 | 浮点数 | r3:整数
+            //1 | 整数转换为浮点数 | 浮点数 | R3:整数
             case 1:
-                o.set(Bins.int32((float) r3.get()));
+                o.set(Bins.int32((float) r3.asInt()));
                 break;
             //2 | 申请字符串句柄 | 申请到的句柄 |  |  IN():SHDL
             case 2:
                 o.set(stringPool.acquire());
                 break;
-            //3 | 字符串转换为整数 | 整数 | r3:字符串句柄,__地址__ | IN(r3:SHDL):int<br>若r3的值不是合法的字符串句柄则返回r3的值
+            //3 | 字符串转换为整数 | 整数 | R3:字符串句柄,__地址__ | IN(R3:SHDL):int<br>若r3的值不是合法的字符串句柄则返回r3的值
             case 3:
             {
-                String s = string(r3.get());
+                String s = string(r3.asInt());
                 try
                 {
                     o.set((int) Float.parseFloat(s));
                 } catch (NumberFormatException e)
                 {
-                    o.set(r3.get());
+                    o.set(r3.asInt());
                 }
             }
             break;
-            //4 | 整数转换为字符串 | 返回的值为r3:整数 | r2:目标字符串_句柄_<br>r3:整数 | IN(r2:SHDL,r3:int):int<br>r2所代表字符串的内容被修改
+            //4 | 整数转换为字符串 | 返回的值为r3:整数 | R2:目标字符串_句柄_<br>R3:整数 | IN(R2:SHDL,R3:int):int<br>r2所代表字符串的内容被修改
             case 4:
-                stringPool.getResource(r2.get())// r2 所代表的字符串
-                        .set(r3.get().toString());// 被修改
-                o.set(r3.get());// 返回 r3
+                stringPool.getResource(r2.asInt())// R2 所代表的字符串
+                        .set(String.valueOf(r3.asInt()));// 被修改
+                o.set(r3.asInt());// 返回 R3
                 break;
-            // 5 | 复制字符串 | r3的值 | r2:源字符串句柄<br>r3:目标字符串句柄 | IN(r2:SHDL,r3:SHDL):SHDL<br>r3所代表字符串的内容被修改
+            // 5 | 复制字符串 | r3的值 | R2:源字符串句柄<br>R3:目标字符串句柄 | IN(R2:SHDL,R3:SHDL):SHDL<br>r3所代表字符串的内容被修改
             case 5:
             {
-                stringHandle(r3.get()).set(string(r2.get()));
-                o.set(r3.get());// 返回 r3
+                stringHandle(r3.asInt()).set(string(r2.asInt()));
+                o.set(r3.asInt());// 返回 R3
             }
             break;
-            // 6 | 连接字符串 | r3的值 | r2:源字符串<br>r3:目标字符串 | IN(r2:SHDL,r3:SHDL):SHDL<br>r3所代表字符串的内容被修改 r3+r2
+            // 6 | 连接字符串 | r3的值 | R2:源字符串<br>R3:目标字符串 | IN(R2:SHDL,R3:SHDL):SHDL<br>r3所代表字符串的内容被修改 R3+R2
             case 6:
             {
-                stringHandle(r3.get()).concat(string(r2.get()));
-                o.set(r3.get());// 返回 r3
+                stringHandle(r3.asInt()).concat(string(r2.asInt()));
+                o.set(r3.asInt());// 返回 R3
             }
             break;
-            // 7 | 获取字符串长度 | 字符串长度 | r3:字符串 | IN(r3:SHDL):int
+            // 7 | 获取字符串长度 | 字符串长度 | R3:字符串 | IN(R3:SHDL):int
             case 7:
             {
-                r3.set(string(r3.get()).length());
-                o.set(r3.get());// 返回 r3
+                r3.set(string(r3.asInt()).length());
+                o.set(r3.asInt());// 返回 R3
             }
             break;
-            // 8 | 释放字符串句柄 | r3的值 | r3:字符串句柄 | IN(r3:SHDL):SHDL
+            // 8 | 释放字符串句柄 | r3的值 | R3:字符串句柄 | IN(R3:SHDL):SHDL
             case 8:
             {
-                stringPool.release(r3.get());
-                o.set(r3.get());// 返回 r3
+                stringPool.release(r3.asInt());
+                o.set(r3.asInt());// 返回 R3
             }
             break;
-            // 9 | 比较字符串 | 两字符串的差值 相同为0，大于为1,小于为-1 | r2:基准字符串<br>r3:比较字符串 | IN(r2:SHDL,r3:SHDL):int
+            // 9 | 比较字符串 | 两字符串的差值 相同为0，大于为1,小于为-1 | R2:基准字符串<br>R3:比较字符串 | IN(R2:SHDL,R3:SHDL):int
             case 9:
             {
-                int v = string(r2.get()).compareTo(string(r3.get()));
+                int v = string(r2.asInt()).compareTo(string(r3.asInt()));
                 // 对结果进行约束
                 if (v > 0)
                     v = 1;
@@ -714,43 +702,43 @@ public class BBVmImpl implements BBVm
                 o.set(v);
             }
             break;
-            // 10 | 整数转换为浮点数再转换为字符串 | r3的值 | r2:目标字符串<br>r3:整数 | r2所代表字符串的内容被修改
+            // 10 | 整数转换为浮点数再转换为字符串 | r3的值 | R2:目标字符串<br>R3:整数 | r2所代表字符串的内容被修改
             case 10:
             {
-                stringHandle(r2.get()).set(String.format("%.6f", (float) r3.get()));
+                stringHandle(r2.asInt()).set(String.format("%.6f", (float) r3.asInt()));
 
-                o.set(r3.get());
+                o.set(r3.asInt());
             }
             break;
-            // 11 | 字符串转换为浮点数 | 浮点数 | r3:字符串 |
+            // 11 | 字符串转换为浮点数 | 浮点数 | R3:字符串 |
             case 11:
             {
-                o.set(Bins.int32(Float.parseFloat(string(r3.get()))));
+                o.set(Bins.int32(Float.parseFloat(string(r3.asInt()))));
             }
             break;
-            // 12 | 获取字符的ASCII码 | ASCII码 | r2:字符位置<br>r3:字符串 |
+            // 12 | 获取字符的ASCII码 | ASCII码 | R2:字符位置<br>R3:字符串 |
             // 备注: 返回的结果范围为有符号的 8bit值,因此对中文操作时返回负数
             case 12:
             {
-                byte b = string(r3.get()).getBytes(DEFAULT_CHARSET)[r2.get()];
+                byte b = string(r3.asInt()).getBytes(DEFAULT_CHARSET)[r2.asInt()];
 
                 o.set((int) b);
             }
             break;
             // 13 | 将给定字符串中指定索引的字符替换为给定的ASCII代表的字符 |
-            // r3的值 | r1:ASCII码<br>r2:字符位置<br>r3:目标字符串 |
+            // r3的值 | R1:ASCII码<br>R2:字符位置<br>R3:目标字符串 |
             // r3所代表字符串的内容被修改, 要求r3是句柄才能修改r3的值,给出的ASCII会进行模256的处理
             case 13:
             {
-                StringHandle handle = stringHandle(r3.get());
-                char[] chars = handle.get().toCharArray();
-                int ascii = r1.get() % 256;
+                StringHandle handle = stringHandle(r3.asInt());
+                char[] chars = null;
+                int ascii = r1.asInt() % 256;
                 char[] c = Character.toChars(ascii);
-                chars[r2.get()] = c[0];
+                chars[r2.asInt()] = c[0];
 
                 handle.set(new String(chars));
 
-                o.set(r3.get());
+                o.set(r3.asInt());
             }
             break;
             // 14 | （功用不明） | 65536 |  |
@@ -765,136 +753,136 @@ public class BBVmImpl implements BBVm
                 o.set(getTick());
             }
             break;
-            // 16 | 求正弦值 | X!的正弦值 | r3:X! |
+            // 16 | 求正弦值 | X!的正弦值 | R3:X! |
             case 16:
             {
-                o.set(Bins.int32((float) Math.sin(Bins.float32(r3.get()))));
+                o.set(Bins.int32((float) Math.sin(Bins.float32(r3.asInt()))));
             }
             break;
-            // 17 | 求余弦值 | X!的余弦值 | r3:X! |
+            // 17 | 求余弦值 | X!的余弦值 | R3:X! |
             case 17:
             {
-                o.set(Bins.int32((float) Math.cos(Bins.float32(r3.get()))));
+                o.set(Bins.int32((float) Math.cos(Bins.float32(r3.asInt()))));
             }
             break;
-            // 18 | 求正切值 | X!的正切值 | r3:X! |
+            // 18 | 求正切值 | X!的正切值 | R3:X! |
             case 18:
             {
-                o.set(Bins.int32((float) Math.tan(Bins.float32(r3.get()))));
+                o.set(Bins.int32((float) Math.tan(Bins.float32(r3.asInt()))));
             }
             break;
-            // 19 | 求平方根值 | X!的平方根值 | r3:X! |
+            // 19 | 求平方根值 | X!的平方根值 | R3:X! |
             case 19:
             {
-                o.set(Bins.int32((float) Math.sqrt(Bins.float32(r3.get()))));
+                o.set(Bins.int32((float) Math.sqrt(Bins.float32(r3.asInt()))));
             }
             break;
-            // 20 | 求绝对值 | X%的绝对值 | r3:X% |
+            // 20 | 求绝对值 | X%的绝对值 | R3:X% |
             case 20:
             {
-                o.set(Math.abs(r3.get()));
+                o.set(Math.abs(r3.asInt()));
             }
             break;
-            // 21 | 求绝对值 | X!的绝对值 | r3:X! |
+            // 21 | 求绝对值 | X!的绝对值 | R3:X! |
             case 21:
             {
-                o.set(Bins.int32(Math.abs(Bins.float32(r3.get()))));
+                o.set(Bins.int32(Math.abs(Bins.float32(r3.asInt()))));
             }
             break;
-            // 22 | 重定位数据指针 | r3的值 | r2:数据位置 | r3中为任意值
+            // 22 | 重定位数据指针 | r3的值 | R2:数据位置 | r3中为任意值
             case 22:
             {
-                dataPtr = r2.get();
-                o.set(r3.get());
+                dataPtr = r2.asInt();
+                o.set(r3.asInt());
             }
             break;
-            // 23 | 读内存数据 | 地址内容 | r3:地址 |
+            // 23 | 读内存数据 | 地址内容 | R3:地址 |
             case 23:
             {
                 // 由于端口 23 和 24 在虚拟机内不能使用,所以无法测试,
-                o.set(Bins.int32l(memory, r3.get()));
+                o.set(Bins.int32l(memory, r3.asInt()));
             }
             break;
-            // 24 | 写内存数据 | r3的值 | r2:待写入数据<br>r3:待写入地址 |
+            // 24 | 写内存数据 | r3的值 | R2:待写入数据<br>R3:待写入地址 |
             case 24:
             {
-                Bins.int32l(memory, r3.get(), r2.get());
+                Bins.int32l(memory, r3.asInt(), r2.asInt());
 
-                o.set(r3.get());
+                o.set(r3.asInt());
             }
             break;
             // 25 | 获取环境值 | 环境值 |  |
             case 25:
             {
-                o.set(envType.get());
+                o.set(envType.asInt());
             }
             break;
-            // 32 | 整数转换为字符串 | r3的值 | r1:整数<br>r3:目标字符串 | r3所代表字符串的内容被修改
+            // 32 | 整数转换为字符串 | r3的值 | R1:整数<br>R3:目标字符串 | r3所代表字符串的内容被修改
             case 32:
             {
-                stringHandle(r3.get()).set(r1.get().toString());
-                o.set(r3.get());
+                stringHandle(r3.asInt()).set(String.valueOf(r1.asInt()));
+                o.set(r3.asInt());
             }
             break;
-            // 33 | 字符串转换为整数 | 整数 | r3:字符串 |
+            // 33 | 字符串转换为整数 | 整数 | R3:字符串 |
             case 33:
             {
-                o.set((int) Float.parseFloat(string(r3.get())));
+                o.set((int) Float.parseFloat(string(r3.asInt())));
             }
             break;
-            // 34 | 获取字符的ASCII码 | ASCII码 | r3:字符串 |
+            // 34 | 获取字符的ASCII码 | ASCII码 | R3:字符串 |
             case 34:
             {
-                o.set(string(r3.get()).codePointAt(0));
+                o.set(string(r3.asInt()).codePointAt(0));
             }
             break;
-            // 35 | 左取字符串 | r3的值 | r1:截取长度<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改 （此端口似乎不正常）
+            // 35 | 左取字符串 | r3的值 | R1:截取长度<br>R2:源字符串<br>R3:目标字符串 | r3所代表字符串的内容被修改 （此端口似乎不正常）
             case 35:
             {
-                stringHandle(r3.get()).set(string(r2.get()).substring(0, r1.get()));
+                stringHandle(r3.asInt()).set(string(r2.asInt()).substring(0, r1.asInt()));
 
-                o.set(r3.get());
+                o.set(r3.asInt());
             }
             break;
-            // 36 | 右取字符串 | r3的值 | r1:截取长度<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改
+            // 36 | 右取字符串 | r3的值 | R1:截取长度<br>R2:源字符串<br>R3:目标字符串 | r3所代表字符串的内容被修改
             case 36:
             {
-                Integer len = r1.get();
-                String str = string(r2.get());
+                Integer len = r1.asInt();
+                String str = string(r2.asInt());
                 int start = str.length() - len;
                 int end = str.length();
-                stringHandle(r3.get()).set(str.substring(start, end));
+                stringHandle(r3.asInt()).set(str.substring(start, end));
 
-                o.set(r3.get());
+                o.set(r3.asInt());
             }
             break;
-            // 37 | 中间取字符串 | r0:截取长度 | r0:截取长度<br>r1:截取位置<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改
+            // 37 | 中间取字符串 | R0:截取长度 | R0:截取长度<br>R1:截取位置<br>R2:源字符串<br>R3:目标字符串 | r3所代表字符串的内容被修改
             case 37:
             {
-                Integer len = r0.get();
-                String str = string(r2.get());
-                int start = r1.get();
+                Integer len = r0.asInt();
+                String str = string(r2.asInt());
+                int start = r1.asInt();
                 int end = start + len;
 
-                stringHandle(r3.get()).set(str.substring(start, end));
+                stringHandle(r3.asInt()).set(str.substring(start, end));
 
-                o.set(r0.get());
+                o.set(r0.asInt());
             }
             break;
-            // 38 | 查找字符串 | 位置 | r1:起始位置<br>r2:子字符串<br>r3:父字符串 |
+            // 38 | 查找字符串 | 位置 | R1:起始位置<br>R2:子字符串<br>R3:父字符串 |
             case 38:
             {
-                int i = string(r3.get()).indexOf(string(r2.get()), r1.get());
+                int i = string(r3.asInt()).indexOf(string(r2.asInt()), r1.asInt());
                 // FIXME PC 虚拟机中有这个BUG,不知道小机中有这个BUG没
                 if (i < 0)
                     i = 0;
                 o.set(i);
             }
             break;
-            // 39 | 获取字符串长度 | 字符串长度 | r3:字符串 |
+            // 39 | 获取字符串长度 | 字符串长度 | R3:字符串 |
             case 39:
             {
-                o.set(string(r3.get()).length());
+                o.set(string(r3.asInt()).length());
             }
             break;
             default:
@@ -926,7 +914,8 @@ public class BBVmImpl implements BBVm
     protected String string(Integer o)
     {
         if (o < 0)
-            return stringPool.getResource(o).get();
+//            return stringPool.getResource(o).asInt();
+            return "";
         return Bins.zString(memory, o, DEFAULT_CHARSET);
     }
 
@@ -958,8 +947,8 @@ public class BBVmImpl implements BBVm
         if (debug)
         {
             builder.append("\n;")
-                   .append(String.format("r0= %s, r1= %s, r2= %s, r3= %s, rs= %s, rb= %s, rp= %s, rf= %s",
-                           r0.get(), r1.get(), r2.get(), r3.get(), rs.get(), rb.get(), rp.get(), rf.get()));
+                    .append(String.format("R0= %s, R1= %s, R2= %s, R3= %s, RS= %s, RB= %s, rp= %s, RF= %s",
+                            r0.asInt(), r1.asInt(), r2.asInt(), r3.asInt(), rs.asInt(), rb.asInt(), rp.asInt(), rf.asInt()));
         }
         return builder.toString();
     }
@@ -973,54 +962,54 @@ public class BBVmImpl implements BBVm
     /**
      * 获取寄存器
      * <pre>
-     * rp | 0x0 | 程序计数器
-     * rf | 0x1 |
-     * rs | 0x2 | 栈顶位置
-     * rb | 0x3 | 栈底位置
-     * r0 | 0x4 | #0 寄存器
-     * r1 | 0x5 | #1 寄存器
-     * r2 | 0x6 | #2 寄存器
-     * r3 | 0x7 | #3 寄存器
+     * RP | 0x0 | 程序计数器
+     * RF | 0x1 |
+     * RS | 0x2 | 栈顶位置
+     * RB | 0x3 | 栈底位置
+     * R0 | 0x4 | #0 寄存器
+     * R1 | 0x5 | #1 寄存器
+     * R2 | 0x6 | #2 寄存器
+     * R3 | 0x7 | #3 寄存器
      * </pre>
      */
     @Override
     public Reg getRegister(int reg)
     {
-        return getRegister(Values.fromValue(RegType.class, reg));
+        return getRegister(Values.fromValue(RegisterType.class, reg));
     }
 
     /**
      * 获取寄存器
      * <pre>
-     * rp | 0x0 | 程序计数器
-     * rf | 0x1 |
-     * rs | 0x2 | 栈顶位置
-     * rb | 0x3 | 栈底位置
-     * r0 | 0x4 | #0 寄存器
-     * r1 | 0x5 | #1 寄存器
-     * r2 | 0x6 | #2 寄存器
-     * r3 | 0x7 | #3 寄存器
+     * RP | 0x0 | 程序计数器
+     * RF | 0x1 |
+     * RS | 0x2 | 栈顶位置
+     * RB | 0x3 | 栈底位置
+     * R0 | 0x4 | #0 寄存器
+     * R1 | 0x5 | #1 寄存器
+     * R2 | 0x6 | #2 寄存器
+     * R3 | 0x7 | #3 寄存器
      * </pre>
      */
-    public Reg getRegister(RegType r)
+    public Reg getRegister(RegisterType r)
     {
         switch (r)
         {
-            case rp:
+            case RP:
                 return rp;
-            case rf:
+            case RF:
                 return rf;
-            case rs:
+            case RS:
                 return rs;
-            case rb:
+            case RB:
                 return rb;
-            case r0:
+            case R0:
                 return r0;
-            case r1:
+            case R1:
                 return r1;
-            case r2:
+            case R2:
                 return r2;
-            case r3:
+            case R3:
                 return r3;
             default:
                 throw new IllegalArgumentException("未知的寄存器 :" + r);

@@ -1,9 +1,9 @@
 package me.wener.bbvm.system;
 
 import com.google.common.collect.Maps;
+import me.wener.bbvm.util.val.IsInt;
+
 import java.util.EnumMap;
-import me.wener.bbvm.utils.val.IsInteger;
-import me.wener.bbvm.utils.val.Values;
 
 /**
  * 操作码
@@ -23,7 +23,7 @@ import me.wener.bbvm.utils.val.Values;
  * EXIT   | 0xF
  * </pre>
  */
-public enum Opcode implements IsInteger
+public enum Opcode implements IsInt
 {
     NOP(0x0),
     LD(0x1),
@@ -59,8 +59,11 @@ public enum Opcode implements IsInteger
         length.put(CAL, 10);
     }
 
-    private final int value;
+    static {
+//        Values.cache(Opcode.class);
+    }
 
+    private final int value;
 
     Opcode(int value)
     {
@@ -75,13 +78,8 @@ public enum Opcode implements IsInteger
         return length.get(this);
     }
 
-    public Integer get()
+    public int asInt()
     {
         return value;
-    }
-
-    static
-    {
-        Values.cache(Opcode.class);
     }
 }

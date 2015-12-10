@@ -1,7 +1,7 @@
 package me.wener.bbvm.impl;
 
-import me.wener.bbvm.utils.val.StringHolder;
-import me.wener.bbvm.utils.val.impl.SimpleValueHolder;
+import me.wener.bbvm.util.val.StringHolder;
+import me.wener.bbvm.util.val.impl.SimpleValueHolder;
 
 /**
  * 字符串句柄
@@ -20,7 +20,7 @@ public class StringHandle extends SimpleValueHolder<String> implements StringHol
     }
     public StringHandle concat(String o)
     {
-        set(get()+o);
+        set(asInt() + o);
         return this;
     }
     static class ReadOnlyStringHandle extends StringHandle

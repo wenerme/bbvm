@@ -1,16 +1,16 @@
 package me.wener.bbvm.impl.subscriber;
 
 import com.google.common.eventbus.Subscribe;
-import me.wener.bbvm.def.CalOP;
-import me.wener.bbvm.def.CmpOP;
-import me.wener.bbvm.def.DataType;
-import me.wener.bbvm.def.InstructionType;
 import me.wener.bbvm.event.InstEvent;
 import me.wener.bbvm.impl.InstructionContext;
 import me.wener.bbvm.impl.Operand;
 import me.wener.bbvm.impl.VMContext;
-import me.wener.bbvm.utils.Bins;
-import me.wener.bbvm.utils.val.Values;
+import me.wener.bbvm.util.Bins;
+import me.wener.bbvm.util.val.Values;
+import me.wener.bbvm.vm.CalculateType;
+import me.wener.bbvm.vm.CompareType;
+import me.wener.bbvm.vm.DataType;
+import me.wener.bbvm.vm.Opcode;
 
 public class BasicInstSubscriber extends VMContext
 {
@@ -25,10 +25,10 @@ public class BasicInstSubscriber extends VMContext
     {
         final Operand op1 = ctx.getOp1();
         final Operand op2 = ctx.getOp2();
-        final Integer opv1 = op1.get();
-        final Integer opv2 = op2.get();
+        final Integer opv1 = op1.asInt();
+        final Integer opv2 = op2.asInt();
         final DataType dataType = ctx.getDataType();
-        final InstructionType instruction = ctx.getInstruction();
+        final Opcode instruction = ctx.getInstruction();
 
         switch (instruction)
         {
@@ -37,49 +37,49 @@ public class BasicInstSubscriber extends VMContext
             case LD:
                 switch (dataType)
                 {
-                    case T_DWORD:
-                    case T_FLOAT:
-                    case T_INT:
-                        op1.set(op2.get());
+                    case DWORD:
+                    case FLOAT:
+                    case INT:
+                        op1.set(op2.asInt());
                         break;
-                    case T_BYTE:
-                        op1.set(op1.get() & 0xffffff00 | (op2.get() & 0xff));
+                    case BYTE:
+                        op1.set(op1.asInt() & 0xffffff00 | (op2.asInt() & 0xff));
                         break;
-                    case T_WORD:
-                        op1.set(op1.get() & 0xffff0000 | (op2.get() & 0xffff));
+                    case WORD:
+                        op1.set(op1.asInt() & 0xffff0000 | (op2.asInt() & 0xffff));
                         break;
                     default:
                         throw unsupport("未知的数据类型: %s", dataType);
                 }
                 break;
             case PUSH:
-                vm.push(op1.get());
+                vm.push(op1.asInt());
                 break;
             case POP:
                 op1.set(vm.pop());
                 break;
             case JMP:
-                rp.set(op1.get());
+                rp.set(op1.asInt());
                 break;
             case JPC:
             {
                 // JPC 的数据类型为比较操作
-                CmpOP org = Values.fromValue(CmpOP.class, (int) Bins.int4(ctx.getFirstByte(), 2));
-                CmpOP flag = Values.fromValue(CmpOP.class, rf.get());
+                CompareType org = Values.fromValue(CompareType.class, (int) Bins.int4(ctx.getFirstByte(), 2));
+                CompareType flag = Values.fromValue(CompareType.class, rf.asInt());
                 boolean valid = false;
 
                 switch (flag)
                 {
                     case A:
-                        if (org == CmpOP.AE || org == CmpOP.A || org == CmpOP.NZ)
+                        if (org == CompareType.AE || org == CompareType.A || org == CompareType.NZ)
                             valid = true;
                         break;
                     case B:
-                        if (org == CmpOP.BE || org == CmpOP.B || org == CmpOP.NZ)
+                        if (org == CompareType.BE || org == CompareType.B || org == CompareType.NZ)
                             valid = true;
                         break;
                     case Z:
-                        if (org == CmpOP.Z || org == CmpOP.AE || org == CmpOP.BE)
+                        if (org == CompareType.Z || org == CompareType.AE || org == CompareType.BE)
                             valid = true;
                         break;
                     default:
@@ -93,7 +93,7 @@ public class BasicInstSubscriber extends VMContext
             break;
             case CALL:
                 // 设置返回位置为下一句的开始
-                vm.push(rp.get() + InstructionType.length(instruction));
+                vm.push(rp.asInt() + Opcode.length(instruction));
                 rp.set(opv1);
                 break;
             case RET:
@@ -103,28 +103,28 @@ public class BasicInstSubscriber extends VMContext
             {
                 float a = opv1;
                 float b = opv2;
-                if (dataType == DataType.T_FLOAT)
+                if (dataType == DataType.FLOAT)
                 {
                     a = Bins.float32(opv1);
                     b = Bins.float32(opv2);
                 }
                 float c = a - b;
                 if (c > 0)
-                    rf.set(CmpOP.A.get());
+                    rf.set(CompareType.A.asInt());
                 else if (c < 0)
-                    rf.set(CmpOP.B.get());
+                    rf.set(CompareType.B.asInt());
                 else
-                    rf.set(CmpOP.Z.get());
+                    rf.set(CompareType.Z.asInt());
             }
             break;
             case CAL:
             {
 
-                CalOP op = Values.fromValue(CalOP.class, ctx.getSpecialByte());
-                // 返回结果为 r0
+                CalculateType op = Values.fromValue(CalculateType.class, ctx.getSpecialByte());
+                // 返回结果为 R0
                 double a = opv1;
                 double b = opv2;
-                if (dataType.equals(DataType.T_FLOAT))
+                if (dataType.equals(DataType.FLOAT))
                 {
                     a = Bins.float32(opv1);
                     b = Bins.float32(opv2);
@@ -154,13 +154,13 @@ public class BasicInstSubscriber extends VMContext
                 // 值返回归约
                 switch (dataType)
                 {
-                    case T_FLOAT:
+                    case FLOAT:
                         ret = Bins.int32((float) c);
                         break;
-                    case T_BYTE:
+                    case BYTE:
                         ret &= 0xff;
                         break;
-                    case T_WORD:
+                    case WORD:
                         ret &= 0xffff;
                         break;
                 }

@@ -1,6 +1,6 @@
 package me.wener.bbvm.system;
 
-import me.wener.bbvm.utils.val.IsInteger;
+import me.wener.bbvm.util.val.IsInt;
 
 /**
  * Z    | 0x1 | 等于
@@ -10,7 +10,7 @@ import me.wener.bbvm.utils.val.IsInteger;
  * AE   | 0x5 | 大于等于
  * NZ   | 0x6 | 不等于
  */
-public enum CompareType implements IsInteger
+public enum CompareType implements IsInt
 {
     Z(0x1),
     B(0x2),
@@ -50,7 +50,7 @@ public enum CompareType implements IsInteger
         return valid;
     }
 
-    public Integer get()
+    public int asInt()
     {
         return value;
     }

@@ -1,7 +1,7 @@
 package me.wener.bbvm.api;
 
-import me.wener.bbvm.def.RegType;
 import me.wener.bbvm.impl.Reg;
+import me.wener.bbvm.vm.RegisterType;
 
 public interface BBVm
 {
@@ -19,5 +19,5 @@ public interface BBVm
 
     Reg getRegister(int reg);
 
-    Reg getRegister(RegType r);
+    Reg getRegister(RegisterType r);
 }

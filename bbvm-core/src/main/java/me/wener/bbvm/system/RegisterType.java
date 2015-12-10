@@ -1,21 +1,21 @@
 package me.wener.bbvm.system;
 
-import me.wener.bbvm.utils.val.IsInteger;
+import me.wener.bbvm.util.val.IsInt;
 
 /**
  * 寄存器类型
  * <pre>
- * rp | 0x0 | 程序计数器
- * rf | 0x1 |
- * rs | 0x2 | 栈顶位置
- * rb | 0x3 | 栈底位置
- * r0 | 0x4 | #0 寄存器
- * r1 | 0x5 | #1 寄存器
- * r2 | 0x6 | #2 寄存器
- * r3 | 0x7 | #3 寄存器
+ * RP | 0x0 | 程序计数器
+ * RF | 0x1 |
+ * RS | 0x2 | 栈顶位置
+ * RB | 0x3 | 栈底位置
+ * R0 | 0x4 | #0 寄存器
+ * R1 | 0x5 | #1 寄存器
+ * R2 | 0x6 | #2 寄存器
+ * R3 | 0x7 | #3 寄存器
  * </pre>
  */
-public enum RegisterType implements IsInteger
+public enum RegisterType implements IsInt
 {
     /**
      * 程序计数器,指令寻址寄存器
@@ -57,7 +57,7 @@ public enum RegisterType implements IsInteger
         this.value = value;
     }
 
-    public Integer get()
+    public int asInt()
     {
         return value;
     }

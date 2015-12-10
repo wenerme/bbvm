@@ -4,15 +4,12 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.dialog.DialogButtons;
 import com.googlecode.lanterna.gui.dialog.MessageBox;
-import com.googlecode.lanterna.gui.dialog.TextInputDialog;
-import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import com.googlecode.lanterna.terminal.Terminal;
-import com.googlecode.lanterna.terminal.swing.SwingTerminal;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
-import java.io.IOException;
 import org.junit.Test;
+
+import java.io.IOException;
 
 public class TestTerminal
 {
@@ -23,7 +20,7 @@ public class TestTerminal
         SwingTerminalFrame terminal = (SwingTerminalFrame) factory.createTerminal();
         TerminalScreen screen = new TerminalScreen(terminal);
         screen.startScreen();
-        terminal.setTitle("BBVM");
+        terminal.setTitle("BeBasicVirtualMachine");
         GUIScreen gui = new GUIScreen(screen);
         MessageBox.showMessageBox(gui,"t","c",DialogButtons.OK);
         TextGraphics graphics = terminal.newTextGraphics();

@@ -1,9 +1,9 @@
 package me.wener.bbvm.impl;
 
 import me.wener.bbvm.api.BBVm;
-import me.wener.bbvm.def.RegType;
-import me.wener.bbvm.utils.Bins;
-import me.wener.bbvm.utils.val.Values;
+import me.wener.bbvm.util.Bins;
+import me.wener.bbvm.util.val.IntEnums;
+import me.wener.bbvm.vm.RegisterType;
 
 public class VMContext
 {
@@ -23,14 +23,14 @@ public class VMContext
     {
         this.vm = vm;
         memory = vm.getMemory();
-        rp = vm.getRegister(RegType.rp);
-        rb = vm.getRegister(RegType.rb);
-        rs = vm.getRegister(RegType.rs);
-        rf = vm.getRegister(RegType.rf);
-        r0 = vm.getRegister(RegType.r0);
-        r1 = vm.getRegister(RegType.r1);
-        r2 = vm.getRegister(RegType.r2);
-        r3 = vm.getRegister(RegType.r3);
+        rp = vm.getRegister(RegisterType.RP);
+        rb = vm.getRegister(RegisterType.RB);
+        rs = vm.getRegister(RegisterType.RS);
+        rf = vm.getRegister(RegisterType.RF);
+        r0 = vm.getRegister(RegisterType.R0);
+        r1 = vm.getRegister(RegisterType.R1);
+        r2 = vm.getRegister(RegisterType.R2);
+        r3 = vm.getRegister(RegisterType.R3);
     }
 
 
@@ -46,14 +46,14 @@ public class VMContext
 
     public void push(int v)
     {
-        Bins.int32l(memory, rs.get(), v);
-        rs.set(rs.get() - 4);
+        Bins.int32l(memory, rs.asInt(), v);
+        rs.set(rs.asInt() - 4);
     }
 
     public int pop()
     {
-        rs.set(rs.get() + 4);
-        return Bins.int32l(memory, rs.get());
+        rs.set(rs.asInt() + 4);
+        return Bins.int32l(memory, rs.asInt());
     }
 
     protected Integer[] readParameters(int n, int offset)
@@ -71,28 +71,28 @@ public class VMContext
 
     public Reg getRegister(int reg)
     {
-        return getRegister(Values.fromValue(RegType.class, reg));
+        return getRegister(IntEnums.fromInt(RegisterType.class, reg));
     }
 
-    public Reg getRegister(RegType r)
+    public Reg getRegister(RegisterType r)
     {
         switch (r)
         {
-            case rp:
+            case RP:
                 return rp;
-            case rf:
+            case RF:
                 return rf;
-            case rs:
+            case RS:
                 return rs;
-            case rb:
+            case RB:
                 return rb;
-            case r0:
+            case R0:
                 return r0;
-            case r1:
+            case R1:
                 return r1;
-            case r2:
+            case R2:
                 return r2;
-            case r3:
+            case R3:
                 return r3;
             default:
                 throw new IllegalArgumentException("未知的寄存器 :" + r);

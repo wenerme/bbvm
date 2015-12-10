@@ -1,10 +1,7 @@
 package me.wener.bbvm.system.internal;
 
 import lombok.extern.slf4j.Slf4j;
-import me.wener.bbvm.system.CPU;
-import me.wener.bbvm.system.InstructionIntercepter;
-import me.wener.bbvm.system.OpState;
-import me.wener.bbvm.system.Opcode;
+import me.wener.bbvm.system.*;
 import me.wener.bbvm.system.Operand;
 
 @Slf4j
@@ -20,7 +17,7 @@ public class IO2Log implements InstructionIntercepter
         }
         String msg;
         Operand b = op.b();
-        switch (op.a().get())
+        switch (op.a().asInt())
         {
             // 0 | 显示整数 | 整数 |  | 会换行
             // 1 | 显示字符串 | 字符串 |  | 会换行
@@ -29,7 +26,7 @@ public class IO2Log implements InstructionIntercepter
             // 4 | 显示字符 | 字符ASCII码 |  |
             // 5 | 显示浮点数 | 浮点数 |  |
             case 0:
-                msg = b.get().toString() + "/n";
+                msg = b.asInt() + "/n";
                 break;
             case 1:
                 msg = b.asString() + "/n";
@@ -38,10 +35,10 @@ public class IO2Log implements InstructionIntercepter
                 msg = b.asString();
                 break;
             case 3:
-                msg = b.get().toString();
+                msg = String.valueOf(b.asInt());
                 break;
             case 4:
-                msg = Character.highSurrogate(b.get()) + "";
+                msg = Character.highSurrogate(b.asInt()) + "";
                 break;
             case 5:
                 msg = b.asFloat() + "";

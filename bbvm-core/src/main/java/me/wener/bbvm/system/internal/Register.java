@@ -1,12 +1,13 @@
 package me.wener.bbvm.system.internal;
 
 import com.google.common.collect.Lists;
-import java.io.Serializable;
-import java.util.EventListener;
-import java.util.List;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import me.wener.bbvm.system.RegisterType;
+
+import java.io.Serializable;
+import java.util.EventListener;
+import java.util.List;
 
 @Accessors(chain = true, fluent = true)
 class Register implements me.wener.bbvm.system.Register, Serializable
@@ -47,9 +48,14 @@ class Register implements me.wener.bbvm.system.Register, Serializable
     }
 
     @Override
-    public Integer get()
+    public int asInt()
     {
         return value;
+    }
+
+    @Override
+    public Integer get() {
+        return asInt();
     }
 
     @Override
@@ -87,9 +93,9 @@ class Register implements me.wener.bbvm.system.Register, Serializable
         }
 
         @Override
-        public Integer get()
+        public int asInt()
         {
-            return internal.get();
+            return internal.asInt();
         }
 
         @Override

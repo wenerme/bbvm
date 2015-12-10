@@ -1,27 +1,17 @@
 package me.wener.bbvm.swing.image;
 
 import com.google.common.io.LittleEndianDataInputStream;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.Image;
+import me.wener.bbvm.util.Bins;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
-import java.io.ByteArrayInputStream;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.EnumSet;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import me.wener.bbvm.utils.Bins;
 
 public class ImageFactory
 {

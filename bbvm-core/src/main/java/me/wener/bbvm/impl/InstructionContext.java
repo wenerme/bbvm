@@ -4,10 +4,11 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import me.wener.bbvm.api.BBVm;
-import me.wener.bbvm.def.DataType;
-import me.wener.bbvm.def.InstructionType;
-import me.wener.bbvm.utils.Bins;
-import me.wener.bbvm.utils.val.Values;
+import me.wener.bbvm.util.Bins;
+import me.wener.bbvm.util.val.IntEnums;
+import me.wener.bbvm.util.val.Values;
+import me.wener.bbvm.vm.DataType;
+import me.wener.bbvm.vm.Opcode;
 
 @Data
 public class InstructionContext
@@ -16,7 +17,7 @@ public class InstructionContext
     private final byte[] memory;
     @Getter(AccessLevel.NONE)
     private final BBVm vm;
-    private InstructionType instruction;
+    private Opcode instruction;
     private Operand op1;
     private Operand op2;
     private DataType dataType;
@@ -39,7 +40,7 @@ public class InstructionContext
         */
         firstByte = Bins.uint16b(memory, pc);
         int opcode = firstByte >> 12;// 指令码
-        instruction = Values.fromValue(InstructionType.class, opcode);
+        instruction = IntEnums.fromInt(Opcode.class, opcode);
         Integer length = instruction.length();
 
         if (length == 1 || length == 5)

@@ -9,16 +9,16 @@ public class Dumps extends TestUtil
     public static String simpleInstAsm()
     {
         return "CALL LABEL0 ; For initialization\n" +
-                "LD dword r2,CD_INITDATA\n" +
-                "IN r2,22\n" +
+                "LD dword R2,CD_INITDATA\n" +
+                "IN R2,22\n" +
                 "PUSH [CSTRING_3]\n" +
-                "POP r2\n" +
-                "IN r3,2\n" +
-                "IN r2,5\n" +
-                "PUSH r3\n" +
-                "POP r3\n" +
-                "OUT 2,r3\n" +
-                "IN r3,8\n" +
+                "POP R2\n" +
+                "IN R3,2\n" +
+                "IN R2,5\n" +
+                "PUSH R3\n" +
+                "POP R3\n" +
+                "OUT 2,R3\n" +
+                "IN R3,8\n" +
                 "OUT 4,10\n" +
                 "EXIT\n" +
                 "LABEL0:\n" +
@@ -48,18 +48,18 @@ public class Dumps extends TestUtil
 
     public static String jmpAndCalAsm()
     {
-        return "JPC A r1\n" +
+        return "JPC A R1\n" +
                 "JPC NZ 2\n" +
                 "JPC B 3\n" +
                 "JPC AE [ LABEL5 ]\n" +
-                "JPC BE [ r2 ]\n" +
+                "JPC BE [ R2 ]\n" +
                 "PUSH 1\n" +
                 "JMP LABEL6\n" +
-                "CAL int ADD r0,r1\n" +
-                "CAL float sub r0,[1]\n" +
-                "CAL word mul r2,[LABEL5]\n" +
-                "CAL dword mod r3,[LABEL6]\n" +
-                "CAL byte div rp,r3\n" +
+                "CAL int ADD R0,R1\n" +
+                "CAL float sub R0,[1]\n" +
+                "CAL word mul R2,[LABEL5]\n" +
+                "CAL dword mod R3,[LABEL6]\n" +
+                "CAL byte div RP,R3\n" +
                 "LABEL5:\n" +
                 "LABEL6:";
     }

@@ -5,13 +5,26 @@ PATH=$PATH:$BB_HOME/tool
 
 export BB_HOME BB_TOOL
 
-gbk2utf8(){
+
+gbk2utf8()
+{
 	iconv -f gbk -t utf-8
+}
+
+iscmd ()
+{
+    local n=0;
+    if [[ "$1" = "-n" ]]; then
+        n=1;
+        shift;
+    fi;
+    command -v $1 > /dev/null;
+    return $(( $n ^ $? ))
 }
 
 runtool()
 {
-	type wine 2>&1 1>/dev/null &&
+	iscmd wine &&
 	{
 		if echo $1 | grep $BB_HOME; then
 			wine "$1" "$@" | gbk2utf8

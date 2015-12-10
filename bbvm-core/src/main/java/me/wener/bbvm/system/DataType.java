@@ -1,8 +1,9 @@
 package me.wener.bbvm.system;
 
+import me.wener.bbvm.util.val.IsInt;
+
 import java.util.EnumMap;
 import java.util.Map;
-import me.wener.bbvm.utils.val.IsInteger;
 
 /**
  * 数据类型<pre>
@@ -13,7 +14,7 @@ import me.wener.bbvm.utils.val.IsInteger;
  * int    | 0x4
  * </pre>
  */
-public enum DataType implements IsInteger
+public enum DataType implements IsInt
 {
     T_DWORD(0x0),
     T_WORD(0x1),
@@ -38,7 +39,7 @@ public enum DataType implements IsInteger
         this.value = value;
     }
 
-    public Integer get()
+    public int asInt()
     {
         return value;
     }

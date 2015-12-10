@@ -1,8 +1,8 @@
 package me.wener.bbvm.system;
 
-import me.wener.bbvm.utils.val.IntegerHolder;
+import me.wener.bbvm.util.val.IntHolder;
 
-public interface Operand extends IntegerHolder
+public interface Operand extends IntHolder
 {
     Integer value();
 
@@ -44,7 +44,7 @@ public interface Operand extends IntegerHolder
      * 获取该操作数的实际值,与 value 不同,该值会取实际值
      */
     @Override
-    Integer get();
+    int asInt();
 
     /**
      * 设置该操作数所指向的值,例如:寄存器值或相应的地址值

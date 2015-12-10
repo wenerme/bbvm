@@ -1,13 +1,14 @@
 package me.wener.bbvm.impl;
 
+import me.wener.bbvm.impl.spi.DeviceProvider;
+import me.wener.bbvm.util.Bins;
+import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import me.wener.bbvm.impl.spi.DeviceProvider;
-import me.wener.bbvm.utils.Bins;
-import org.junit.Test;
 
 public class SimpleTest
 {

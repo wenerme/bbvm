@@ -1,14 +1,13 @@
 package me.wener.bbvm.swing;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import me.wener.bbvm.api.Page;
 import me.wener.bbvm.api.Picture;
-import me.wener.bbvm.def.DrawMode;
+import me.wener.bbvm.dev.DrawMode;
 import me.wener.bbvm.impl.plaf.Colour;
 import me.wener.bbvm.impl.spi.AbstractPage;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class SwingPage
         extends AbstractPage

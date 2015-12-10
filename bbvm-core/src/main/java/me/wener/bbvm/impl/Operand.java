@@ -1,9 +1,9 @@
 package me.wener.bbvm.impl;
 
-import me.wener.bbvm.utils.Bins;
-import me.wener.bbvm.utils.val.IntegerHolder;
+import me.wener.bbvm.util.Bins;
+import me.wener.bbvm.util.val.IntHolder;
 
-public abstract class Operand implements IntegerHolder
+public abstract class Operand implements IntHolder
 {
     public final static Operand INVALID = new InvalidOperand();
 
@@ -26,7 +26,7 @@ public abstract class Operand implements IntegerHolder
     /**
      * 将一个 Holder 包装为一个操作数类
      */
-    public static Operand holder(IntegerHolder v)
+    public static Operand holder(IntHolder v)
     {
         return new HolderOperand(v);
     }
@@ -39,13 +39,18 @@ public abstract class Operand implements IntegerHolder
     /**
      * 包装一个间接寻址
      */
-    public static Operand indirect(IntegerHolder v, byte[] memory)
+    public static Operand indirect(IntHolder v, byte[] memory)
     {
         return new IndirectOperand(v, memory);
     }
 
     @Override
-    public Integer get()
+    public Integer get() {
+        return asInt();
+    }
+
+    @Override
+    public int asInt()
     {
         throw new UnsupportedOperationException();
     }
@@ -62,7 +67,7 @@ public abstract class Operand implements IntegerHolder
     private static class InvalidOperand extends Operand
     {
         @Override
-        public Integer get()
+        public int asInt()
         {
             return 0;
         }
@@ -76,17 +81,17 @@ public abstract class Operand implements IntegerHolder
 
     private static class HolderOperand extends Operand
     {
-        private final IntegerHolder value;
+        private final IntHolder value;
 
-        HolderOperand(IntegerHolder value)
+        HolderOperand(IntHolder value)
         {
             this.value = value;
         }
 
         @Override
-        public Integer get()
+        public int asInt()
         {
-            return value.get();
+            return value.asInt();
         }
 
         @Override
@@ -112,7 +117,7 @@ public abstract class Operand implements IntegerHolder
         }
 
         @Override
-        public Integer get()
+        public int asInt()
         {
             return value;
         }
@@ -136,7 +141,7 @@ public abstract class Operand implements IntegerHolder
         }
 
         @Override
-        public Integer get()
+        public int asInt()
         {
             return Bins.int32l(memory, address);
         }
@@ -157,11 +162,11 @@ public abstract class Operand implements IntegerHolder
     private static class IndirectOperand extends AddressedOperand
     {
 
-        private final IntegerHolder origin;
+        private final IntHolder origin;
 
-        IndirectOperand(IntegerHolder v, byte[] memory)
+        IndirectOperand(IntHolder v, byte[] memory)
         {
-            super(v.get(), memory);
+            super(v.asInt(), memory);
             this.origin = v;
         }
 

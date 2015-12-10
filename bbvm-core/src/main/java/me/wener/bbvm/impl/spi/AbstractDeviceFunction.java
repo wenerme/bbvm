@@ -1,18 +1,14 @@
 package me.wener.bbvm.impl.spi;
 
-import static me.wener.bbvm.utils.val.Values.fromValue;
-
 import me.wener.bbvm.api.DeviceFunction;
 import me.wener.bbvm.api.Page;
 import me.wener.bbvm.api.Picture;
 import me.wener.bbvm.api.Screen;
-import me.wener.bbvm.def.BackgroundMode;
-import me.wener.bbvm.def.BrushStyle;
-import me.wener.bbvm.def.DrawMode;
-import me.wener.bbvm.def.FontType;
-import me.wener.bbvm.def.PenStyle;
+import me.wener.bbvm.dev.*;
 import me.wener.bbvm.impl.ResourceHandlePool;
 import me.wener.bbvm.impl.plaf.Colour;
+
+import static me.wener.bbvm.util.val.Values.fromValue;
 
 public abstract class AbstractDeviceFunction implements DeviceFunction
 {
