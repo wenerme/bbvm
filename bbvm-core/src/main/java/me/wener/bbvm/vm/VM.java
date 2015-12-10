@@ -5,9 +5,6 @@ import me.wener.bbvm.util.val.IntEnums;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import static com.google.common.base.Preconditions.checkState;
 
 /**
@@ -16,10 +13,6 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class VM {
     private final static Logger log = LoggerFactory.getLogger(VM.class);
-
-    static {
-        IntEnums.cache(AddressingMode.class, CalculateType.class, CompareType.class, DataType.class, Opcode.class, RegisterType.class);
-    }
 
     final Register r0 = new Register(RegisterType.R0, this);
     final Register r1 = new Register(RegisterType.R1, this);
@@ -99,12 +92,6 @@ public class VM {
                 rp.add(instruction.getOpcode().length());
             }
         }
-    }
-
-    public VM load(InputStream is) throws IOException {
-        memory.getByteBuf().clear().writeBytes(is, memory.getMemorySize());
-        reset();
-        return this;
     }
 
     public Memory getMemory() {
@@ -249,11 +236,5 @@ public class VM {
                 return r3;
         }
         throw new UnsupportedOperationException();
-    }
-
-    public VM load(ByteBuf buf) {
-        memory.getByteBuf().clear().writeBytes(buf);
-        reset();
-        return this;
     }
 }

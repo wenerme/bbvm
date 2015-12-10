@@ -2,6 +2,7 @@ package me.wener.bbvm.vm;
 
 import com.google.common.base.MoreObjects;
 import io.netty.buffer.ByteBuf;
+import me.wener.bbvm.util.val.IntEnums;
 
 import static me.wener.bbvm.util.val.IntEnums.fromInt;
 
@@ -14,6 +15,10 @@ import static me.wener.bbvm.util.val.IntEnums.fromInt;
  */
 @SuppressWarnings("unused")
 public class Instruction {
+    static {
+        IntEnums.cache(AddressingMode.class, CalculateType.class, CompareType.class, DataType.class, Opcode.class, RegisterType.class);
+    }
+
     Opcode opcode;
     Operand a = new Operand();
     Operand b = new Operand();
