@@ -15,8 +15,8 @@ import static me.wener.bbvm.util.val.IntEnums.fromInt;
 @SuppressWarnings("unused")
 public class Instruction {
     Opcode opcode;
-    Operand a;
-    Operand b;
+    Operand a = new Operand();
+    Operand b = new Operand();
     CalculateType calculateType;
     CompareType compareType;
     DataType dataType;
@@ -28,8 +28,12 @@ public class Instruction {
 
     public Instruction setVm(VM vm) {
         this.vm = vm;
-        a.setVm(vm);
-        b.setVm(vm);
+        if (a != null) {
+            a.setVm(vm);
+        }
+        if (b != null) {
+            b.setVm(vm);
+        }
         return this;
     }
 
@@ -99,7 +103,7 @@ public class Instruction {
                 .toString();
     }
 
-    public Instruction read(ByteBuf buf) {
+    public Instruction read(ByteBuf buf, int offset) {
         /*
    指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
 0x 0       0         0           0        00000000     00000000
@@ -118,7 +122,7 @@ JPC指令 6byte
 0x 0       0         0        0        00000000
         */
 
-        short first = buf.readUnsignedByte();
+        short first = buf.getUnsignedByte(offset++);
         opcode = fromInt(Opcode.class, first >> 4);
         switch (opcode) {
             case RET:
@@ -133,7 +137,7 @@ JPC指令 6byte
             case JMP: {
                 a.setAddressingMode(fromInt(AddressingMode.class, first & 0xf));
                 // 一个操作数
-                a.setValue(buf.readInt());
+                a.setValue(buf.getInt(offset));
             }
             break;
             case LD:
@@ -143,14 +147,15 @@ JPC指令 6byte
             case CMP: {
                 // 两个操作数
                 dataType = fromInt(DataType.class, first & 0xf);
-                short second = buf.readUnsignedByte();
+                short second = buf.getUnsignedByte(offset++);
                 int special = second >> 4;
                 int addressingMode = second & 0xf;
 
                 a.addressingMode = fromInt(AddressingMode.class, addressingMode / 4);
                 b.addressingMode = fromInt(AddressingMode.class, addressingMode % 4);
-                a.value = buf.readInt();
-                b.value = buf.readInt();
+                a.setValue(buf.getInt(offset));
+                offset += 4;
+                b.setValue(buf.getInt(offset));
 
                 if (opcode == Opcode.CAL) {
                     calculateType = fromInt(CalculateType.class, special);
@@ -159,13 +164,13 @@ JPC指令 6byte
             break;
 
             case JPC: {
-                short second = buf.readUnsignedByte();
+                short second = buf.getUnsignedByte(offset++);
                 int addressingMode = second & 0xf;
                 // JPC A R1
                 // 数据类型为比较操作
                 compareType = fromInt(CompareType.class, first & 0xf);
                 a.addressingMode = fromInt(AddressingMode.class, addressingMode);
-                a.value = buf.readInt();
+                a.setValue(buf.getInt(offset));
             }
             break;
             default:
@@ -227,4 +232,13 @@ JPC指令 6byte
     }
 
 
+    public Instruction reset() {
+        opcode = null;
+        a.setAddressingMode(null).setValue(0);
+        b.setAddressingMode(null).setValue(0);
+        calculateType = null;
+        compareType = null;
+        dataType = null;
+        return this;
+    }
 }

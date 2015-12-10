@@ -4,6 +4,8 @@ import com.google.common.base.MoreObjects;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+import java.nio.ByteOrder;
+
 /**
  * @author wener
  * @since 15/12/10
@@ -22,19 +24,28 @@ public class Memory {
     }
 
     public Memory(int memorySize, int stackSize) {
-        mem = Unpooled.buffer(memorySize, memorySize);
+        mem = Unpooled.buffer(memorySize + stackSize, memorySize + stackSize).order(ByteOrder.LITTLE_ENDIAN);
         this.stackSize = stackSize;
         this.memorySize = memorySize;
     }
 
-    public void reset() {
+    public static Memory load(ByteBuf buf) {
+        Memory memory = new Memory(buf.readableBytes(), 1024);
+        memory.mem.writeBytes(buf);
+        return memory;
+    }
+
+    public Memory reset() {
         mem.clear();
         byte[] bytes = mem.array();
         for (int i = 0; i < bytes.length; i++) {
             bytes[i] = 0;
         }
-        rb.setValue(memorySize);
-        rs.setValue(memorySize - stackSize);
+        if (vm != null) {
+            rb.setValue(mem.maxCapacity());
+            rs.setValue(mem.maxCapacity() - stackSize);
+        }
+        return this;
     }
 
     public VM getVm() {
@@ -62,8 +73,16 @@ public class Memory {
         rs.subtract(4);
     }
 
-    public ByteBuf getMemory() {
+    public ByteBuf getByteBuf() {
         return mem;
+    }
+
+    public int getMemorySize() {
+        return memorySize;
+    }
+
+    public int getStackSize() {
+        return stackSize;
     }
 
     @Override

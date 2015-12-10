@@ -1,5 +1,6 @@
 package me.wener.bbvm.vm;
 
+import com.google.common.base.MoreObjects;
 import me.wener.bbvm.util.val.IsInt;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -10,7 +11,6 @@ import static me.wener.bbvm.util.val.IntEnums.fromInt;
  * @since 15/12/10
  */
 public class Operand extends MutableInt {
-    int value;
     AddressingMode addressingMode;
     VM vm;
 
@@ -24,7 +24,7 @@ public class Operand extends MutableInt {
     }
 
     public Operand setValue(IsInt v) {
-        value = v.asInt();
+        setValue(v.asInt());
         return this;
     }
 
@@ -40,13 +40,13 @@ public class Operand extends MutableInt {
     public int get() {
         switch (addressingMode) {
             case REGISTER:
-                return vm.getRegister(fromInt(RegisterType.class, value)).intValue();
+                return vm.getRegister(fromInt(RegisterType.class, intValue())).intValue();
             case REGISTER_DEFERRED:
-                return vm.getMemory().read(vm.getRegister(fromInt(RegisterType.class, value)).intValue());
+                return vm.getMemory().read(vm.getRegister(fromInt(RegisterType.class, intValue())).intValue());
             case IMMEDIATE:
-                return value;
+                return intValue();
             case DIRECT:
-                return vm.getMemory().read(value);
+                return vm.getMemory().read(intValue());
             default:
                 throw new AssertionError();
         }
@@ -56,15 +56,15 @@ public class Operand extends MutableInt {
         switch (addressingMode) {
 
             case REGISTER:
-                vm.getRegister(fromInt(RegisterType.class, value)).setValue(v);
+                vm.getRegister(fromInt(RegisterType.class, intValue())).setValue(v);
                 break;
             case REGISTER_DEFERRED:
-                vm.getMemory().write(vm.getRegister(fromInt(RegisterType.class, value)).intValue(), v);
+                vm.getMemory().write(vm.getRegister(fromInt(RegisterType.class, intValue())).intValue(), v);
                 break;
             case IMMEDIATE:
                 throw new AssertionError("Set a IMMEDIATE operand");
             case DIRECT:
-                vm.getMemory().write(value, v);
+                vm.getMemory().write(intValue(), v);
                 break;
             default:
                 throw new AssertionError();
@@ -75,13 +75,13 @@ public class Operand extends MutableInt {
     public String toAssembly() {
         switch (addressingMode) {
             case REGISTER:
-                return fromInt(RegisterType.class, value).toString();
+                return fromInt(RegisterType.class, intValue()).toString();
             case REGISTER_DEFERRED:
-                return "[" + fromInt(RegisterType.class, value) + "]";
+                return "[" + fromInt(RegisterType.class, intValue()) + "]";
             case IMMEDIATE:
-                return String.valueOf(value);
+                return String.valueOf(intValue());
             case DIRECT:
-                return "[" + value + "]";
+                return "[" + intValue() + "]";
             default:
                 throw new AssertionError();
         }
@@ -94,5 +94,13 @@ public class Operand extends MutableInt {
 
     public float getFloat() {
         return Float.intBitsToFloat(get());
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("value", intValue())
+                .add("mode", addressingMode)
+                .toString();
     }
 }

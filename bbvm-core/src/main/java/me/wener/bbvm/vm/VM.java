@@ -1,7 +1,12 @@
 package me.wener.bbvm.vm;
 
-import me.wener.bbvm.util.Bins;
+import io.netty.buffer.ByteBuf;
 import me.wener.bbvm.util.val.IntEnums;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -10,6 +15,8 @@ import static com.google.common.base.Preconditions.checkState;
  * @since 15/12/10
  */
 public class VM {
+    private final static Logger log = LoggerFactory.getLogger(VM.class);
+
     static {
         IntEnums.cache(AddressingMode.class, CalculateType.class, CompareType.class, DataType.class, Opcode.class, RegisterType.class);
     }
@@ -22,9 +29,8 @@ public class VM {
     final Register rf = new Register(RegisterType.RF, this);
     final Register rb = new Register(RegisterType.RB, this);
     final Register rp = new Register(RegisterType.RP, this);
-    Memory memory = new Memory().setVm(this);
+    Memory memory;
     private boolean exit = false;
-    private boolean jumped;
 
     public VM() {
     }
@@ -33,8 +39,8 @@ public class VM {
         float va;
         float vb;
         if (dataType == DataType.FLOAT) {
-            va = Bins.float32(a.get());
-            vb = Bins.float32(b.get());
+            va = a.getFloat();
+            vb = b.getFloat();
         } else {
             va = a.get();
             vb = b.get();
@@ -74,8 +80,40 @@ public class VM {
         return vc;
     }
 
+    boolean hasRemaining() {
+        return rp.intValue() < memory.getMemorySize();
+    }
+
+    public void run() {
+        Instruction instruction = new Instruction().setVm(this);
+        ByteBuf buf = this.memory.getByteBuf();
+        int last;
+        while (hasRemaining()) {
+            last = rp.intValue();
+            instruction.reset().read(buf, last);
+            run(instruction);
+            if (exit) {
+                return;
+            }
+            if (rp.intValue() == last) {
+                rp.add(instruction.getOpcode().length());
+            }
+        }
+    }
+
+    public VM load(InputStream is) throws IOException {
+        memory.getByteBuf().clear().writeBytes(is, memory.getMemorySize());
+        reset();
+        return this;
+    }
+
     public Memory getMemory() {
         return memory;
+    }
+
+    public VM setMemory(Memory memory) {
+        this.memory = memory.setVm(this);
+        return this;
     }
 
     public VM reset() {
@@ -88,12 +126,20 @@ public class VM {
         rb.setValue(0);
         rp.setValue(0);
         exit = false;
+        memory.reset();
         return this;
     }
 
     public void run(Instruction inst) {
         checkState(!exit, "Exited");
+        log.debug("{}", inst);
+        log.debug("{} ' {}", inst.toAssembly(), debugAsm());
         run(inst, inst.opcode, inst.a, inst.b);
+    }
+
+    String debugAsm() {
+        return String.format("RP=%s RF=%s RS=%s RB=%s R0=%s R1=%s R2=%s R3=%s"
+                , rp.intValue(), rf.intValue(), rs.intValue(), rb.intValue(), r0.intValue(), r1.intValue(), r2.intValue(), r3.intValue());
     }
 
     private void run(Instruction inst, Opcode opcode, Operand a, Operand b) {
@@ -149,9 +195,13 @@ public class VM {
             }
             break;
             case EXIT:
-                exit = false;
+                exit = true;
                 break;
         }
+    }
+
+    public boolean isExit() {
+        return exit;
     }
 
     public void jmp(int i) {
@@ -199,5 +249,11 @@ public class VM {
                 return r3;
         }
         throw new UnsupportedOperationException();
+    }
+
+    public VM load(ByteBuf buf) {
+        memory.getByteBuf().clear().writeBytes(buf);
+        reset();
+        return this;
     }
 }
