@@ -120,7 +120,11 @@ public class VM {
     public void run(Instruction inst) {
         checkState(!exit, "Exited");
         log.debug("{}", inst);
-        log.debug("{} ' {}", inst.toAssembly(), debugAsm());
+        log.debug("{} ' A={} B={} {}",
+                inst.toAssembly(),
+                inst.hasA() ? inst.getA().get() : "NaN",
+                inst.hasB() ? inst.getB().get() : "NaN",
+                debugAsm());
         run(inst, inst.opcode, inst.a, inst.b);
     }
 

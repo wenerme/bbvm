@@ -1,6 +1,7 @@
 package me.wener.bbvm.vm;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import me.wener.bbvm.util.val.IsInt;
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -12,7 +13,17 @@ import static me.wener.bbvm.util.val.IntEnums.fromInt;
  */
 public class Operand extends MutableInt {
     AddressingMode addressingMode;
-    VM vm;
+    transient VM vm;
+    transient Symbol symbol;
+
+    public Symbol getSymbol() {
+        return symbol;
+    }
+
+    public Operand setSymbol(Symbol symbol) {
+        this.symbol = symbol;
+        return this;
+    }
 
     public AddressingMode getAddressingMode() {
         return addressingMode;
@@ -79,9 +90,9 @@ public class Operand extends MutableInt {
             case REGISTER_DEFERRED:
                 return "[" + fromInt(RegisterType.class, intValue()) + "]";
             case IMMEDIATE:
-                return String.valueOf(intValue());
+                return String.valueOf(symbol != null ? symbol.getName() : intValue());
             case DIRECT:
-                return "[" + intValue() + "]";
+                return "[" + (symbol != null ? symbol.getName() : intValue()) + "]";
             default:
                 throw new AssertionError();
         }
@@ -102,5 +113,19 @@ public class Operand extends MutableInt {
                 .add("value", intValue())
                 .add("mode", addressingMode)
                 .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Operand)) return false;
+        if (!super.equals(o)) return false;
+        Operand operand = (Operand) o;
+        return addressingMode == operand.addressingMode;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(super.hashCode(), addressingMode);
     }
 }

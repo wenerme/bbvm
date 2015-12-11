@@ -67,21 +67,27 @@ TOKEN :
     | <DATA_TYPE: "DWORD" | "WORD" | "BYTE" | "FLOAT" | "INT">
     | <CAL_OP: "ADD" | "SUB" | "MUL" | "DIV" | "MOD">
     | <CMP_OP: "Z" | "B" | "BE" | "A" | "AE" | "NZ">
+    | <T_LABEL: <IDENTIFIER> <COLON>>
 }
 
 
 List<Instruction> start():{
     List<Instruction> instructions = new ArrayList<Instruction>();
     Instruction inst;
+    Token token;
 }
 {
      (
         "\n"
-        | inst = instruction(){instructions.add(inst);} "\n"
+        |LOOKAHEAD(2) (
+            token = <IDENTIFIER> <COLON>{addLabel(token);}
+            | token = <T_LABEL>{addLabel(token);}
+            | inst = instruction(){instructions.add(inst);}
+        ) "\n"
      )*
      <EOF>
      {
-     return instructions;
+        return instructions;
      }
 }
 
@@ -93,11 +99,11 @@ Instruction instruction():{
 {
     (
         (o = <I_EXIT> | o = <I_RET> | o = <I_NOP>)
-        | (o = <I_CALL> |o = <I_PUSH> |o = <I_POP> |o = <I_JPC>) a = operand()
+        | (o = <I_CALL> |o = <I_PUSH> |o = <I_POP> |o = <I_JMP>) a = operand()
         | (o = <I_IN> | o = <I_OUT>) a = operand() <COMMA> b = operand()
         | o = <I_CAL> dataType = <DATA_TYPE> calType = <CAL_OP> a = operand() <COMMA> b = operand()
         | o = <I_LD> dataType = <DATA_TYPE> a = operand() <COMMA> b = operand()
-        | o = <I_JMP> cmpType = <CMP_OP> a = operand()
+        | o = <I_JPC> cmpType = <CMP_OP> a = operand()
     )
     {
         inst.setOpcode(Opcode.valueOf(o.image.toUpperCase())).setA(a).setB(b);
@@ -128,7 +134,9 @@ Operand operand():{
 //                token = <T_REGISTER>{op.setValue(RegisterType.valueOf(token.image.toUpperCase())).setAddressingMode(REGISTER_DEFERRED);}
 //                | token = <INTEGER_LITERAL>{op.setAddressingMode(DIRECT).setValue(Integer.parseInt(token.image));}
 //            "]"
+        | token = <IDENTIFIER>{op.setAddressingMode(IMMEDIATE).setValue(-1);addLabelOperand(token,op);}
         |LOOKAHEAD(2) <LBRACKET> token = <INTEGER_LITERAL> <RBRACKET> {op.setAddressingMode(DIRECT).setValue(Integer.parseInt(token.image));}
+        |LOOKAHEAD(2) <LBRACKET> token = <IDENTIFIER> <RBRACKET> {op.setAddressingMode(DIRECT).setValue(-1);addLabelOperand(token,op);}
         |LOOKAHEAD(2) <LBRACKET> token = <T_REGISTER> <RBRACKET> {op.setValue(RegisterType.valueOf(token.image.toUpperCase())).setAddressingMode(REGISTER_DEFERRED);}
     )
     {
@@ -136,7 +144,9 @@ Operand operand():{
     }
 }
 
-
+// =========================================
+// From java-1.7.jj
+// =========================================
 
 TOKEN :
 {
@@ -251,4 +261,49 @@ TOKEN :
 | < COMMA: "," >
 | < DOT: "." >
 | < AT: "@" >
+}
+
+
+/* OPERATORS */
+
+TOKEN :
+{
+  < ASSIGN: "=" >
+| < LT: "<" >
+| < BANG: "!" >
+| < TILDE: "~" >
+| < HOOK: "?" >
+| < COLON: ":" >
+| < EQ: "==" >
+| < LE: "<=" >
+| < GE: ">=" >
+| < NE: "!=" >
+| < SC_OR: "||" >
+| < SC_AND: "&&" >
+| < INCR: "++" >
+| < DECR: "--" >
+| < PLUS: "+" >
+| < MINUS: "-" >
+| < STAR: "*" >
+| < SLASH: "/" >
+| < BIT_AND: "&" >
+| < BIT_OR: "|" >
+| < XOR: "^" >
+| < REM: "%" >
+| < LSHIFT: "<<" >
+| < PLUSASSIGN: "+=" >
+| < MINUSASSIGN: "-=" >
+| < STARASSIGN: "*=" >
+| < SLASHASSIGN: "/=" >
+| < ANDASSIGN: "&=" >
+| < ORASSIGN: "|=" >
+| < XORASSIGN: "^=" >
+| < REMASSIGN: "%=" >
+| < LSHIFTASSIGN: "<<=" >
+| < RSIGNEDSHIFTASSIGN: ">>=" >
+| < RUNSIGNEDSHIFTASSIGN: ">>>=" >
+| < ELLIPSIS: "..." >
+| < POINTER: "->" >
+| < DIAMOND: "<>" >
+
 }

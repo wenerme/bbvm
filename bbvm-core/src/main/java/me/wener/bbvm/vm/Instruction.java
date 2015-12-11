@@ -60,6 +60,28 @@ public class Instruction {
         return this;
     }
 
+    public boolean hasA() {
+        switch (opcode) {
+            case RET:
+            case NOP:
+            case EXIT:
+                return false;
+        }
+        return true;
+    }
+
+    public boolean hasB() {
+        switch (opcode) {
+            case LD:
+            case IN:
+            case OUT:
+            case CAL:
+            case CMP:
+                return true;
+        }
+        return false;
+    }
+
     public Operand getB() {
         return b;
     }
