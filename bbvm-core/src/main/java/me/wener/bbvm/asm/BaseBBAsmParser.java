@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.wener.bbvm.vm.Instruction;
 import me.wener.bbvm.vm.Operand;
+import me.wener.bbvm.vm.SymbolTable;
+import me.wener.bbvm.vm.Symbols;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +34,10 @@ public class BaseBBAsmParser {
     }
 
     void jjtreeCloseNodeScope(Node n) {
+    }
+
+    public SymbolTable createSymbolTable() {
+        return Symbols.table(labels.values());
     }
 
     public void addLabel(Token token) {

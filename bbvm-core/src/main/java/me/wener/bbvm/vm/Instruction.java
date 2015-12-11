@@ -25,7 +25,7 @@ public class Instruction {
     CalculateType calculateType;
     CompareType compareType;
     DataType dataType;
-    VM vm;
+    transient VM vm;
 
     public VM getVm() {
         return vm;
@@ -130,7 +130,7 @@ public class Instruction {
                 .toString();
     }
 
-    public Instruction read(ByteBuf buf, int offset) {
+    public Instruction read(ByteBuf buf, int address) {
         /*
    指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
 0x 0       0         0           0        00000000     00000000
@@ -148,7 +148,7 @@ JPC指令 6byte
    指令码 + 比较操作 + 保留字节 + 寻址方式 + 第一个操作数
 0x 0       0         0        0        00000000
         */
-
+        int offset = address;
         short first = buf.getUnsignedByte(offset++);
         opcode = fromInt(Opcode.class, first >> 4);
         switch (opcode) {
@@ -181,6 +181,7 @@ JPC指令 6byte
                 a.addressingMode = fromInt(AddressingMode.class, addressingMode / 4);
                 b.addressingMode = fromInt(AddressingMode.class, addressingMode % 4);
                 a.setValue(buf.getInt(offset));
+
                 offset += 4;
                 b.setValue(buf.getInt(offset));
 
@@ -303,8 +304,8 @@ JPC指令 6byte
 
     public Instruction reset() {
         opcode = null;
-        a.setAddressingMode(null).setValue(0);
-        b.setAddressingMode(null).setValue(0);
+        a.reset();
+        b.reset();
         calculateType = null;
         compareType = null;
         dataType = null;

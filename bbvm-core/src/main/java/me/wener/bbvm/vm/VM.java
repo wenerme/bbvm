@@ -25,6 +25,7 @@ public class VM {
     final Register rb = new Register(RegisterType.RB, this);
     final Register rp = new Register(RegisterType.RP, this);
     Memory memory;
+    SymbolTable symbolTable;
     private boolean exit = false;
 
     public VM() {
@@ -73,6 +74,15 @@ public class VM {
                 break;
         }
         return vc;
+    }
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
+    }
+
+    public VM setSymbolTable(SymbolTable symbolTable) {
+        this.symbolTable = symbolTable;
+        return this;
     }
 
     boolean hasRemaining() {
@@ -246,6 +256,10 @@ public class VM {
                 return r3;
         }
         throw new UnsupportedOperationException();
+    }
+
+    public Symbol getSymbol(int address) {
+        return symbolTable != null ? symbolTable.getSymbol(address) : null;
     }
 
     private class InstructionIterable implements Iterable<Instruction> {

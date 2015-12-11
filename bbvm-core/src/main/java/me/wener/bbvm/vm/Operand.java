@@ -90,12 +90,22 @@ public class Operand extends MutableInt {
             case REGISTER_DEFERRED:
                 return "[" + fromInt(RegisterType.class, intValue()) + "]";
             case IMMEDIATE:
+                if ((symbol == null || symbol.getAddress() != intValue()) && vm != null)
+                    symbol = vm.getSymbol(intValue());
                 return String.valueOf(symbol != null ? symbol.getName() : intValue());
             case DIRECT:
+                if ((symbol == null || symbol.getAddress() != intValue()) && vm != null)
+                    symbol = vm.getSymbol(intValue());
                 return "[" + (symbol != null ? symbol.getName() : intValue()) + "]";
             default:
                 throw new AssertionError();
         }
+    }
+
+    public void reset() {
+        symbol = null;
+        setValue(0);
+        addressingMode = null;
     }
 
     public Operand set(float v) {

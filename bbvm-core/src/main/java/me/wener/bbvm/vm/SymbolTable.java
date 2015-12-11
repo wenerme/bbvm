@@ -1,6 +1,7 @@
 package me.wener.bbvm.vm;
 
 import java.util.Map;
+import java.util.NavigableMap;
 
 /**
  * @author wener
@@ -9,5 +10,9 @@ import java.util.Map;
 public interface SymbolTable {
     Symbol getSymbol(String name);
 
-    Map<String, Symbol> getSymbols();
+    Symbol getSymbol(int address);
+
+    Map<String, Symbol> getNameMap();
+
+    NavigableMap<Integer, Symbol> getAddressMap();
 }
