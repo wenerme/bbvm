@@ -40,7 +40,7 @@ public class BaseBBAsmParser {
         return Symbols.table(labels.values());
     }
 
-    public void addLabel(Token token) {
+    public Label addLabel(Token token) {
         String name = labelName(token);
         Label label = labels.get(name);
         if (label != null) {
@@ -52,10 +52,18 @@ public class BaseBBAsmParser {
         }
         labels.put(label.name, label);
         assemblies.add(label);
+        return label;
     }
 
     public void add(Instruction instruction) {
         assemblies.add(new Inst(instruction));
+    }
+
+    public void add(Assembly assembly) {
+        if (assembly instanceof Label) {
+            labels.put(((Label) assembly).getName(), (Label) assembly);
+        }
+        assemblies.add(assembly);
     }
 
     public void addLabelOperand(Token token, Operand operand) {

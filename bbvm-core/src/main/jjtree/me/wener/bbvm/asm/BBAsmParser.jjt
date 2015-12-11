@@ -41,7 +41,10 @@ SKIP:
 |   "\f"
 }
 
-TOKEN :{<NL: "\n">}
+TOKEN :{
+    <NL: "\n">
+    | <SPACE: " " | "\t" | "\f" | "\r" >
+}
 
 TOKEN :
 {
@@ -58,6 +61,7 @@ TOKEN :
 	| <I_POP:	"POP">
 	| <I_PUSH:	"PUSH">
 	| <I_RET:	"RET">
+	| <I_DATA:  "DATA">
 }
 
 // T prefix for Token
@@ -65,6 +69,7 @@ TOKEN :
 {
     <T_REGISTER : "R0" | "R1" | "R2" | "R3" | "RP" | "RF" |"RS" | "RB">
     | <DATA_TYPE: "DWORD" | "WORD" | "BYTE" | "FLOAT" | "INT">
+    | <PSEUDO_DATA_TYPE: <DATA_TYPE> | "CHAR" >
     | <CAL_OP: "ADD" | "SUB" | "MUL" | "DIV" | "MOD">
     | <CMP_OP: "Z" | "B" | "BE" | "A" | "AE" | "NZ">
     | <T_LABEL: <IDENTIFIER> ([" "])* <COLON>>
@@ -76,22 +81,25 @@ SPECIAL_TOKEN :
 {
 // Must not consume the \n
 //  < SINGLE_LINE_COMMENT: "'"(~["\n","\r"])* ("\n"|"\r"|"\r\n")? >
-  < SINGLE_LINE_COMMENT: "'"(~["\n","\r"])* >{System.out.println("You meet me {} !"+matchedToken);}
+  < SINGLE_LINE_COMMENT: ("'"|";") (~["\n","\r"])* >
 }
 
 List<Assembly> start():{
     Instruction inst = null;
+    Assembly asm = null;
     Token o = null;
-    boolean empty = true;
+    boolean empty = false;
 }
 {
      (
         (
-            <NL>
+            <NL>{empty=true;}
             |LOOKAHEAD(2) (
-                o = <T_LABEL>{addLabel(o);empty=false;}
-                | inst = instruction(){add(inst);empty=false;}
+                o = <T_LABEL>{addLabel(o);}
+                | inst = instruction(){add(inst);}
+                | asm = pseudoData(){add(asm);}
             ) <NL>
+            // DATA ID [DT] _DATA,_DATA
         )
         {
            // Test current token
@@ -99,7 +107,7 @@ List<Assembly> start():{
                addComment(token.specialToken, empty);
                log.debug("Deal here {}", token.specialToken);
            }
-           empty = true;
+           empty = false;
         }
      )*
      <EOF>
@@ -107,6 +115,39 @@ List<Assembly> start():{
         return assemblies;
      }
 }
+
+
+PseudoData pseudoData():{
+    PseudoData pseudo = new PseudoData();
+    Value v;
+    Token t,dt = null;
+}{
+    <I_DATA> t = <IDENTIFIER> (dt = <PSEUDO_DATA_TYPE>)? v = valueLiteral() {pseudo.add(v);} (<COMMA> v = valueLiteral(){pseudo.add(v);})*
+    {
+        pseudo.token = t;
+        pseudo.name = t.image;
+        pseudo.dataTypeToken = dt;
+        return pseudo;
+    }
+}
+
+
+Value valueLiteral():{
+    Value v;
+    Token t;
+}{
+    // N based bytes ?
+    LOOKAHEAD(2) v = numberValueLiteral(){return v;}
+    |LOOKAHEAD(2) t = <STRING_LITERAL>{return Value.forString(t);}
+    |LOOKAHEAD(2) <FLOATING_POINT_LITERAL>{return Value.forFloat(token);}
+}
+Value numberValueLiteral():{
+    Token t = null;
+}
+{
+    t = <INTEGER_LITERAL>{return Value.forInteger(t);}
+}
+
 
 Instruction instruction():{
     Instruction inst = new Instruction();
@@ -132,26 +173,17 @@ Instruction instruction():{
     }
 }
 
-//Token oneOp():{
-//    Token o = null;
-//}{
-//    (o = <I_CALL> |o = <I_PUSH> |o = <I_POP> |o = <I_JPC>){return o;}
-//}
-
 Operand operand():{
     Operand op = new Operand();
     Token token;
+    Value v;
 }
 {
 
     (
         token = <T_REGISTER> {op.setValue(RegisterType.valueOf(token.image.toUpperCase())).setAddressingMode(REGISTER);}
-        | token = <INTEGER_LITERAL> {op.setAddressingMode(IMMEDIATE).setValue(Integer.parseInt(token.image));}
-//        | "["
-//                token = <T_REGISTER>{op.setValue(RegisterType.valueOf(token.image.toUpperCase())).setAddressingMode(REGISTER_DEFERRED);}
-//                | token = <INTEGER_LITERAL>{op.setAddressingMode(DIRECT).setValue(Integer.parseInt(token.image));}
-//            "]"
-        | token = <IDENTIFIER>{op.setAddressingMode(IMMEDIATE).setValue(-1);addLabelOperand(token,op);}
+        |LOOKAHEAD(2) token = <IDENTIFIER>{op.setAddressingMode(IMMEDIATE).setValue(-1);addLabelOperand(token,op);}
+        |LOOKAHEAD(2) token = <INTEGER_LITERAL> {op.setAddressingMode(IMMEDIATE).setValue(Integer.parseInt(token.image));}
         |LOOKAHEAD(2) <LBRACKET> token = <INTEGER_LITERAL> <RBRACKET> {op.setAddressingMode(DIRECT).setValue(Integer.parseInt(token.image));}
         |LOOKAHEAD(2) <LBRACKET> token = <IDENTIFIER> <RBRACKET> {op.setAddressingMode(DIRECT).setValue(-1);addLabelOperand(token,op);}
         |LOOKAHEAD(2) <LBRACKET> token = <T_REGISTER> <RBRACKET> {op.setValue(RegisterType.valueOf(token.image.toUpperCase())).setAddressingMode(REGISTER_DEFERRED);}
@@ -164,35 +196,28 @@ Operand operand():{
 // =========================================
 // From java-1.7.jj
 // =========================================
-
 TOKEN :
 {
-  < INTEGER_LITERAL:
-        <DECIMAL_LITERAL>
-      | <HEX_LITERAL>
-      | <BINARY_LITERAL>
-      | <OCTAL_LITERAL>
+  < #POSITIVE_INTEGER_LITERAL:
+        <DECIMAL_LITERAL> (["l","L"])?
+      | <HEX_LITERAL> (["l","L"])?
+      | <BINARY_LITERAL> (["l","L"])?
+      | <OCTAL_LITERAL> (["l","L"])?
   >
-|
-  < #DECIMAL_LITERAL: ["1"-"9"] ((["_"])*["0"-"9"])* >      // Java 7 allows underscores
-|
-  < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])((["_"])*["0"-"9","a"-"f","A"-"F"])* >      // Java 7 allows underscores
-|
-  < #BINARY_LITERAL: "0" ["b","B"] (["0"-"1"])((["_"])*["0"-"1"])* >   // new for Java 7, also allows underscores
-|
-  < #OCTAL_LITERAL: "0" ((["_"])*(["0"-"7"]))* >      // Java 7 allows underscores
-|
-  < FLOATING_POINT_LITERAL:
+| <INTEGER_LITERAL: (<MINUS> (<SPACE>)*)? <POSITIVE_INTEGER_LITERAL>>
+| < #DECIMAL_LITERAL: ["1"-"9"] ((["_"])*["0"-"9"])* >      // Java 7 allows underscores
+| < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])((["_"])*["0"-"9","a"-"f","A"-"F"])* >      // Java 7 allows underscores
+| < #BINARY_LITERAL: "0" ["b","B"] (["0"-"1"])((["_"])*["0"-"1"])* >   // new for Java 7, also allows underscores
+| < #OCTAL_LITERAL: "0" ((["_"])*(["0"-"7"]))* >      // Java 7 allows underscores
+| < FLOATING_POINT_LITERAL:
         (["0"-"9"])((["_"])*(["0"-"9"]))* "." ((["0"-"9"])((["_"])*(["0"-"9"]))*)* (<EXPONENT>)? (["f","F","d","D"])?
       | "." (["0"-"9"])((["_"])*(["0"-"9"]))* (<EXPONENT>)? (["f","F","d","D"])?
       | (["0"-"9"])((["_"])*(["0"-"9"]))* <EXPONENT> (["f","F","d","D"])?
       | (["0"-"9"])((["_"])*(["0"-"9"]))* (<EXPONENT>)? ["f","F","d","D"]
   >
 
-|
-  < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
-|
-  < CHARACTER_LITERAL:
+| < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+| < CHARACTER_LITERAL:
       "'"
       (   (~["'","\\","\n","\r"])
         | ("\\"
@@ -204,8 +229,7 @@ TOKEN :
       )
       "'"
   >
-|
-  < STRING_LITERAL:
+| < STRING_LITERAL:
       "\""
       (   (~["\"","\\","\n","\r"])
         | ("\\"
@@ -218,6 +242,7 @@ TOKEN :
       "\""
   >
 }
+
 
 /* IDENTIFIERS */
 
@@ -274,7 +299,7 @@ TOKEN :
 | < RBRACE: "}" >
 | < LBRACKET: "[" >
 | < RBRACKET: "]" >
-| < SEMICOLON: ";" >
+//| < SEMICOLON: ";" >
 | < COMMA: "," >
 | < DOT: "." >
 | < AT: "@" >

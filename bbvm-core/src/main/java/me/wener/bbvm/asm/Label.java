@@ -12,10 +12,13 @@ import java.util.List;
  * @since 15/12/11
  */
 public class Label extends AbstractAssembly implements Symbol, Assembly {
-    final String name;
+    String name;
     int address = -1;
     List<OperandInfo> operands = Lists.newArrayList();
-    private Token token;
+    Token token;
+
+    public Label() {
+    }
 
     public Label(String name, Token token) {
         this.token = token;
