@@ -3,6 +3,8 @@ package me.wener.bbvm.asm;
 import com.google.common.collect.Maps;
 import me.wener.bbvm.vm.Operand;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -10,13 +12,13 @@ import java.util.Map;
  * @since 15/12/10
  */
 public class BaseBBAsmParser {
-
+    List<Assembly> instructions = new ArrayList<>();
     Map<String, Label> labels = Maps.newHashMap();
 
     static String labelName(Token token) {
         String image = token.image;
         if (image.endsWith(":")) {
-            image = image.substring(image.length() - 1);
+            image = image.substring(0, image.length() - 1).trim();
         }
         return image;
     }
@@ -27,14 +29,22 @@ public class BaseBBAsmParser {
     void jjtreeCloseNodeScope(Node n) {
     }
 
-    public void addLabel(Token token) {
+    public void add(Token token) {
         String name = labelName(token);
         Label label = labels.get(name);
         if (label != null) {
-            throw new RuntimeException("Label already exists " + label);
+            if (label.token != null)
+                throw new RuntimeException("Label already exists " + label);
+            label.token = token;
+        } else {
+            label = new Label(name, token);
         }
-        label = new Label(name, token);
         labels.put(label.name, label);
+        instructions.add(label);
+    }
+
+    public void add(me.wener.bbvm.vm.Instruction instruction) {
+        instructions.add(new Inst(instruction));
     }
 
     public void addLabelOperand(Token token, Operand operand) {
@@ -48,6 +58,10 @@ public class BaseBBAsmParser {
         label.addOperand(token, operand);
     }
 
+    public List<Assembly> getAssemblies() {
+        return instructions;
+    }
+
     public void checkLabel() {
         // All label are addressed
         for (Label label : labels.values()) {
@@ -59,4 +73,5 @@ public class BaseBBAsmParser {
             }
         }
     }
+
 }

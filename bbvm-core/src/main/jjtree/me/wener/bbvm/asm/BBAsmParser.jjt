@@ -67,12 +67,11 @@ TOKEN :
     | <DATA_TYPE: "DWORD" | "WORD" | "BYTE" | "FLOAT" | "INT">
     | <CAL_OP: "ADD" | "SUB" | "MUL" | "DIV" | "MOD">
     | <CMP_OP: "Z" | "B" | "BE" | "A" | "AE" | "NZ">
-    | <T_LABEL: <IDENTIFIER> <COLON>>
+    | <T_LABEL: <IDENTIFIER> ([" "])* <COLON>>
 }
 
 
-List<Instruction> start():{
-    List<Instruction> instructions = new ArrayList<Instruction>();
+List<Assembly> start():{
     Instruction inst;
     Token token;
 }
@@ -80,9 +79,8 @@ List<Instruction> start():{
      (
         "\n"
         |LOOKAHEAD(2) (
-            token = <IDENTIFIER> <COLON>{addLabel(token);}
-            | token = <T_LABEL>{addLabel(token);}
-            | inst = instruction(){instructions.add(inst);}
+            token = <T_LABEL>{add(token);}
+            | inst = instruction(){add(inst);}
         ) "\n"
      )*
      <EOF>

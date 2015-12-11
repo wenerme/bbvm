@@ -11,7 +11,7 @@ import java.util.List;
  * @author wener
  * @since 15/12/11
  */
-public class Label implements Symbol {
+public class Label implements Symbol, Assembly {
     final String name;
     int address = -1;
     List<OperandInfo> operands = Lists.newArrayList();
@@ -56,6 +56,16 @@ public class Label implements Symbol {
     public void addOperand(Token token, Operand operand) {
         operand.setSymbol(this).setValue(address);
         operands.add(new Label.OperandInfo(operand, token));
+    }
+
+    @Override
+    public Type getType() {
+        return Type.LABEL;
+    }
+
+    @Override
+    public String toAssembly() {
+        return token.toString();
     }
 
     static class OperandInfo {
