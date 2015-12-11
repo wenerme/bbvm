@@ -79,6 +79,17 @@ public class BaseBBAsmParser {
         }
     }
 
+    public void estimateLabelAddress() {
+        int pos = 0;
+        for (Assembly assembly : assemblies) {
+            if (assembly.getType() == Assembly.Type.LABEL) {
+                ((Label) assembly).setAddress(pos);
+            } else {
+                pos += assembly.length();
+            }
+        }
+    }
+
     public void addComment(Token token, boolean isFullLine) {
         if (isFullLine) {
             assemblies.add(new Comment(token));

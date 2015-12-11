@@ -1,5 +1,7 @@
 package me.wener.bbvm.asm;
 
+import io.netty.buffer.ByteBuf;
+
 /**
  * @author wener
  * @since 15/12/11
@@ -36,6 +38,21 @@ public class Comment implements Assembly {
     @Override
     public void setComment(Comment comment) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean hasComment() {
+        return true;
+    }
+
+    @Override
+    public int length() {
+        return 0;
+    }
+
+    @Override
+    public void write(ByteBuf buf) {
+
     }
 
     @Override

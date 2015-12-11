@@ -7,6 +7,7 @@ import org.apache.commons.io.HexDump;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * 与 Stringer 类似,但是会输出更多调试相关的信息
@@ -28,7 +29,7 @@ public class Dumper
             return "00000000 \n";
         }
 
-        return hexDump(buf.array(), buf.readerIndex());
+        return hexDump(Arrays.copyOfRange(buf.array(), buf.readerIndex(), buf.readableBytes()), buf.readerIndex());
     }
 
     public static String hexDump(ByteBuf buf)

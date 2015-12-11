@@ -1,5 +1,6 @@
 package me.wener.bbvm.asm;
 
+import io.netty.buffer.ByteBuf;
 import me.wener.bbvm.vm.Instruction;
 
 /**
@@ -30,5 +31,15 @@ public class Inst extends AbstractAssembly implements Assembly {
     @Override
     public String toString() {
         return instruction.toString();
+    }
+
+    @Override
+    public void write(ByteBuf buf) {
+        instruction.write(buf);
+    }
+
+    @Override
+    public int length() {
+        return instruction.getOpcode().length();
     }
 }

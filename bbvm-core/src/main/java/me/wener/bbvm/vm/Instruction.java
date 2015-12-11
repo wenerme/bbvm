@@ -207,6 +207,48 @@ JPC指令 6byte
     }
 
     public Instruction write(ByteBuf buf) {
+        switch (opcode) {
+            case RET:
+            case NOP:
+            case EXIT: {
+                // 无操作数
+                buf.writeByte(opcode.asInt() << 4);
+            }
+            break;
+            case POP:
+            case PUSH:
+            case CALL:
+            case JMP: {
+                // 一个操作数
+                buf.writeByte(opcode.asInt() << 4 | a.addressingMode.asInt());
+                buf.writeInt(a.intValue());
+            }
+            break;
+            case LD:
+            case IN:
+            case OUT:
+            case CAL:
+            case CMP: {
+                // 两个操作数
+                buf.writeByte(opcode.asInt() << 4 | dataType.asInt());
+                if (opcode == Opcode.CAL) {
+                    buf.writeByte(calculateType.asInt() << 4 | (a.addressingMode.asInt() << 2 | b.addressingMode.asInt()));
+                } else {
+                    buf.writeByte(a.addressingMode.asInt() << 2 | b.addressingMode.asInt());
+                }
+                buf.writeInt(a.intValue()).writeInt(b.intValue());
+            }
+            break;
+
+            case JPC: {
+                buf.writeByte(opcode.asInt() << 4 | compareType.asInt());
+                buf.writeByte(a.addressingMode.asInt());
+                buf.writeInt(a.intValue());
+            }
+            break;
+            default:
+                throw new UnsupportedOperationException();
+        }
         return this;
     }
 

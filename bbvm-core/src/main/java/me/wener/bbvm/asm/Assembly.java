@@ -1,5 +1,7 @@
 package me.wener.bbvm.asm;
 
+import io.netty.buffer.ByteBuf;
+
 /**
  * @author wener
  * @since 15/12/11
@@ -17,6 +19,13 @@ public interface Assembly {
     void setComment(Comment comment);
 
     boolean hasComment();
+
+    /**
+     * @return The length of this assembly
+     */
+    int length();
+
+    void write(ByteBuf buf);
 
     enum Type {
         LABEL, COMMENT, PSEUDO, INST

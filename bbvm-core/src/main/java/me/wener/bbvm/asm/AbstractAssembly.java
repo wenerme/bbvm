@@ -1,5 +1,7 @@
 package me.wener.bbvm.asm;
 
+import io.netty.buffer.ByteBuf;
+
 /**
  * @author wener
  * @since 15/12/11
@@ -21,5 +23,15 @@ abstract class AbstractAssembly implements Assembly {
 
     public boolean hasComment() {
         return comment != null;
+    }
+
+    @Override
+    public void write(ByteBuf buf) {
+
+    }
+
+    @Override
+    public int length() {
+        return 0;
     }
 }

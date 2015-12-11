@@ -5,6 +5,8 @@ import me.wener.bbvm.util.val.IntEnums;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
+
 import static com.google.common.base.Preconditions.checkState;
 
 /**
@@ -92,6 +94,10 @@ public class VM {
                 rp.add(instruction.getOpcode().length());
             }
         }
+    }
+
+    public Iterable<Instruction> instructions(final Instruction instruction, final int position) {
+        return new InstructionIterable(position, instruction);
     }
 
     public Memory getMemory() {
@@ -240,5 +246,34 @@ public class VM {
                 return r3;
         }
         throw new UnsupportedOperationException();
+    }
+
+    private class InstructionIterable implements Iterable<Instruction> {
+        private final int position;
+        private final Instruction instruction;
+
+        public InstructionIterable(int position, Instruction instruction) {
+            this.position = position;
+            this.instruction = instruction;
+        }
+
+        @Override
+        public Iterator<Instruction> iterator() {
+            return new Iterator<Instruction>() {
+                int pos = position;
+
+                @Override
+                public boolean hasNext() {
+                    return pos < memory.getMemorySize();
+                }
+
+                @Override
+                public Instruction next() {
+                    instruction.reset().read(memory.getByteBuf(), pos);
+                    pos += instruction.opcode.length();
+                    return instruction;
+                }
+            };
+        }
     }
 }
