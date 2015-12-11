@@ -1,9 +1,13 @@
 package me.wener.bbvm.asm;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.wener.bbvm.vm.Instruction;
 import me.wener.bbvm.vm.Operand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +16,8 @@ import java.util.Map;
  * @since 15/12/10
  */
 public class BaseBBAsmParser {
-    List<Assembly> instructions = new ArrayList<>();
+    protected final static Logger log = LoggerFactory.getLogger(BBAsmParser.class);
+    LinkedList<Assembly> assemblies = Lists.newLinkedList();
     Map<String, Label> labels = Maps.newHashMap();
 
     static String labelName(Token token) {
@@ -29,22 +34,22 @@ public class BaseBBAsmParser {
     void jjtreeCloseNodeScope(Node n) {
     }
 
-    public void add(Token token) {
+    public void addLabel(Token token) {
         String name = labelName(token);
         Label label = labels.get(name);
         if (label != null) {
-            if (label.token != null)
+            if (label.getToken() != null)
                 throw new RuntimeException("Label already exists " + label);
-            label.token = token;
+            label.setToken(token);
         } else {
             label = new Label(name, token);
         }
         labels.put(label.name, label);
-        instructions.add(label);
+        assemblies.add(label);
     }
 
-    public void add(me.wener.bbvm.vm.Instruction instruction) {
-        instructions.add(new Inst(instruction));
+    public void add(Instruction instruction) {
+        assemblies.add(new Inst(instruction));
     }
 
     public void addLabelOperand(Token token, Operand operand) {
@@ -59,13 +64,13 @@ public class BaseBBAsmParser {
     }
 
     public List<Assembly> getAssemblies() {
-        return instructions;
+        return assemblies;
     }
 
     public void checkLabel() {
         // All label are addressed
         for (Label label : labels.values()) {
-            if (label.token == null) {
+            if (label.getToken() == null) {
                 throw new RuntimeException("Undefined label " + label);
             }
             if (label.address < 0) {
@@ -74,4 +79,11 @@ public class BaseBBAsmParser {
         }
     }
 
+    public void addComment(Token token, boolean isFullLine) {
+        if (isFullLine) {
+            assemblies.add(new Comment(token));
+        } else {
+            assemblies.getLast().setComment(new Comment(token));
+        }
+    }
 }

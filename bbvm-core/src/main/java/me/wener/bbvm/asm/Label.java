@@ -11,11 +11,11 @@ import java.util.List;
  * @author wener
  * @since 15/12/11
  */
-public class Label implements Symbol, Assembly {
+public class Label extends AbstractAssembly implements Symbol, Assembly {
     final String name;
     int address = -1;
     List<OperandInfo> operands = Lists.newArrayList();
-    Token token;
+    private Token token;
 
     public Label(String name, Token token) {
         this.token = token;
@@ -24,6 +24,15 @@ public class Label implements Symbol, Assembly {
 
     public Label(String name) {
         this.name = name;
+    }
+
+    public Token getToken() {
+        return token;
+    }
+
+    public Label setToken(Token token) {
+        this.token = token;
+        return this;
     }
 
     public int getAddress() {
@@ -48,6 +57,7 @@ public class Label implements Symbol, Assembly {
         return MoreObjects.toStringHelper(this)
                 .add("name", name)
                 .add("address", address)
+                .add("comment", comment)
                 .add("line", token != null ? token.beginLine : -1)
                 .add("column", token != null ? token.beginColumn : -1)
                 .toString();
@@ -65,8 +75,9 @@ public class Label implements Symbol, Assembly {
 
     @Override
     public String toAssembly() {
-        return token.toString();
+        return token.toString() + commentAssembly();
     }
+
 
     static class OperandInfo {
         Operand operand;

@@ -6,8 +6,8 @@ import me.wener.bbvm.vm.Instruction;
  * @author wener
  * @since 15/12/11
  */
-public class Inst implements Assembly {
-    private me.wener.bbvm.vm.Instruction instruction;
+public class Inst extends AbstractAssembly implements Assembly {
+    private Instruction instruction;
 
     public Inst(Instruction instruction) {
         this.instruction = instruction;
@@ -18,13 +18,13 @@ public class Inst implements Assembly {
         return Type.INST;
     }
 
-    public me.wener.bbvm.vm.Instruction getInstruction() {
+    public Instruction getInstruction() {
         return instruction;
     }
 
     @Override
     public String toAssembly() {
-        return instruction.toAssembly();
+        return instruction.toAssembly() + commentAssembly();
     }
 
     @Override

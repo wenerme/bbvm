@@ -38,9 +38,11 @@ SKIP:
     " "
 |   "\t"
 |   "\r"
+|   "\f"
 }
 
-// NOP LD PUSH POP IN OUT JMP JPC CALL RET CMP CAL EXIT
+TOKEN :{<NL: "\n">}
+
 TOKEN :
 {
 	<I_CAL:	    "CAL">
@@ -56,8 +58,6 @@ TOKEN :
 	| <I_POP:	"POP">
 	| <I_PUSH:	"PUSH">
 	| <I_RET:	"RET">
-//	| <I_ONE_OP: <I_CALL> | <I_PUSH> | <I_POP> | <I_JMP>>
-//	| <I_TOW_OP: <I_IN> | <I_OUT>>
 }
 
 // T prefix for Token
@@ -70,22 +70,41 @@ TOKEN :
     | <T_LABEL: <IDENTIFIER> ([" "])* <COLON>>
 }
 
+/* COMMENTS */
+
+SPECIAL_TOKEN :
+{
+// Must not consume the \n
+//  < SINGLE_LINE_COMMENT: "'"(~["\n","\r"])* ("\n"|"\r"|"\r\n")? >
+  < SINGLE_LINE_COMMENT: "'"(~["\n","\r"])* >{System.out.println("You meet me {} !"+matchedToken);}
+}
 
 List<Assembly> start():{
-    Instruction inst;
-    Token token;
+    Instruction inst = null;
+    Token o = null;
+    boolean empty = true;
 }
 {
      (
-        "\n"
-        |LOOKAHEAD(2) (
-            token = <T_LABEL>{add(token);}
-            | inst = instruction(){add(inst);}
-        ) "\n"
+        (
+            <NL>
+            |LOOKAHEAD(2) (
+                o = <T_LABEL>{addLabel(o);empty=false;}
+                | inst = instruction(){add(inst);empty=false;}
+            ) <NL>
+        )
+        {
+           // Test current token
+           if (token.specialToken != null) {
+               addComment(token.specialToken, empty);
+               log.debug("Deal here {}", token.specialToken);
+           }
+           empty = true;
+        }
      )*
      <EOF>
      {
-        return instructions;
+        return assemblies;
      }
 }
 
