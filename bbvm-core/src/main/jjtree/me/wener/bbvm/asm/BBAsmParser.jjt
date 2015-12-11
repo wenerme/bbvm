@@ -56,9 +56,8 @@ TOKEN :
 	| <I_POP:	"POP">
 	| <I_PUSH:	"PUSH">
 	| <I_RET:	"RET">
-	| <I_NO_OP: <I_EXIT> | <I_RET> | <I_NOP>>
-	| <I_ONE_OP: <I_CALL> | <I_PUSH> | <I_POP> | <I_JMP>>
-	| <I_TOW_OP: <I_IN> | <I_OUT>>
+//	| <I_ONE_OP: <I_CALL> | <I_PUSH> | <I_POP> | <I_JMP>>
+//	| <I_TOW_OP: <I_IN> | <I_OUT>>
 }
 
 // T prefix for Token
@@ -88,20 +87,20 @@ List<Instruction> start():{
 
 Instruction instruction():{
     Instruction inst = new Instruction();
-    Token opcode = null,dataType = null,calType = null,cmpType = null;
+    Token o = null,dataType = null,calType = null,cmpType = null;
     Operand a = null,b = null;
 }
 {
     (
-        opcode = <I_NO_OP>
-        | opcode = <I_ONE_OP> a = operand()
-        | opcode = <I_TOW_OP> a = operand() "," b = operand()
-        | opcode = <I_CAL> dataType = <DATA_TYPE> calType = <CAL_OP> a = operand() "," b = operand()
-        | opcode = <I_LD> dataType = <DATA_TYPE> a = operand() "," b = operand()
-        | opcode = <I_JMP> cmpType = <CMP_OP> a = operand()
+        (o = <I_EXIT> | o = <I_RET> | o = <I_NOP>)
+        | (o = <I_CALL> |o = <I_PUSH> |o = <I_POP> |o = <I_JPC>) a = operand()
+        | (o = <I_IN> | o = <I_OUT>) a = operand() <COMMA> b = operand()
+        | o = <I_CAL> dataType = <DATA_TYPE> calType = <CAL_OP> a = operand() <COMMA> b = operand()
+        | o = <I_LD> dataType = <DATA_TYPE> a = operand() <COMMA> b = operand()
+        | o = <I_JMP> cmpType = <CMP_OP> a = operand()
     )
     {
-        inst.setOpcode(Opcode.valueOf(opcode.image.toUpperCase())).setA(a).setB(b);
+        inst.setOpcode(Opcode.valueOf(o.image.toUpperCase())).setA(a).setB(b);
         if(dataType != null) inst.setDataType(DataType.valueOf(dataType.image.toUpperCase()));
         if(cmpType != null) inst.setCompareType(CompareType.valueOf(cmpType.image.toUpperCase()));
         if(calType != null) inst.setCalculateType(CalculateType.valueOf(calType.image.toUpperCase()));
@@ -110,11 +109,18 @@ Instruction instruction():{
     }
 }
 
+//Token oneOp():{
+//    Token o = null;
+//}{
+//    (o = <I_CALL> |o = <I_PUSH> |o = <I_POP> |o = <I_JPC>){return o;}
+//}
+
 Operand operand():{
     Operand op = new Operand();
     Token token;
 }
 {
+
     (
         token = <T_REGISTER> {op.setValue(RegisterType.valueOf(token.image.toUpperCase())).setAddressingMode(REGISTER);}
         | token = <INTEGER_LITERAL> {op.setAddressingMode(IMMEDIATE).setValue(Integer.parseInt(token.image));}
@@ -122,7 +128,8 @@ Operand operand():{
 //                token = <T_REGISTER>{op.setValue(RegisterType.valueOf(token.image.toUpperCase())).setAddressingMode(REGISTER_DEFERRED);}
 //                | token = <INTEGER_LITERAL>{op.setAddressingMode(DIRECT).setValue(Integer.parseInt(token.image));}
 //            "]"
-//        | "[" token = <INTEGER_LITERAL> "]" {op.setAddressingMode(DIRECT).setValue(Integer.parseInt(token.image));}
+        |LOOKAHEAD(2) <LBRACKET> token = <INTEGER_LITERAL> <RBRACKET> {op.setAddressingMode(DIRECT).setValue(Integer.parseInt(token.image));}
+        |LOOKAHEAD(2) <LBRACKET> token = <T_REGISTER> <RBRACKET> {op.setValue(RegisterType.valueOf(token.image.toUpperCase())).setAddressingMode(REGISTER_DEFERRED);}
     )
     {
         return op;
@@ -228,4 +235,20 @@ TOKEN :
        "\u1040"-"\u1049"
       ]
   >
+}
+
+/* SEPARATORS */
+
+TOKEN :
+{
+  < LPAREN: "(" >
+| < RPAREN: ")" >
+| < LBRACE: "{" >
+| < RBRACE: "}" >
+| < LBRACKET: "[" >
+| < RBRACKET: "]" >
+| < SEMICOLON: ";" >
+| < COMMA: "," >
+| < DOT: "." >
+| < AT: "@" >
 }
