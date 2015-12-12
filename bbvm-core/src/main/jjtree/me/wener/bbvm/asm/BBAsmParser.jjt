@@ -84,7 +84,7 @@ SPECIAL_TOKEN :
   < SINGLE_LINE_COMMENT: ("'"|";") (~["\n","\r"])* >
 }
 
-List<Assembly> start():{
+List<Assembly> Parse():{
     Instruction inst = null;
     Assembly asm = null;
     Token o = null;
@@ -96,8 +96,8 @@ List<Assembly> start():{
             <NL>{empty=true;}
             |LOOKAHEAD(2) (
                 o = <T_LABEL>{addLabel(o);}
-                | inst = instruction(){add(inst);}
-                | asm = pseudoData(){add(asm);}
+                | inst = Instruction(){add(inst);}
+                | asm = PseudoData(){add(asm);}
             ) <NL>
             // DATA ID [DT] _DATA,_DATA
         )
@@ -117,12 +117,12 @@ List<Assembly> start():{
 }
 
 
-PseudoData pseudoData():{
+PseudoData PseudoData():{
     PseudoData pseudo = new PseudoData();
     Value v;
     Token t,dt = null;
 }{
-    <I_DATA> t = <IDENTIFIER> (dt = <PSEUDO_DATA_TYPE>)? v = valueLiteral() {pseudo.add(v);} (<COMMA> v = valueLiteral(){pseudo.add(v);})*
+    <I_DATA> t = <IDENTIFIER> (dt = <PSEUDO_DATA_TYPE>)? v = ValueLiteral() {pseudo.add(v);} (<COMMA> v = ValueLiteral(){pseudo.add(v);})*
     {
         pseudo.token = t;
         pseudo.name = t.image;
@@ -132,24 +132,24 @@ PseudoData pseudoData():{
 }
 
 
-Value valueLiteral():{
+Value ValueLiteral():{
     Value v;
     Token t;
 }{
     // N based bytes ?
-    LOOKAHEAD(2) v = numberValueLiteral(){return v;}
+    LOOKAHEAD(2) v = integerValueLiteral(){return v;}
     |LOOKAHEAD(2) t = <STRING_LITERAL>{return Value.forString(t);}
-    |LOOKAHEAD(2) <FLOATING_POINT_LITERAL>{return Value.forFloat(token);}
+    |LOOKAHEAD(2) <FLOATING_POINT_LITERAL>{return Value.forNumber(token);}
 }
-Value numberValueLiteral():{
+Value integerValueLiteral():{
     Token t = null;
 }
 {
-    t = <INTEGER_LITERAL>{return Value.forInteger(t);}
+    t = <INTEGER_LITERAL>{return Value.forNumber(t);}
 }
 
 
-Instruction instruction():{
+Instruction Instruction():{
     Instruction inst = new Instruction();
     Token o = null,dataType = null,calType = null,cmpType = null;
     Operand a = null,b = null;
@@ -157,11 +157,11 @@ Instruction instruction():{
 {
     (
         (o = <I_EXIT> | o = <I_RET> | o = <I_NOP>)
-        | (o = <I_CALL> |o = <I_PUSH> |o = <I_POP> |o = <I_JMP>) a = operand()
-        | (o = <I_IN> | o = <I_OUT>) a = operand() <COMMA> b = operand()
-        | o = <I_CAL> dataType = <DATA_TYPE> calType = <CAL_OP> a = operand() <COMMA> b = operand()
-        | o = <I_LD> dataType = <DATA_TYPE> a = operand() <COMMA> b = operand()
-        | o = <I_JPC> cmpType = <CMP_OP> a = operand()
+        | (o = <I_CALL> |o = <I_PUSH> |o = <I_POP> |o = <I_JMP>) a = Operand()
+        | (o = <I_IN> | o = <I_OUT>) a = Operand() <COMMA> b = Operand()
+        | o = <I_CAL> dataType = <DATA_TYPE> calType = <CAL_OP> a = Operand() <COMMA> b = Operand()
+        | o = <I_LD> dataType = <DATA_TYPE> a = Operand() <COMMA> b = Operand()
+        | o = <I_JPC> cmpType = <CMP_OP> a = Operand()
     )
     {
         inst.setOpcode(Opcode.valueOf(o.image.toUpperCase())).setA(a).setB(b);
@@ -173,7 +173,7 @@ Instruction instruction():{
     }
 }
 
-Operand operand():{
+Operand Operand():{
     Operand op = new Operand();
     Token token;
     Value v;

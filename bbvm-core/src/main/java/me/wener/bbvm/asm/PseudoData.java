@@ -1,6 +1,7 @@
 package me.wener.bbvm.asm;
 
 import com.google.common.collect.Lists;
+import io.netty.buffer.ByteBuf;
 
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +21,13 @@ public class PseudoData extends Label implements Assembly {
 
     public void add(Value data) {
         values.add(data);
+    }
+
+    @Override
+    public void write(ByteBuf buf) {
+        for (Value value : values) {
+            value.write(buf);
+        }
     }
 
     @Override
