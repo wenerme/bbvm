@@ -239,7 +239,12 @@ JPC指令 6byte
             case CAL:
             case CMP: {
                 // 两个操作数
-                buf.writeByte(opcode.asInt() << 4 | dataType.asInt());
+                if (dataType == null) {
+                    buf.writeByte(opcode.asInt() << 4);
+                } else {
+                    buf.writeByte(opcode.asInt() << 4 | dataType.asInt());
+                }
+
                 if (opcode == Opcode.CAL) {
                     buf.writeByte(calculateType.asInt() << 4 | (a.addressingMode.asInt() << 2 | b.addressingMode.asInt()));
                 } else {

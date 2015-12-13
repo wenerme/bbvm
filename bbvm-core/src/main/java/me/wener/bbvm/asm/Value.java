@@ -40,7 +40,7 @@ public class Value {
                 break;
         }
 
-        if (type != null) {
+        if (type == null) {
             if (doubleValue == (int) doubleValue) {
                 type = Type.INTEGER;
             } else if (doubleValue == (float) doubleValue) {

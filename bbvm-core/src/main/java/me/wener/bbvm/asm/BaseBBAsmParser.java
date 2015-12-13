@@ -2,6 +2,7 @@ package me.wener.bbvm.asm;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.netty.buffer.ByteBuf;
 import me.wener.bbvm.vm.Instruction;
 import me.wener.bbvm.vm.Operand;
 import me.wener.bbvm.vm.SymbolTable;
@@ -93,7 +94,17 @@ class BaseBBAsmParser {
         }
     }
 
-    public void estimateLabelAddress() {
+    public ByteBuf write(ByteBuf buf) {
+        for (Assembly assembly : assemblies) {
+            assembly.write(buf);
+        }
+        return buf;
+    }
+
+    /**
+     * @return Estimated length
+     */
+    public int estimateLabelAddress() {
         int pos = 0;
         for (Assembly assembly : assemblies) {
             if (assembly.getType() == Assembly.Type.LABEL) {
@@ -102,6 +113,7 @@ class BaseBBAsmParser {
                 pos += assembly.length();
             }
         }
+        return pos;
     }
 
     public void addComment(Token token, boolean isFullLine) {

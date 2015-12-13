@@ -98,7 +98,7 @@ List<Assembly> Parse():{
                 o = <T_LABEL>{addLabel(o);}
                 | inst = Instruction(){add(inst);}
                 | asm = PseudoData(){add(asm);}
-            ) <NL>
+            ) (<NL>|<EOF>)
             // DATA ID [DT] _DATA,_DATA
         )
         {
@@ -137,11 +137,11 @@ Value ValueLiteral():{
     Token t;
 }{
     // N based bytes ?
-    LOOKAHEAD(2) v = integerValueLiteral(){return v;}
+    LOOKAHEAD(2) v = IntegerValueLiteral(){return v;}
     |LOOKAHEAD(2) t = <STRING_LITERAL>{return Value.forString(t);}
     |LOOKAHEAD(2) <FLOATING_POINT_LITERAL>{return Value.forNumber(token);}
 }
-Value integerValueLiteral():{
+Value IntegerValueLiteral():{
     Token t = null;
 }
 {
