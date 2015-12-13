@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class VM {
     private final static Logger log = LoggerFactory.getLogger(VM.class);
-
+    //    Injector injector;
     final Register r0 = new Register(RegisterType.R0, this);
     final Register r1 = new Register(RegisterType.R1, this);
     final Register r2 = new Register(RegisterType.R2, this);

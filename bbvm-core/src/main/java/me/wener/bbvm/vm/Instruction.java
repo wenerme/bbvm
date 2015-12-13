@@ -8,7 +8,7 @@ import static me.wener.bbvm.util.val.IntEnums.fromInt;
 
 
 /**
- * A uniformed instruction object
+ * A uniformed instruction target
  *
  * @author wener
  * @since 15/12/10

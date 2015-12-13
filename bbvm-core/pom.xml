@@ -13,7 +13,21 @@
 
 
     <dependencies>
-
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-multibindings</artifactId>
+            <version>4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.gwizard</groupId>
+            <artifactId>gwizard-services</artifactId>
+            <version>0.6</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

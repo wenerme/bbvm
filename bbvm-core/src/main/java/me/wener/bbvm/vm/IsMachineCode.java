@@ -8,7 +8,7 @@ import me.wener.bbvm.util.val.IsInt;
  */
 public interface IsMachineCode extends IsInt {
     /**
-     * @return The machine code of this object
+     * @return The machine code of this target
      */
     @Override
     int asInt();

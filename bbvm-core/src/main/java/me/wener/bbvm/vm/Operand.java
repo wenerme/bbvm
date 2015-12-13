@@ -117,6 +117,11 @@ public class Operand extends MutableInt {
         return Float.intBitsToFloat(get());
     }
 
+    public Operand setFloat(float v) {
+        set(Float.floatToRawIntBits(v));
+        return this;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
