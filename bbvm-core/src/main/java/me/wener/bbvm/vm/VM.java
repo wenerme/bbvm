@@ -1,11 +1,14 @@
 package me.wener.bbvm.vm;
 
 import io.netty.buffer.ByteBuf;
+import me.wener.bbvm.exception.ExecutionException;
 import me.wener.bbvm.util.val.IntEnums;
+import me.wener.bbvm.vm.invoke.BasicSystemInvoke;
 import me.wener.bbvm.vm.res.StringManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -27,8 +30,14 @@ public class VM {
     final Register rp = new Register(RegisterType.RP, this);
     Memory memory;
     SymbolTable symbolTable;
+    @Inject
     StringManager stringManager;
+    @Inject
+    SystemInvokeManager systemInvokeManager;
     private boolean exit = false;
+    @Inject
+    private Config config;
+    private Throwable lastError;
 
     public VM() {
     }
@@ -78,6 +87,11 @@ public class VM {
         return vc;
     }
 
+    @Inject
+    private void init(SystemInvokeManager systemInvokeManager) {
+        systemInvokeManager.register(new BasicSystemInvoke());
+    }
+
     public StringManager getStringManager() {
         return stringManager;
     }
@@ -102,7 +116,16 @@ public class VM {
         while (hasRemaining()) {
             last = rp.get();
             instruction.reset().read(buf, last);
-            run(instruction);
+            try {
+                run(instruction);
+            } catch (ExecutionException e) {
+                log.warn("Cache exception when > {} ' {} @ {}", instruction.toAssembly(), debugAsm(), instruction.address, e);
+                if (config.getErrorHandler().apply(e)) {
+                    exit = true;
+                    log.info("Exit due to error");
+                }
+                lastError = e;
+            }
             if (exit) {
                 return;
             }
@@ -143,7 +166,9 @@ public class VM {
 
     public void run(Instruction inst) {
         checkState(!exit, "Exited");
-        log.debug("{}", inst);
+        if (log.isTraceEnabled()) {
+            log.trace("{}", inst);
+        }
         log.debug("{} ' A={} B={} {}",
                 inst.toAssembly(),
                 inst.hasA() ? inst.getA().get() : "NaN",
@@ -171,11 +196,9 @@ public class VM {
             case POP:
                 a.set(pop());
                 break;
-            case IN:
-                in(a.get(), b.get());
-                break;
             case OUT:
-                out(a.get(), b.get());
+            case IN:
+                systemInvokeManager.invoke(inst);
                 break;
             case JMP:
                 jmp(a.get());
@@ -219,33 +242,28 @@ public class VM {
         return exit;
     }
 
-    public void jmp(int i) {
+    void jmp(int i) {
         rp.set(i);
     }
 
-    public void ret() {
+    void ret() {
         rp.set(pop());
     }
 
-    public VM push(int v) {
+    VM push(int v) {
         memory.push(v);
         return this;
     }
 
-    public int pop() {
+    int pop() {
         return memory.pop();
     }
 
-    public void in(int a, int b) {
-
-    }
-
-    public void out(int a, int b) {
-
-    }
-
     public String getString(int i) {
-        return null;
+        if (i >= 0) {
+            return memory.getString(i, config.getCharset());
+        }
+        return stringManager.getResource(i).getValue();
     }
 
     public Register getRegister(RegisterType type) {

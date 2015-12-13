@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 
 /**
  * @author wener
@@ -12,9 +13,9 @@ import java.nio.ByteOrder;
  */
 public class Memory {
     public static final int DEFAULT_MEMORY = 1024 * 1024 * 4;
-    ByteBuf mem;
     Register rs;
     Register rb;
+    private ByteBuf mem;
     private int memorySize;
     private int stackSize;
     private VM vm;
@@ -103,5 +104,19 @@ public class Memory {
     public Memory write(int addr, int v) {
         mem.setInt(addr, v);
         return this;
+    }
+
+    public String getString(int i, Charset charset) {
+        int end = i;
+        byte[] bytes = mem.array();
+        //noinspection StatementWithEmptyBody
+        while (bytes[end++] != 0) {
+            // Ignored
+        }
+        int length = end - i - 1;
+        if (length == 0) {
+            return "";
+        }
+        return new String(bytes, i, length, charset);
     }
 }

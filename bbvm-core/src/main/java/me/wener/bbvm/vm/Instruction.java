@@ -29,7 +29,7 @@ public class Instruction {
     /**
      * The address of this instruction in memory
      */
-    int address;
+    int address = -1;
 
     public VM getVm() {
         return vm;
@@ -43,6 +43,15 @@ public class Instruction {
         if (b != null) {
             b.setVm(vm);
         }
+        return this;
+    }
+
+    public int getAddress() {
+        return address;
+    }
+
+    public Instruction setAddress(int address) {
+        this.address = address;
         return this;
     }
 

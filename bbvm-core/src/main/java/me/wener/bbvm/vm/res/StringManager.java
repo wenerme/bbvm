@@ -1,6 +1,9 @@
 package me.wener.bbvm.vm.res;
 
 import com.google.common.collect.Maps;
+import me.wener.bbvm.exception.ResourceMissingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -11,13 +14,18 @@ import java.util.Map;
  * @since 15/12/13
  */
 public class StringManager implements ResourceManager<StringManager, StringResource> {
+    private final static Logger log = LoggerFactory.getLogger(StringManager.class);
     int handler = -1;
     // TODO Reuse handler ?
     Map<Integer, StringResource> resources = Maps.newHashMap();
 
     @Override
     public StringResource getResource(int handler) {
-        return resources.get(handler);
+        StringResource resource = resources.get(handler);
+        if (resource == null) {
+            throw new ResourceMissingException(getType(), handler);
+        }
+        return resource;
     }
 
     @Override
@@ -33,7 +41,10 @@ public class StringManager implements ResourceManager<StringManager, StringResou
 
     @Override
     public StringResource create() {
-        return new StringResource(this, handler++);
+        log.debug("Create string resource {}", handler);
+        StringResource resource = new StringResource(this, handler--);
+        resources.put(resource.getHandler(), resource);
+        return resource;
     }
 
     @Override

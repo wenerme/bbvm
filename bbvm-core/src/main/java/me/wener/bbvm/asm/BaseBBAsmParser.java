@@ -62,7 +62,16 @@ class BaseBBAsmParser {
 
     public void add(Assembly assembly) {
         if (assembly instanceof Label) {
-            labels.put(((Label) assembly).getName(), (Label) assembly);
+            Label label = (Label) assembly;
+            Label old = labels.get(label.getName());
+
+            if (old.getToken() == null) {
+                label.operands.addAll(old.operands);
+                labels.put(label.name, label);
+            } else {
+                throw new RuntimeException(String.format("Detect conflict label %s %s,%s <> %s,%s"
+                        , label.getName(), label.token.beginLine, label.token.beginColumn, old.token.beginLine, old.token.beginColumn));
+            }
         }
         assemblies.add(assembly);
     }
@@ -107,7 +116,7 @@ class BaseBBAsmParser {
     public int estimateLabelAddress() {
         int pos = 0;
         for (Assembly assembly : assemblies) {
-            if (assembly.getType() == Assembly.Type.LABEL) {
+            if (assembly instanceof Label) {
                 ((Label) assembly).setValue(pos);
             } else {
                 pos += assembly.length();

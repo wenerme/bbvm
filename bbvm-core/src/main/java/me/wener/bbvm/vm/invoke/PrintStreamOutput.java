@@ -3,7 +3,6 @@ package me.wener.bbvm.vm.invoke;
 import me.wener.bbvm.vm.Operand;
 import me.wener.bbvm.vm.SystemInvoke;
 import me.wener.bbvm.vm.SystemInvokes;
-import me.wener.bbvm.vm.res.StringManager;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -20,6 +19,8 @@ public class PrintStreamOutput extends PrintStream {
 
     @SystemInvokes({
             @SystemInvoke(type = SystemInvoke.Type.OUT, a = 0, b = SystemInvoke.ANY),
+            @SystemInvoke(type = SystemInvoke.Type.OUT, a = 1, b = SystemInvoke.ANY),
+            @SystemInvoke(type = SystemInvoke.Type.OUT, a = 2, b = SystemInvoke.ANY),
             @SystemInvoke(type = SystemInvoke.Type.OUT, a = 3, b = SystemInvoke.ANY),
             @SystemInvoke(type = SystemInvoke.Type.OUT, a = 4, b = SystemInvoke.ANY),
             @SystemInvoke(type = SystemInvoke.Type.OUT, a = 5, b = SystemInvoke.ANY),
@@ -28,6 +29,12 @@ public class PrintStreamOutput extends PrintStream {
         switch (a.get()) {
             case 0:
                 println(b.get());
+                break;
+            case 1:
+                println(b.getString());
+                break;
+            case 2:
+                print(b.getString());
                 break;
             case 4:
                 print(Character.toChars(b.get())[0]);
@@ -41,14 +48,4 @@ public class PrintStreamOutput extends PrintStream {
         }
     }
 
-    @SystemInvokes({
-            @SystemInvoke(type = SystemInvoke.Type.OUT, a = 1, b = SystemInvoke.ANY),
-            @SystemInvoke(type = SystemInvoke.Type.OUT, a = 2, b = SystemInvoke.ANY),
-    })
-    public void out(StringManager stringManager, Operand a, Operand b) {
-        print(stringManager.getResource(b.get()).getValue());
-        if (a.get() == 1) {
-            println();
-        }
-    }
 }
