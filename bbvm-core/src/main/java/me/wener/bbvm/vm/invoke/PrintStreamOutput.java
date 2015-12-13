@@ -43,7 +43,12 @@ public class PrintStreamOutput extends PrintStream {
                 print(b.get());
                 break;
             case 5:
-                print(String.format("%.6f", b.getFloat()));
+                float v = b.getFloat();
+                if (v == 0) {
+                    print("000.000000");// Match the same result
+                } else {
+                    print(String.format("%.6f", v));
+                }
                 break;
         }
     }

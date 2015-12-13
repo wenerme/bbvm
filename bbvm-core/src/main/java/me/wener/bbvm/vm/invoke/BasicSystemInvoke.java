@@ -4,6 +4,8 @@ import me.wener.bbvm.vm.Operand;
 import me.wener.bbvm.vm.Register;
 import me.wener.bbvm.vm.SystemInvoke;
 import me.wener.bbvm.vm.res.StringManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
 
@@ -12,6 +14,8 @@ import javax.inject.Named;
  * @since 15/12/13
  */
 public class BasicSystemInvoke {
+    private final static Logger log = LoggerFactory.getLogger(BasicSystemInvoke.class);
+
     /*
 ;0 | 浮点数转换为整数 | 整数 | r3:浮点数 | int(r3.float)
 ;1 | 整数转换为浮点数 | 浮点数 | r3:整数 | float(r3.int)
@@ -72,5 +76,49 @@ public class BasicSystemInvoke {
     public void releaseString(StringManager stringManager, @Named("A") Operand o, @Named("R3") Register r3) {
         o.set(r3.get());
         stringManager.getResource(r3.get()).close();
+    }
+
+    /*
+;9 | 比较字符串
+; 返回: 两字符串的差值 相同为0，大于为1,小于为-1
+; 参数: r2:基准字符串, r3:比较字符串
+     */
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 9)
+    public void stringCompare(@Named("A") Operand o, @Named("R3") Register r3, @Named("R2") Register r2) {
+        int cmp = r2.getString().compareTo(r3.getString());
+        if (cmp > 0) {
+            o.set(1);
+        } else if (cmp < 0) {
+            o.set(-1);
+        } else {
+            o.set(0);
+        }
+    }
+
+    /*
+; 10 | 整数转换为浮点数再转换为字符串
+; 返回: r3的值
+; 参数: r2:目标字符串<br>r3:整数
+; 备注: r2所代表字符串的内容被修改
+     */
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 10)
+    public void int2floatString(@Named("A") Operand o, @Named("R3") Register r3, @Named("R2") Register r2) {
+        o.set(r3.get());
+        r2.set(String.format("%.6f", (float) r3.get()));
+    }
+
+    /*
+; 11 | 字符串转换为浮点数
+; 返回: 浮点数
+; 参数: r3:字符串
+     */
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 11)
+    public void string2float(@Named("A") Operand o, @Named("R3") Register r3) {
+        try {
+            o.set(Float.parseFloat(r3.getString()));
+        } catch (NumberFormatException e) {
+            log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+            o.set(0);
+        }
     }
 }

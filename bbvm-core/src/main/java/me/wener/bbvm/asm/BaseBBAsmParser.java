@@ -65,8 +65,10 @@ class BaseBBAsmParser {
             Label label = (Label) assembly;
             Label old = labels.get(label.getName());
 
-            if (old.getToken() == null) {
-                label.operands.addAll(old.operands);
+            if (old == null || old.getToken() == null) {
+                if (old != null) {
+                    label.operands.addAll(old.operands);
+                }
                 labels.put(label.name, label);
             } else {
                 throw new RuntimeException(String.format("Detect conflict label %s %s,%s <> %s,%s"
@@ -118,9 +120,8 @@ class BaseBBAsmParser {
         for (Assembly assembly : assemblies) {
             if (assembly instanceof Label) {
                 ((Label) assembly).setValue(pos);
-            } else {
-                pos += assembly.length();
             }
+            pos += assembly.length();
         }
         return pos;
     }
