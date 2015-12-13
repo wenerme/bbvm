@@ -17,7 +17,7 @@ import java.util.Map;
  * @author wener
  * @since 15/12/10
  */
-public class BaseBBAsmParser {
+class BaseBBAsmParser {
     protected final static Logger log = LoggerFactory.getLogger(BBAsmParser.class);
     LinkedList<Assembly> assemblies = Lists.newLinkedList();
     Map<String, Label> labels = Maps.newHashMap();
@@ -87,7 +87,7 @@ public class BaseBBAsmParser {
             if (label.getToken() == null) {
                 throw new RuntimeException("Undefined label " + label);
             }
-            if (label.address < 0) {
+            if (label.value < 0) {
                 throw new RuntimeException("Undressed label " + label);
             }
         }
@@ -97,7 +97,7 @@ public class BaseBBAsmParser {
         int pos = 0;
         for (Assembly assembly : assemblies) {
             if (assembly.getType() == Assembly.Type.LABEL) {
-                ((Label) assembly).setAddress(pos);
+                ((Label) assembly).setValue(pos);
             } else {
                 pos += assembly.length();
             }

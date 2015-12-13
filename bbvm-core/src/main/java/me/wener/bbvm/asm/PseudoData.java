@@ -47,4 +47,13 @@ public class PseudoData extends Label implements Assembly {
         }
         return sb.toString();
     }
+
+    @Override
+    public int length() {
+        int len = 0;
+        for (Value v : values) {
+            len += v.length();
+        }
+        return len;
+    }
 }

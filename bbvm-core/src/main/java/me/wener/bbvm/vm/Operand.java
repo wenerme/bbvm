@@ -90,11 +90,11 @@ public class Operand extends MutableInt {
             case REGISTER_DEFERRED:
                 return "[" + fromInt(RegisterType.class, intValue()) + "]";
             case IMMEDIATE:
-                if ((symbol == null || symbol.getAddress() != intValue()) && vm != null)
+                if ((symbol == null || symbol.getValue() != intValue()) && vm != null)
                     symbol = vm.getSymbol(intValue());
                 return String.valueOf(symbol != null ? symbol.getName() : intValue());
             case DIRECT:
-                if ((symbol == null || symbol.getAddress() != intValue()) && vm != null)
+                if ((symbol == null || symbol.getValue() != intValue()) && vm != null)
                     symbol = vm.getSymbol(intValue());
                 return "[" + (symbol != null ? symbol.getName() : intValue()) + "]";
             default:

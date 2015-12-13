@@ -26,6 +26,10 @@ public class Instruction {
     CompareType compareType;
     DataType dataType;
     transient VM vm;
+    /**
+     * The address of this instruction in memory
+     */
+    int address;
 
     public VM getVm() {
         return vm;
@@ -130,6 +134,9 @@ public class Instruction {
                 .toString();
     }
 
+    /**
+     * Read instruction at address, will not change readerIndex of bu
+     */
     public Instruction read(ByteBuf buf, int address) {
         /*
    指令码 + 数据类型 + 特殊用途字节 + 寻址方式 + 第一个操作数 + 第二个操作数
@@ -149,6 +156,7 @@ JPC指令 6byte
 0x 0       0         0        0        00000000
         */
         int offset = address;
+        this.address = address;
         short first = buf.getUnsignedByte(offset++);
         opcode = fromInt(Opcode.class, first >> 4);
         switch (opcode) {

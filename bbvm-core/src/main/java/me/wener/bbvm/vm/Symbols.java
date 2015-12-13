@@ -17,7 +17,7 @@ public class Symbols {
         NavigableMap<Integer, Symbol> addressMap = new TreeMap<>();
         for (Symbol symbol : symbols) {
             nameMap.put(symbol.getName(), symbol);
-            addressMap.put(symbol.getAddress(), symbol);
+            addressMap.put(symbol.getValue(), symbol);
         }
 
         return new Table(nameMap, addressMap);

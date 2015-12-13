@@ -13,7 +13,10 @@ import java.util.List;
  */
 public class Label extends AbstractAssembly implements Symbol, Assembly {
     String name;
-    int address = -1;
+    int value = -1;
+    /**
+     * Operands referenced to this label
+     */
     List<OperandInfo> operands = Lists.newArrayList();
     Token token;
 
@@ -38,14 +41,14 @@ public class Label extends AbstractAssembly implements Symbol, Assembly {
         return this;
     }
 
-    public int getAddress() {
-        return address;
+    public int getValue() {
+        return value;
     }
 
-    public Label setAddress(int address) {
-        this.address = address;
+    public Label setValue(int value) {
+        this.value = value;
         for (OperandInfo info : operands) {
-            info.operand.setValue(address);
+            info.operand.setValue(value);
         }
         return this;
     }
@@ -59,7 +62,7 @@ public class Label extends AbstractAssembly implements Symbol, Assembly {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("name", name)
-                .add("address", address)
+                .add("value", value)
                 .add("comment", comment)
                 .add("line", token != null ? token.beginLine : -1)
                 .add("column", token != null ? token.beginColumn : -1)
@@ -67,7 +70,7 @@ public class Label extends AbstractAssembly implements Symbol, Assembly {
     }
 
     public void addOperand(Token token, Operand operand) {
-        operand.setSymbol(this).setValue(address);
+        operand.setSymbol(this).setValue(value);
         operands.add(new Label.OperandInfo(operand, token));
     }
 

@@ -57,7 +57,6 @@ public class Value {
         return value.setAssembly(v).setType(type);
     }
 
-
     public static Value forNumber(String v, Type type) {
         return new Value().setAssembly(v).setValue(Double.parseDouble(v)).setType(type);
     }
@@ -71,6 +70,24 @@ public class Value {
         // Strip the quote
         val.string = token.image.substring(1, token.image.length() - 1);
         return val;
+    }
+
+    public int length() {
+        switch (type) {
+            case INTEGER:
+            case FLOAT:
+                return 4;
+            case LONG:
+            case DOUBLE:
+                return 8;
+            case STRING:
+                // TODO Charset
+                return string.getBytes().length;
+            case BYTES:
+                return bytes.length;
+            default:
+                throw new AssertionError();
+        }
     }
 
     public Value setAssembly(String assembly) {

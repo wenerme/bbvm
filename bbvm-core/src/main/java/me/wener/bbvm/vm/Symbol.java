@@ -9,5 +9,5 @@ package me.wener.bbvm.vm;
 public interface Symbol {
     String getName();
 
-    int getAddress();
+    int getValue();
 }
