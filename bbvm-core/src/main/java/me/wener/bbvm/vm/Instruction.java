@@ -172,7 +172,7 @@ JPC指令 6byte
             case JMP: {
                 a.setAddressingMode(fromInt(AddressingMode.class, first & 0xf));
                 // 一个操作数
-                a.setValue(buf.getInt(offset));
+                a.setInternal(buf.getInt(offset));
             }
             break;
             case LD:
@@ -188,10 +188,10 @@ JPC指令 6byte
 
                 a.addressingMode = fromInt(AddressingMode.class, addressingMode / 4);
                 b.addressingMode = fromInt(AddressingMode.class, addressingMode % 4);
-                a.setValue(buf.getInt(offset));
+                a.setInternal(buf.getInt(offset));
 
                 offset += 4;
-                b.setValue(buf.getInt(offset));
+                b.setInternal(buf.getInt(offset));
 
                 if (opcode == Opcode.CAL) {
                     calculateType = fromInt(CalculateType.class, special);
@@ -206,7 +206,7 @@ JPC指令 6byte
                 // 数据类型为比较操作
                 compareType = fromInt(CompareType.class, first & 0xf);
                 a.addressingMode = fromInt(AddressingMode.class, addressingMode);
-                a.setValue(buf.getInt(offset));
+                a.setInternal(buf.getInt(offset));
             }
             break;
             default:
@@ -230,7 +230,7 @@ JPC指令 6byte
             case JMP: {
                 // 一个操作数
                 buf.writeByte(opcode.asInt() << 4 | a.addressingMode.asInt());
-                buf.writeInt(a.intValue());
+                buf.writeInt(a.getInterval());
             }
             break;
             case LD:
@@ -250,14 +250,14 @@ JPC指令 6byte
                 } else {
                     buf.writeByte(a.addressingMode.asInt() << 2 | b.addressingMode.asInt());
                 }
-                buf.writeInt(a.intValue()).writeInt(b.intValue());
+                buf.writeInt(a.getInterval()).writeInt(b.getInterval());
             }
             break;
 
             case JPC: {
                 buf.writeByte(opcode.asInt() << 4 | compareType.asInt());
                 buf.writeByte(a.addressingMode.asInt());
-                buf.writeInt(a.intValue());
+                buf.writeInt(a.getInterval());
             }
             break;
             default:

@@ -68,7 +68,7 @@ class BaseBBAsmParser {
     }
 
     public void addLabelOperand(Token token, Operand operand) {
-        operand.setValue(-1);
+        operand.setInternal(-1);
         String name = labelName(token);
         Label label = labels.get(name);
         if (label == null) {

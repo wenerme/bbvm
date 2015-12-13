@@ -3,7 +3,6 @@ package me.wener.bbvm.vm;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import me.wener.bbvm.util.val.IsInt;
-import org.apache.commons.lang3.mutable.MutableInt;
 
 import static me.wener.bbvm.util.val.IntEnums.fromInt;
 
@@ -11,7 +10,8 @@ import static me.wener.bbvm.util.val.IntEnums.fromInt;
  * @author wener
  * @since 15/12/10
  */
-public class Operand extends MutableInt {
+public class Operand extends AbstractValue<Operand> {
+    protected int value;
     AddressingMode addressingMode;
     transient VM vm;
     transient Symbol symbol;
@@ -25,17 +25,30 @@ public class Operand extends MutableInt {
         return this;
     }
 
+
+    /**
+     * @return The interval value of this operand
+     */
+    public int getInterval() {
+        return value;
+    }
+
+    public Operand setInternal(IsInt v) {
+        setInternal(v.asInt());
+        return this;
+    }
+
+    public Operand setInternal(int value) {
+        this.value = value;
+        return this;
+    }
+
     public AddressingMode getAddressingMode() {
         return addressingMode;
     }
 
     public Operand setAddressingMode(AddressingMode addressingMode) {
         this.addressingMode = addressingMode;
-        return this;
-    }
-
-    public Operand setValue(IsInt v) {
-        setValue(v.asInt());
         return this;
     }
 
@@ -51,13 +64,13 @@ public class Operand extends MutableInt {
     public int get() {
         switch (addressingMode) {
             case REGISTER:
-                return vm.getRegister(fromInt(RegisterType.class, intValue())).intValue();
+                return vm.getRegister(fromInt(RegisterType.class, getInterval())).get();
             case REGISTER_DEFERRED:
-                return vm.getMemory().read(vm.getRegister(fromInt(RegisterType.class, intValue())).intValue());
+                return vm.getMemory().read(vm.getRegister(fromInt(RegisterType.class, getInterval())).get());
             case IMMEDIATE:
-                return intValue();
+                return getInterval();
             case DIRECT:
-                return vm.getMemory().read(intValue());
+                return vm.getMemory().read(getInterval());
             default:
                 throw new AssertionError();
         }
@@ -67,15 +80,15 @@ public class Operand extends MutableInt {
         switch (addressingMode) {
 
             case REGISTER:
-                vm.getRegister(fromInt(RegisterType.class, intValue())).setValue(v);
+                vm.getRegister(fromInt(RegisterType.class, getInterval())).set(v);
                 break;
             case REGISTER_DEFERRED:
-                vm.getMemory().write(vm.getRegister(fromInt(RegisterType.class, intValue())).intValue(), v);
+                vm.getMemory().write(vm.getRegister(fromInt(RegisterType.class, getInterval())).get(), v);
                 break;
             case IMMEDIATE:
                 throw new AssertionError("Set a IMMEDIATE operand");
             case DIRECT:
-                vm.getMemory().write(intValue(), v);
+                vm.getMemory().write(getInterval(), v);
                 break;
             default:
                 throw new AssertionError();
@@ -86,17 +99,17 @@ public class Operand extends MutableInt {
     public String toAssembly() {
         switch (addressingMode) {
             case REGISTER:
-                return fromInt(RegisterType.class, intValue()).toString();
+                return fromInt(RegisterType.class, getInterval()).toString();
             case REGISTER_DEFERRED:
-                return "[" + fromInt(RegisterType.class, intValue()) + "]";
+                return "[" + fromInt(RegisterType.class, getInterval()) + "]";
             case IMMEDIATE:
-                if ((symbol == null || symbol.getValue() != intValue()) && vm != null)
-                    symbol = vm.getSymbol(intValue());
-                return String.valueOf(symbol != null ? symbol.getName() : intValue());
+                if ((symbol == null || symbol.getValue() != getInterval()) && vm != null)
+                    symbol = vm.getSymbol(getInterval());
+                return String.valueOf(symbol != null ? symbol.getName() : getInterval());
             case DIRECT:
-                if ((symbol == null || symbol.getValue() != intValue()) && vm != null)
-                    symbol = vm.getSymbol(intValue());
-                return "[" + (symbol != null ? symbol.getName() : intValue()) + "]";
+                if ((symbol == null || symbol.getValue() != getInterval()) && vm != null)
+                    symbol = vm.getSymbol(getInterval());
+                return "[" + (symbol != null ? symbol.getName() : getInterval()) + "]";
             default:
                 throw new AssertionError();
         }
@@ -104,28 +117,14 @@ public class Operand extends MutableInt {
 
     public void reset() {
         symbol = null;
-        setValue(0);
+        setInternal(0);
         addressingMode = null;
-    }
-
-    public Operand set(float v) {
-        set(Float.floatToIntBits(v));
-        return this;
-    }
-
-    public float getFloat() {
-        return Float.intBitsToFloat(get());
-    }
-
-    public Operand setFloat(float v) {
-        set(Float.floatToRawIntBits(v));
-        return this;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("value", intValue())
+                .add("value", getInterval())
                 .add("mode", addressingMode)
                 .toString();
     }

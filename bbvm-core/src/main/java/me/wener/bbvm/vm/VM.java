@@ -2,6 +2,7 @@ package me.wener.bbvm.vm;
 
 import io.netty.buffer.ByteBuf;
 import me.wener.bbvm.util.val.IntEnums;
+import me.wener.bbvm.vm.res.StringManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ public class VM {
     final Register rp = new Register(RegisterType.RP, this);
     Memory memory;
     SymbolTable symbolTable;
+    StringManager stringManager;
     private boolean exit = false;
 
     public VM() {
@@ -76,6 +78,10 @@ public class VM {
         return vc;
     }
 
+    public StringManager getStringManager() {
+        return stringManager;
+    }
+
     public SymbolTable getSymbolTable() {
         return symbolTable;
     }
@@ -86,7 +92,7 @@ public class VM {
     }
 
     boolean hasRemaining() {
-        return rp.intValue() < memory.getMemorySize();
+        return rp.get() < memory.getMemorySize();
     }
 
     public void run() {
@@ -94,13 +100,13 @@ public class VM {
         ByteBuf buf = this.memory.getByteBuf();
         int last;
         while (hasRemaining()) {
-            last = rp.intValue();
+            last = rp.get();
             instruction.reset().read(buf, last);
             run(instruction);
             if (exit) {
                 return;
             }
-            if (rp.intValue() == last) {
+            if (rp.get() == last) {
                 rp.add(instruction.getOpcode().length());
             }
         }
@@ -120,16 +126,18 @@ public class VM {
     }
 
     public VM reset() {
-        r0.setValue(0);
-        r1.setValue(0);
-        r2.setValue(0);
-        r3.setValue(0);
-        rs.setValue(0);
-        rf.setValue(0);
-        rb.setValue(0);
-        rp.setValue(0);
+        r0.set(0);
+        r1.set(0);
+        r2.set(0);
+        r3.set(0);
+        rs.set(0);
+        rf.set(0);
+        rb.set(0);
+        rp.set(0);
         exit = false;
-        memory.reset();
+        if (memory != null) {
+            memory.reset();
+        }
         return this;
     }
 
@@ -146,7 +154,7 @@ public class VM {
 
     String debugAsm() {
         return String.format("RP=%s RF=%s RS=%s RB=%s R0=%s R1=%s R2=%s R3=%s"
-                , rp.intValue(), rf.intValue(), rs.intValue(), rb.intValue(), r0.intValue(), r1.intValue(), r2.intValue(), r3.intValue());
+                , rp.get(), rf.get(), rs.get(), rb.get(), r0.get(), r1.get(), r2.get(), r3.get());
     }
 
     private void run(Instruction inst, Opcode opcode, Operand a, Operand b) {
@@ -173,12 +181,12 @@ public class VM {
                 jmp(a.get());
                 break;
             case JPC:
-                if (IntEnums.fromInt(CompareType.class, rf.intValue()).isMatch(inst.compareType)) {
+                if (IntEnums.fromInt(CompareType.class, rf.get()).isMatch(inst.compareType)) {
                     jmp(a.get());
                 }
                 break;
             case CALL:
-                push(rp.intValue() + inst.getOpcode().length());
+                push(rp.get() + inst.getOpcode().length());
                 jmp(a.get());
                 break;
             case RET:
@@ -187,11 +195,11 @@ public class VM {
             case CMP: {
                 float vc = cal(CalculateType.SUB, inst.getDataType(), a, b).intValue();
                 if (vc > 0)
-                    rf.setValue(CompareType.A);
+                    rf.set(CompareType.A);
                 else if (vc < 0)
-                    rf.setValue(CompareType.B);
+                    rf.set(CompareType.B);
                 else
-                    rf.setValue(CompareType.Z);
+                    rf.set(CompareType.Z);
             }
             break;
             case CAL: {
@@ -212,11 +220,11 @@ public class VM {
     }
 
     public void jmp(int i) {
-        rp.setValue(i);
+        rp.set(i);
     }
 
     public void ret() {
-        rp.setValue(pop());
+        rp.set(pop());
     }
 
     public VM push(int v) {
@@ -234,6 +242,10 @@ public class VM {
 
     public void out(int a, int b) {
 
+    }
+
+    public String getString(int i) {
+        return null;
     }
 
     public Register getRegister(RegisterType type) {

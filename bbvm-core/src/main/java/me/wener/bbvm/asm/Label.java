@@ -48,7 +48,7 @@ public class Label extends AbstractAssembly implements Symbol, Assembly {
     public Label setValue(int value) {
         this.value = value;
         for (OperandInfo info : operands) {
-            info.operand.setValue(value);
+            info.operand.setInternal(value);
         }
         return this;
     }
@@ -70,7 +70,7 @@ public class Label extends AbstractAssembly implements Symbol, Assembly {
     }
 
     public void addOperand(Token token, Operand operand) {
-        operand.setSymbol(this).setValue(value);
+        operand.setSymbol(this).setInternal(value);
         operands.add(new Label.OperandInfo(operand, token));
     }
 

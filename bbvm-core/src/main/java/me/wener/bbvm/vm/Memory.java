@@ -42,8 +42,8 @@ public class Memory {
             bytes[i] = 0;
         }
         if (vm != null) {
-            rb.setValue(mem.maxCapacity());
-            rs.setValue(mem.maxCapacity() - stackSize);
+            rb.set(mem.maxCapacity());
+            rs.set(mem.maxCapacity() - stackSize);
         }
         return this;
     }
@@ -61,7 +61,7 @@ public class Memory {
 
     public int pop() {
         rs.add(4);
-        return mem.getInt(rs.intValue());
+        return mem.getInt(rs.get());
     }
 
     public void push(int v) {
@@ -69,7 +69,7 @@ public class Memory {
 //        if (rb.intValue() - rs.intValue() < 4) {
 //            throw new RuntimeException("Stack overflow");
 //        }
-        mem.setInt(rs.intValue(), v);
+        mem.setInt(rs.get(), v);
         rs.subtract(4);
     }
 

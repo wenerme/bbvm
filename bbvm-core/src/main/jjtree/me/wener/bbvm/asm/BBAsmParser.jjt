@@ -181,12 +181,12 @@ Operand Operand():{
 {
 
     (
-        token = <T_REGISTER> {op.setValue(RegisterType.valueOf(token.image.toUpperCase())).setAddressingMode(REGISTER);}
-        |LOOKAHEAD(2) token = <IDENTIFIER>{op.setAddressingMode(IMMEDIATE).setValue(-1);addLabelOperand(token,op);}
-        |LOOKAHEAD(2) token = <INTEGER_LITERAL> {op.setAddressingMode(IMMEDIATE).setValue(Integer.parseInt(token.image));}
-        |LOOKAHEAD(2) <LBRACKET> token = <INTEGER_LITERAL> <RBRACKET> {op.setAddressingMode(DIRECT).setValue(Integer.parseInt(token.image));}
-        |LOOKAHEAD(2) <LBRACKET> token = <IDENTIFIER> <RBRACKET> {op.setAddressingMode(DIRECT).setValue(-1);addLabelOperand(token,op);}
-        |LOOKAHEAD(2) <LBRACKET> token = <T_REGISTER> <RBRACKET> {op.setValue(RegisterType.valueOf(token.image.toUpperCase())).setAddressingMode(REGISTER_DEFERRED);}
+        token = <T_REGISTER> {op.setInternal(RegisterType.valueOf(token.image.toUpperCase())).setAddressingMode(REGISTER);}
+        |LOOKAHEAD(2) token = <IDENTIFIER>{op.setAddressingMode(IMMEDIATE).setInternal(-1);addLabelOperand(token,op);}
+        |LOOKAHEAD(2) token = <INTEGER_LITERAL> {op.setAddressingMode(IMMEDIATE).setInternal(Integer.parseInt(token.image));}
+        |LOOKAHEAD(2) <LBRACKET> token = <INTEGER_LITERAL> <RBRACKET> {op.setAddressingMode(DIRECT).setInternal(Integer.parseInt(token.image));}
+        |LOOKAHEAD(2) <LBRACKET> token = <IDENTIFIER> <RBRACKET> {op.setAddressingMode(DIRECT).setInternal(-1);addLabelOperand(token,op);}
+        |LOOKAHEAD(2) <LBRACKET> token = <T_REGISTER> <RBRACKET> {op.setInternal(RegisterType.valueOf(token.image.toUpperCase())).setAddressingMode(REGISTER_DEFERRED);}
     )
     {
         return op;

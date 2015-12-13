@@ -19,9 +19,9 @@ public @interface SystemInvoke {
 
     Type type();
 
-    int a();
+    int a() default ANY;
 
-    int b();
+    int b() default ANY;
 
     enum Type {
         IN, OUT
