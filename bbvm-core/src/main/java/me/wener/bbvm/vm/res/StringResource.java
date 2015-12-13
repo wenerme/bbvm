@@ -25,7 +25,7 @@ public class StringResource implements Resource {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         manager.close(this);
     }
 

@@ -44,4 +44,33 @@ public class BasicSystemInvoke {
         o.set(r3.get());
         r2.set(String.valueOf(r3.get()));
     }
+
+    /*
+;5 | 复制字符串 | r3的值 | r2:源字符串句柄<br>r3:目标字符串句柄 | r3.str=r2.str;return r3
+;6 | 连接字符串 | r3的值 | r2:源字符串<br>r3:目标字符串 | r3.str=r3.str+r2.str
+;7 | 获取字符串长度 | 字符串长度 | r3:字符串 | strlen(r3.str)
+;8 | 释放字符串句柄 | r3的值 | r3:字符串句柄 | strPool.release(r3);return r3
+     */
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 5)
+    public void stringCopy(@Named("A") Operand o, @Named("R3") Register r3, @Named("R2") Register r2) {
+        o.set(r3.get());
+        r3.set(r2.getString());
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 6)
+    public void stringConcat(@Named("A") Operand o, @Named("R3") Register r3, @Named("R2") Register r2) {
+        o.set(r3.get());
+        r3.set(r3.getString() + r2.getString());
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 7)
+    public void stringLength(@Named("A") Operand o, @Named("R3") Register r3, @Named("R2") Register r2) {
+        o.set(r3.getString().length());//TODO Char length or bytes length ?
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 8)
+    public void releaseString(StringManager stringManager, @Named("A") Operand o, @Named("R3") Register r3) {
+        o.set(r3.get());
+        stringManager.getResource(r3.get()).close();
+    }
 }
