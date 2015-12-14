@@ -1,8 +1,0 @@
-ignored
-
-# 对于BB测试环境,需要忽略一下文件
-*.bin
-*.obj
-test.bas
-temp.bas
-test.basm
