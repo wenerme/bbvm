@@ -69,7 +69,7 @@ TOKEN :
 {
     <T_REGISTER : "R0" | "R1" | "R2" | "R3" | "RP" | "RF" |"RS" | "RB">
     | <DATA_TYPE: "DWORD" | "WORD" | "BYTE" | "FLOAT" | "INT">
-    | <PSEUDO_DATA_TYPE: <DATA_TYPE> | "CHAR" >
+    | <PSEUDO_DATA_TYPE: "CHAR" >
     | <CAL_OP: "ADD" | "SUB" | "MUL" | "DIV" | "MOD">
     | <CMP_OP: "Z" | "B" | "BE" | "A" | "AE" | "NZ">
     | <T_LABEL: <IDENTIFIER> ([" "])* <COLON>>
@@ -122,7 +122,7 @@ PseudoData PseudoData():{
     Value v;
     Token t,dt = null;
 }{
-    <I_DATA> t = <IDENTIFIER> (dt = <PSEUDO_DATA_TYPE>)? v = ValueLiteral() {pseudo.add(v);} (<COMMA> v = ValueLiteral(){pseudo.add(v);})*
+    <I_DATA> t = <IDENTIFIER> (dt = <PSEUDO_DATA_TYPE> | dt = <DATA_TYPE>)? v = ValueLiteral() {pseudo.add(v);} (<COMMA> v = ValueLiteral(){pseudo.add(v);})*
     {
         pseudo.token = t;
         pseudo.name = t.image;

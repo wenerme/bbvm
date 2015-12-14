@@ -121,4 +121,44 @@ public class BasicSystemInvoke {
             o.set(0);
         }
     }
+
+    /*
+13 | 将给定字符串中指定索引的字符替换为给定的ASCII代表的字符 | r3的值 | r1:ASCII码<br>r2:字符位置<br>r3:目标字符串 | r3所代表字符串的内容被修改, 要求r3是句柄才能修改r3的值,给出的ASCII会进行模256的处理
+14 | （功用不明） | 65535 |  |
+15 | 获取嘀嗒计数 | 嘀嗒计数 |  | 这里不知道他是怎么算的这个数字,但是会随着时间增长就是了
+16 | 求正弦值 | X!的正弦值 | r3:X! |
+17 | 求余弦值 | X!的余弦值 | r3:X! |
+18 | 求正切值 | X!的正切值 | r3:X! |
+19 | 求平方根值 | X!的平方根值 | r3:X! |
+20 | 求绝对值 | X%的绝对值 | r3:X% |
+21 | 求绝对值 | X!的绝对值 | r3:X! |
+     */
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 16)
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 17)
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 18)
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 19)
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 20)
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 21)
+    public void math(Operand a, Operand b, @Named("R3") Register r3) {
+        switch (b.get()) {
+            case 16:
+                a.set((float) Math.sin(r3.getFloat()));
+                break;
+            case 17:
+                a.set((float) Math.cos(r3.getFloat()));
+                break;
+            case 18:
+                a.set((float) Math.tan(r3.getFloat()));
+                break;
+            case 19:
+                a.set((float) Math.sqrt(r3.getFloat()));
+                break;
+            case 20:
+                a.set(Math.abs(r3.get()));
+                break;
+            case 21:
+                a.set(Math.abs(r3.getFloat()));
+                break;
+        }
+    }
 }

@@ -36,7 +36,7 @@ public class VM {
     SystemInvokeManager systemInvokeManager;
     private boolean exit = false;
     @Inject
-    private Config config;
+    private VMConfig config;
     private Throwable lastError;
 
     public VM() {
