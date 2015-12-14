@@ -3,6 +3,7 @@ package me.wener.bbvm.vm.invoke;
 import me.wener.bbvm.vm.Operand;
 import me.wener.bbvm.vm.Register;
 import me.wener.bbvm.vm.SystemInvoke;
+import me.wener.bbvm.vm.VM;
 import me.wener.bbvm.vm.res.StringManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,6 +134,25 @@ public class BasicSystemInvoke {
 20 | 求绝对值 | X%的绝对值 | r3:X% |
 21 | 求绝对值 | X!的绝对值 | r3:X! |
      */
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 13)
+    public void stringReplace(Operand o, @Named("R1") Register r1, @Named("R2") Register r2, @Named("R3") Register r3) {
+        o.set(r3.get());
+        // TODO Charset
+        byte[] bytes = r3.getString().getBytes();
+        bytes[r2.get()] = (byte) (r1.get() & 0xff);
+        r3.set(new String(bytes));
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 14)
+    public void unknownIn14(Operand o) {
+        o.set(65535);
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 15)
+    public void getTick(Operand o, VM vm) {
+        o.set(vm.getTick());
+    }
+
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 16)
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 17)
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 18)

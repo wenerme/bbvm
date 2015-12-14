@@ -1,5 +1,6 @@
 package me.wener.bbvm.vm;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import me.wener.bbvm.exception.ExecutionException;
 import me.wener.bbvm.util.val.IntEnums;
@@ -87,6 +88,14 @@ public class VM {
         return vc;
     }
 
+    /**
+     * @return Tick clock
+     */
+    public int getTick() {
+        // TODO Is this ok ?
+        return (int) (System.currentTimeMillis() & 0xfffffff);
+    }
+
     @Inject
     private void init(SystemInvokeManager systemInvokeManager) {
         systemInvokeManager.register(new BasicSystemInvoke());
@@ -110,6 +119,7 @@ public class VM {
     }
 
     public void run() {
+        Preconditions.checkState(!exit);
         Instruction instruction = new Instruction().setVm(this);
         ByteBuf buf = this.memory.getByteBuf();
         int last;
@@ -121,8 +131,7 @@ public class VM {
             } catch (ExecutionException e) {
                 log.warn("Cache exception when > {} ' {} @ {}", instruction.toAssembly(), debugAsm(), instruction.address, e);
                 if (config.getErrorHandler().apply(e)) {
-                    exit = true;
-                    log.info("Exit due to error");
+                    exit();
                 }
                 lastError = e;
             }
@@ -133,6 +142,13 @@ public class VM {
                 rp.add(instruction.getOpcode().length());
             }
         }
+    }
+
+    public VM exit() {
+        Preconditions.checkState(!exit);
+        log.info("Exit vm");
+        exit = true;
+        return this;
     }
 
     public Iterable<Instruction> instructions(final Instruction instruction, final int position) {
