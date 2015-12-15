@@ -9,6 +9,7 @@ import me.wener.bbvm.vm.res.StringManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -35,6 +36,7 @@ public class VirtualMachineModule extends AbstractModule {
             log.info("Module {} {}", input.getKey(), config.isModuleEnabled(input.getKey()) ? "enabled" : "disabled");
             return config.isModuleEnabled(input.getKey());
         }));
+
     }
 
     @Provides
@@ -42,4 +44,62 @@ public class VirtualMachineModule extends AbstractModule {
     public VMConfig config() {
         return config;
     }
+
+    // region Generated Register
+    @Named("RP")
+    @Provides
+    @Singleton
+    public Register RP(VM vm) {
+        return vm.getRegister(RegisterType.RP);
+    }
+
+    @Named("RF")
+    @Provides
+    @Singleton
+    public Register RF(VM vm) {
+        return vm.getRegister(RegisterType.RF);
+    }
+
+    @Named("RS")
+    @Provides
+    @Singleton
+    public Register RS(VM vm) {
+        return vm.getRegister(RegisterType.RS);
+    }
+
+    @Named("RB")
+    @Provides
+    @Singleton
+    public Register RB(VM vm) {
+        return vm.getRegister(RegisterType.RB);
+    }
+
+    @Named("R0")
+    @Provides
+    @Singleton
+    public Register R0(VM vm) {
+        return vm.getRegister(RegisterType.R0);
+    }
+
+    @Named("R1")
+    @Provides
+    @Singleton
+    public Register R1(VM vm) {
+        return vm.getRegister(RegisterType.R1);
+    }
+
+    @Named("R2")
+    @Provides
+    @Singleton
+    public Register R2(VM vm) {
+        return vm.getRegister(RegisterType.R2);
+    }
+
+    @Named("R3")
+    @Provides
+    @Singleton
+    public Register R3(VM vm) {
+        return vm.getRegister(RegisterType.R3);
+    }
+    // endregion
 }

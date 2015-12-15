@@ -2,7 +2,6 @@ package me.wener.bbvm.vm.invoke;
 
 import me.wener.bbvm.vm.Operand;
 import me.wener.bbvm.vm.SystemInvoke;
-import me.wener.bbvm.vm.SystemInvokes;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -17,14 +16,12 @@ public class PrintStreamOutput extends PrintStream {
         super(out);
     }
 
-    @SystemInvokes({
-            @SystemInvoke(type = SystemInvoke.Type.OUT, a = 0, b = SystemInvoke.ANY),
-            @SystemInvoke(type = SystemInvoke.Type.OUT, a = 1, b = SystemInvoke.ANY),
-            @SystemInvoke(type = SystemInvoke.Type.OUT, a = 2, b = SystemInvoke.ANY),
-            @SystemInvoke(type = SystemInvoke.Type.OUT, a = 3, b = SystemInvoke.ANY),
-            @SystemInvoke(type = SystemInvoke.Type.OUT, a = 4, b = SystemInvoke.ANY),
-            @SystemInvoke(type = SystemInvoke.Type.OUT, a = 5, b = SystemInvoke.ANY),
-    })
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 0, b = SystemInvoke.ANY)
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 1, b = SystemInvoke.ANY)
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 2, b = SystemInvoke.ANY)
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 3, b = SystemInvoke.ANY)
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 4, b = SystemInvoke.ANY)
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 5, b = SystemInvoke.ANY)
     public void out(Operand a, Operand b) {
         switch (a.get()) {
             case 0:

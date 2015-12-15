@@ -25,6 +25,19 @@ public class Operand extends AbstractValue<Operand> {
         return this;
     }
 
+    /**
+     * Set this operand like {@code other}
+     */
+    Operand set(Operand other) {
+        if (other == null) {
+            return this;
+        }
+        this.value = other.value;
+        this.addressingMode = other.addressingMode;
+        this.vm = other.vm;
+        this.symbol = other.symbol;
+        return this;
+    }
 
     /**
      * @return The interval value of this operand

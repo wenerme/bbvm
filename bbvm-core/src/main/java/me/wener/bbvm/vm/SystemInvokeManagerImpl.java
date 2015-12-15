@@ -8,7 +8,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import me.wener.bbvm.exception.ExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -24,19 +28,13 @@ import java.util.Map;
  */
 class SystemInvokeManagerImpl implements SystemInvokeManager {
     final static Map<String, Function<Instruction, Object>> MAPPER_MAP;
+    private final static Logger log = LoggerFactory.getLogger(SystemInvokeManager.class);
 
     static {
         ImmutableMap.Builder<String, Function<Instruction, Object>> builder = ImmutableMap.builder();
         builder.put("A", Instruction::getA);
         builder.put("B", Instruction::getB);
-        builder.put("R0", input -> input.getVm().getRegister(RegisterType.R0));
-        builder.put("R1", input -> input.getVm().getRegister(RegisterType.R1));
-        builder.put("R2", input -> input.getVm().getRegister(RegisterType.R2));
-        builder.put("R3", input -> input.getVm().getRegister(RegisterType.R3));
-        builder.put("RS", input -> input.getVm().getRegister(RegisterType.RS));
-        builder.put("RF", input -> input.getVm().getRegister(RegisterType.RF));
-        builder.put("RB", input -> input.getVm().getRegister(RegisterType.RB));
-        builder.put("RP", input -> input.getVm().getRegister(RegisterType.RP));
+        builder.put("INSTRUCTION", i -> i);
         MAPPER_MAP = builder.build();
     }
 
@@ -144,51 +142,55 @@ class SystemInvokeManagerImpl implements SystemInvokeManager {
                 Parameter parameter = parameters[i];
                 Class<?> type = parameter.getType();
                 if (type == Instruction.class) {
-                    mapper[i] = new Function<Instruction, Object>() {
-                        @Nullable
-                        @Override
-                        public Object apply(@Nullable Instruction input) {
-                            return input;
-                        }
-                    };
+                    mapper[i] = MAPPER_MAP.get("INSTRUCTION");
                 } else if (type == Operand.class) {
-                    Named named = parameter.getAnnotation(Named.class);
-                    if (named != null) {
-                        switch (named.value()) {
-                            case "A":
-                                mapper[i] = MAPPER_MAP.get("A");
-                                break;
-                            case "B":
-                                mapper[i] = MAPPER_MAP.get("B");
-                                break;
-                            default:
-                                throw new ExecutionException(String.format("Unknown named operand %s for %s", named.value(), parameter));
-                        }
-                    } else {
+                    String n = getName(parameter);
+                    if (n == null) {
                         switch (operandNth++) {
                             case 0:
-                                mapper[i] = MAPPER_MAP.get("A");
+                                n = "A";
                                 break;
                             case 1:
-                                mapper[i] = MAPPER_MAP.get("B");
+                                n = "B";
                                 break;
                             default:
                                 throw new ExecutionException(String.format("Got three operand for %s", parameter));
                         }
                     }
-                } else if (type == Register.class) {
-                    Named named = parameter.getAnnotation(Named.class);
-                    if (named == null) {
-                        throw new ExecutionException(String.format("No name for Register inject %s", parameter));
-                    }
-                    mapper[i] = MAPPER_MAP.get(named.value());//FIXME Possible got A,B
-                    if (mapper[i] == null) {
-                        throw new ExecutionException(String.format("No register %s found for %s", named.value(), parameter));
+                    switch (n) {
+                        case "A":
+                            mapper[i] = MAPPER_MAP.get("A");
+                            break;
+                        case "B":
+                            mapper[i] = MAPPER_MAP.get("B");
+                            break;
+                        default:
+                            throw new ExecutionException(String.format("No operand %s for %s", n, parameter));
                     }
                 } else {
-                    mapper[i] = input -> injector.getInstance(type);
+                    String n = getName(parameter);
+                    if (n == null) {
+                        args[i] = injector.getInstance(type);
+                    } else {
+                        args[i] = injector.getInstance(Key.get(Register.class, Names.named(n)));
+                    }
                 }
             }
+        }
+
+        private String getName(Parameter parameter) {
+            String n = null;
+
+            Named named = parameter.getAnnotation(Named.class);
+            if (named == null) {
+                com.google.inject.name.Named gNamed = parameter.getAnnotation(com.google.inject.name.Named.class);
+                if (gNamed != null) {
+                    n = gNamed.value();
+                }
+            } else {
+                n = named.value();
+            }
+            return n;
         }
 
 
@@ -196,7 +198,9 @@ class SystemInvokeManagerImpl implements SystemInvokeManager {
         @Override
         public Object apply(Instruction input) {
             for (int i = 0; i < mapper.length; i++) {
-                args[i] = mapper[i].apply(input);
+                if (mapper[i] != null) {
+                    args[i] = mapper[i].apply(input);
+                }
             }
 
             try {
@@ -206,6 +210,9 @@ class SystemInvokeManagerImpl implements SystemInvokeManager {
             } catch (InvocationTargetException e) {
                 throw Throwables.propagate(e.getCause());
 //                throw new RuntimeException(e);
+            } catch (Exception e) {
+                log.warn("Call {} failed with {}", method, args);
+                throw Throwables.propagate(e);
             }
         }
 
