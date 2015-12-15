@@ -21,14 +21,14 @@ import static com.google.common.base.Preconditions.checkState;
 public class VM {
     private final static Logger log = LoggerFactory.getLogger(VM.class);
     //    Injector injector;
-    final Register r0 = new Register(RegisterType.R0, this);
-    final Register r1 = new Register(RegisterType.R1, this);
-    final Register r2 = new Register(RegisterType.R2, this);
-    final Register r3 = new Register(RegisterType.R3, this);
-    final Register rs = new Register(RegisterType.RS, this);
-    final Register rf = new Register(RegisterType.RF, this);
-    final Register rb = new Register(RegisterType.RB, this);
-    final Register rp = new Register(RegisterType.RP, this);
+    final Register r0 = new Reg(RegisterType.R0, this);
+    final Register r1 = new Reg(RegisterType.R1, this);
+    final Register r2 = new Reg(RegisterType.R2, this);
+    final Register r3 = new Reg(RegisterType.R3, this);
+    final Register rs = new Reg(RegisterType.RS, this);
+    final Register rf = new Reg(RegisterType.RF, this);
+    final Register rb = new Reg(RegisterType.RB, this);
+    final Register rp = new Reg(RegisterType.RP, this);
     Memory memory;
     SymbolTable symbolTable;
     @Inject

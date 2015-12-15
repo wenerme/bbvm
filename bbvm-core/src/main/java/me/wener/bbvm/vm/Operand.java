@@ -10,7 +10,7 @@ import static me.wener.bbvm.util.val.IntEnums.fromInt;
  * @author wener
  * @since 15/12/10
  */
-public class Operand extends AbstractValue<Operand> {
+public class Operand implements Value<Operand> {
     protected int value;
     AddressingMode addressingMode;
     transient VM vm;
