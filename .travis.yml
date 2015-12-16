@@ -1,0 +1,11 @@
+language: java
+
+jdk:
+  - oraclejdk8
+
+os:
+  - linux
+  - windows
+
+before_install:
+  - git clone --depth=1 https://github.com/wenerme/bbvm-test.git

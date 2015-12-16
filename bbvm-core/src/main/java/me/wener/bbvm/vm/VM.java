@@ -1,6 +1,7 @@
 package me.wener.bbvm.vm;
 
 import com.google.common.base.Preconditions;
+import com.google.inject.Guice;
 import io.netty.buffer.ByteBuf;
 import me.wener.bbvm.exception.ExecutionException;
 import me.wener.bbvm.util.val.IntEnums;
@@ -40,7 +41,12 @@ public class VM {
     private VMConfig config;
     private Throwable lastError;
 
-    public VM() {
+    @Inject
+    private VM() {
+    }
+
+    public static VM create() {
+        return Guice.createInjector(new VirtualMachineModule(new VMConfig.Builder().build())).getInstance(VM.class);
     }
 
     private static Number cal(CalculateType calculateType, DataType dataType, Operand a, Operand b) {
@@ -118,6 +124,10 @@ public class VM {
         return rp.get() < memory.getMemorySize();
     }
 
+    public Throwable getLastError() {
+        return lastError;
+    }
+
     public void run() {
         Preconditions.checkState(!exit);
         Instruction instruction = new Instruction().setVm(this);
@@ -130,6 +140,7 @@ public class VM {
                 run(instruction);
             } catch (ExecutionException e) {
                 log.warn("Cache exception when > {} ' {} @ {}", instruction.toAssembly(), debugAsm(), instruction.address, e);
+                e.setVm(this);
                 if (config.getErrorHandler().apply(e)) {
                     exit();
                 }

@@ -1,6 +1,7 @@
 package me.wener.bbvm.vm;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Throwables;
 import com.typesafe.config.Config;
 import me.wener.bbvm.exception.ExecutionException;
 
@@ -53,7 +54,10 @@ public class VMConfig {
 
     public static final class Builder {
         private Charset charset = Charset.forName("UTF-8");
-        private Predicate<ExecutionException> errorHandler = e -> true;
+        private Predicate<ExecutionException> errorHandler = e -> {
+            Throwables.propagate(e);
+            return true;
+        };
         private com.typesafe.config.Config config;
 
         public Builder() {
