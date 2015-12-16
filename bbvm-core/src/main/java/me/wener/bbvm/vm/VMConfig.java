@@ -2,10 +2,14 @@ package me.wener.bbvm.vm;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.inject.Guice;
 import com.typesafe.config.Config;
 import me.wener.bbvm.exception.ExecutionException;
+import me.wener.bbvm.vm.invoke.PrintStreamOutput;
 
 import java.nio.charset.Charset;
+import java.util.List;
 
 /**
  * @author wener
@@ -14,12 +18,22 @@ import java.nio.charset.Charset;
 public class VMConfig {
     final Charset charset;
     final Predicate<ExecutionException> errorHandler;
-    private final com.typesafe.config.Config config;
+    private final Config config;
+    private final List<Object> invokeHandlers;
 
     private VMConfig(Builder builder) {
         charset = builder.charset;
         errorHandler = builder.errorHandler;
         config = builder.config;
+        invokeHandlers = builder.invokeHandlers;
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
+    public List<Object> getInvokeHandlers() {
+        return invokeHandlers;
     }
 
     public Charset getCharset() {
@@ -40,11 +54,11 @@ public class VMConfig {
         return config.hasPath(path) && config.getBoolean(path);
     }
 
-    public com.typesafe.config.Config getModuleConfig(String name) {
+    public Config getModuleConfig(String name) {
         return null;
     }
 
-    public com.typesafe.config.Config getServiceConfig(String name) {
+    public Config getServiceConfig(String name) {
         return null;
     }
 
@@ -53,12 +67,13 @@ public class VMConfig {
     }
 
     public static final class Builder {
+        private List<Object> invokeHandlers = Lists.newArrayList();
         private Charset charset = Charset.forName("UTF-8");
         private Predicate<ExecutionException> errorHandler = e -> {
             Throwables.propagate(e);
             return true;
         };
-        private com.typesafe.config.Config config;
+        private Config config;
 
         public Builder() {
         }
@@ -67,6 +82,7 @@ public class VMConfig {
             this.charset = copy.charset;
             this.errorHandler = copy.errorHandler;
             this.config = copy.config;
+            this.invokeHandlers = copy.invokeHandlers;
         }
 
         public Builder charset(Charset val) {
@@ -82,8 +98,13 @@ public class VMConfig {
             return this;
         }
 
-        public Builder config(com.typesafe.config.Config val) {
+        public Builder config(Config val) {
             config = val;
+            return this;
+        }
+
+        public Builder invokeHandlers(List<Object> val) {
+            invokeHandlers = val;
             return this;
         }
 
@@ -92,9 +113,27 @@ public class VMConfig {
             return this;
         }
 
+        public Builder invokeWithSystemInput() {
+
+            return this;
+        }
+
+        public Builder invokeWithSystemOutput() {
+            return invokeWith(new PrintStreamOutput(System.out));
+        }
+
+        public Builder invokeWith(Object handler) {
+            invokeHandlers.add(handler);
+            return this;
+        }
+
 
         public VMConfig build() {
             return new VMConfig(this);
+        }
+
+        public VM create() {
+            return Guice.createInjector(new VirtualMachineModule(build())).getInstance(VM.class);
         }
     }
 }

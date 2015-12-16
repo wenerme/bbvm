@@ -104,7 +104,8 @@ public class VM {
 
     @Inject
     private void init(SystemInvokeManager systemInvokeManager) {
-        systemInvokeManager.register(new BasicSystemInvoke());
+        systemInvokeManager.register(BasicSystemInvoke.class);
+        config.getInvokeHandlers().forEach(systemInvokeManager::register);
     }
 
     public StringManager getStringManager() {

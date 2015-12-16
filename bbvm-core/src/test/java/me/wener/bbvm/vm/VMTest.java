@@ -11,7 +11,7 @@ public class VMTest {
 
     @Test
     public void testLoad() throws Exception {
-        VM vm = VM.create();
+        VM vm = VMConfig.newBuilder().invokeWithSystemOutput().create();
         vm.setMemory(Memory.load(Dumps.simpleInst().skipBytes(16))).run();
     }
 }

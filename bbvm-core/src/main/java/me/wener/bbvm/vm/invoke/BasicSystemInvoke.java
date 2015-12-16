@@ -8,6 +8,7 @@ import me.wener.bbvm.vm.res.StringManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 /**
@@ -16,6 +17,19 @@ import javax.inject.Named;
  */
 public class BasicSystemInvoke {
     private final static Logger log = LoggerFactory.getLogger(BasicSystemInvoke.class);
+    private final VM vm;
+    private final Register r3;
+    private final Register r2;
+    private final Register r1;
+    private int pointer;
+
+    @Inject
+    public BasicSystemInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1) {
+        this.vm = vm;
+        this.r3 = r3;
+        this.r2 = r2;
+        this.r1 = r1;
+    }
 
     /*
 ;0 | 浮点数转换为整数 | 整数 | r3:浮点数 | int(r3.float)
@@ -25,12 +39,12 @@ public class BasicSystemInvoke {
 ;4 | 整数转换为字符串 | 返回的值为r3:整数 | r2:目标字符串_句柄_<br>r3:整数 | r2.str=str(r3.int);return r3.int;r2所代表字符串的内容被修改
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 0)
-    public void float2int(@Named("A") Operand o, @Named("R3") Register r3) {
+    public void float2int(@Named("A") Operand o) {
         o.set((int) r3.getFloat());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 1)
-    public void int2float(@Named("A") Operand o, @Named("R3") Register r3) {
+    public void int2float(@Named("A") Operand o) {
         o.set((float) r3.get());
     }
 
@@ -40,12 +54,12 @@ public class BasicSystemInvoke {
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 3)
-    public void string2int(StringManager stringManager, @Named("A") Operand o, @Named("R3") Register r3) {
+    public void string2int(StringManager stringManager, @Named("A") Operand o) {
         o.set(Integer.parseInt(r3.getString()));
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 4)
-    public void int2string(StringManager stringManager, @Named("A") Operand o, @Named("R3") Register r3, @Named("R2") Register r2) {
+    public void int2string(StringManager stringManager, @Named("A") Operand o) {
         o.set(r3.get());
         r2.set(String.valueOf(r3.get()));
     }
@@ -57,24 +71,24 @@ public class BasicSystemInvoke {
 ;8 | 释放字符串句柄 | r3的值 | r3:字符串句柄 | strPool.release(r3);return r3
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 5)
-    public void stringCopy(@Named("A") Operand o, @Named("R3") Register r3, @Named("R2") Register r2) {
+    public void stringCopy(@Named("A") Operand o) {
         o.set(r3.get());
         r3.set(r2.getString());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 6)
-    public void stringConcat(@Named("A") Operand o, @Named("R3") Register r3, @Named("R2") Register r2) {
+    public void stringConcat(@Named("A") Operand o) {
         o.set(r3.get());
         r3.set(r3.getString() + r2.getString());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 7)
-    public void stringLength(@Named("A") Operand o, @Named("R3") Register r3, @Named("R2") Register r2) {
+    public void stringLength(@Named("A") Operand o) {
         o.set(r3.getString().length());//TODO Char length or bytes length ?
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 8)
-    public void releaseString(StringManager stringManager, @Named("A") Operand o, @Named("R3") Register r3) {
+    public void releaseString(StringManager stringManager, Operand o) {
         o.set(r3.get());
         stringManager.getResource(r3.get()).close();
     }
@@ -85,7 +99,7 @@ public class BasicSystemInvoke {
 ; 参数: r2:基准字符串, r3:比较字符串
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 9)
-    public void stringCompare(@Named("A") Operand o, @Named("R3") Register r3, @Named("R2") Register r2) {
+    public void stringCompare(@Named("A") Operand o) {
         int cmp = r2.getString().compareTo(r3.getString());
         if (cmp > 0) {
             o.set(1);
@@ -103,7 +117,7 @@ public class BasicSystemInvoke {
 ; 备注: r2所代表字符串的内容被修改
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 10)
-    public void int2floatString(@Named("A") Operand o, @Named("R3") Register r3, @Named("R2") Register r2) {
+    public void int2floatString(@Named("A") Operand o) {
         o.set(r3.get());
         r2.set(String.format("%.6f", (float) r3.get()));
     }
@@ -114,7 +128,7 @@ public class BasicSystemInvoke {
 ; 参数: r3:字符串
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 11)
-    public void string2float(@Named("A") Operand o, @Named("R3") Register r3) {
+    public void string2float(@Named("A") Operand o) {
         try {
             o.set(Float.parseFloat(r3.getString()));
         } catch (NumberFormatException e) {
@@ -135,7 +149,7 @@ public class BasicSystemInvoke {
 21 | 求绝对值 | X!的绝对值 | r3:X! |
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 13)
-    public void stringReplace(Operand o, @Named("R1") Register r1, @Named("R2") Register r2, @Named("R3") Register r3) {
+    public void stringReplace(Operand o) {
         o.set(r3.get());
         // TODO Charset
         byte[] bytes = r3.getString().getBytes();
@@ -159,7 +173,7 @@ public class BasicSystemInvoke {
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 19)
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 20)
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 21)
-    public void math(Operand a, Operand b, @Named("R3") Register r3) {
+    public void math(Operand a, Operand b) {
         switch (b.get()) {
             case 16:
                 a.set((float) Math.sin(r3.getFloat()));
@@ -180,5 +194,27 @@ public class BasicSystemInvoke {
                 a.set(Math.abs(r3.getFloat()));
                 break;
         }
+    }
+
+    /*
+22 | 重定位数据指针 | r3的值 | r2:数据位置 | r3中为任意值
+23 | 读内存数据 | 地址内容 | r3:地址 |
+24 | 写内存数据 | r3的值 | r2:待写入数据<br>r3:待写入地址 |
+     */
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 22)
+    public void pointerReset(Operand o) {
+        o.set(r3.get());
+        pointer = r2.get();
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 23)
+    public void pointerRead(Operand o) {
+        o.set(vm.getMemory().read(r3.get()));
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 24)
+    public void pointerWrite(Operand o) {
+        o.set(r3.get());
+        vm.getMemory().write(r3.get(), r2.get());
     }
 }

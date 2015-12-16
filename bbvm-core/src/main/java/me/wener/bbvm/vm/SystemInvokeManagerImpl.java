@@ -29,7 +29,6 @@ import java.util.Map;
 class SystemInvokeManagerImpl implements SystemInvokeManager {
     final static Map<String, Function<Instruction, Object>> MAPPER_MAP;
     private final static Logger log = LoggerFactory.getLogger(SystemInvokeManager.class);
-
     static {
         ImmutableMap.Builder<String, Function<Instruction, Object>> builder = ImmutableMap.builder();
         builder.put("A", Instruction::getA);
@@ -50,7 +49,11 @@ class SystemInvokeManagerImpl implements SystemInvokeManager {
     }
 
     @Override
-    public void register(Object o) {
+    public void register(Object handler) {
+        Object o = handler;
+        if (o instanceof Class) {
+            o = injector.getInstance((Class) o);
+        }
         for (Method m : o.getClass().getMethods()) {
             SystemInvokes invokes = m.getAnnotation(SystemInvokes.class);
             if (invokes != null) {

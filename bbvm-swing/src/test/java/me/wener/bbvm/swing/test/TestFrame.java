@@ -1,20 +1,21 @@
 package me.wener.bbvm.swing.test;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.util.Timer;
-import java.util.TimerTask;
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
 import me.wener.bbvm.impl.plaf.Colour;
 import me.wener.bbvm.impl.spi.DeviceProvider;
 import me.wener.bbvm.swing.KeyStatus;
 import me.wener.bbvm.swing.SwingDeviceProvider;
 import me.wener.bbvm.swing.SwingPage;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.util.Timer;
+import java.util.TimerTask;
+
+@Ignore
 public class TestFrame
 {
     public static void main(String[] args)

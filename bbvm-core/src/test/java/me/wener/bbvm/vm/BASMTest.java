@@ -20,6 +20,8 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 
+import static org.junit.Assert.assertNull;
+
 /**
  * @author wener
  * @since 15/12/13
@@ -84,9 +86,12 @@ public class BASMTest {
         System.out.println(Dumper.hexDumpReadable(buf));
         try {
             vm.reset().setSymbolTable(parser.createSymbolTable()).setMemory(Memory.load(buf)).run();
-        } finally {
-            System.err.flush();
+            assertNull(vm.getLastError());
             io.assertMatch(out.toString());
+        }catch (Throwable e){
+            throw e;
+        }finally {
+            System.err.flush();
         }
     }
 }

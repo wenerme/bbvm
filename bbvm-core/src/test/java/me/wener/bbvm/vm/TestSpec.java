@@ -88,6 +88,14 @@ public class TestSpec {
             }
         }
         List<String> actually = Lists.newArrayList(NL_SPLITTER.splitToList(out));
+
+        try {
+            assertEquals(expected.size(), actually.size());
+        } catch (Error e) {
+            System.out.printf("Expected\n%s\nActually\n%s\n", output, out);
+            throw e;
+        }
+
         skipped.forEach(i -> actually.set(i, "skip"));
 
         assertEquals(NL_JOINER.join(expected), NL_JOINER.join(actually));
