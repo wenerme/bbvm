@@ -1,4 +1,4 @@
-BBvm - BeBasic Virtual Machine
+BBVM - BeBasic Virtual Machine [![Build Status](https://travis-ci.org/wenerme/bbvm.svg)](https://travis-ci.org/wenerme/bbvm)
 ===========================
 
 该项目为原步步高BBasic的一个仿照实现.并在原来的基础上进行了扩展.
@@ -25,8 +25,11 @@ BBvm - BeBasic Virtual Machine
 NOTE
 ====
 
-目前是第三版实现,第一次实现做到了图像处理,基本实现了功能,但难以扩展.
+第三版实现,第一次实现做到了图像处理,基本实现了功能,但难以扩展.
 第二次尝试使用事件处理,使实现过于复杂.
 第三次实现尽量保持简洁,按照实际逻辑进行分类,保持 CPU, Memory 等概念,做到可扩展.
 
-目前主要是第三版实现.
+目前主要是第四版实现.
+完全重写的一个实现,首先基于 JavaCC 实现了解析和编译,使用依赖注入来解耦系统调用和相关的资源管理.
+实现简洁,层级简单.测试完全基于自身的解析编译执行,去掉了对原生编译器的依赖.
+
