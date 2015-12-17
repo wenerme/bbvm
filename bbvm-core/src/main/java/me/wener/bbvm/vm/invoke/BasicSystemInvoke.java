@@ -297,4 +297,32 @@ public class BasicSystemInvoke {
         // TODO Same as 7 ?
         stringLength(o);
     }
+
+    /*
+13 | 从数据区读取整数 | 0 |  | r3的值变为读取的整数
+14 | 从数据区读取字符串 | 0 | r3:目标字符串句柄 | r3所指字符串的内容变为读取的字符串
+15 | 从数据区读取浮点数 | 0 |  | r3的值变为读取的浮点数
+     */
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 13, b = 0)
+    public void readIntData() {
+        r3.set(vm.getMemory().getByteBuf().getInt(pointer));
+        pointer += 4;
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 14, b = 0)
+    public void readStringData() {
+        byte[] bytes = vm.getMemory().getByteBuf().array();
+        int start = pointer;
+        while (bytes[pointer++] != 0) {
+            // Ignored
+        }
+        r3.set(new String(bytes, start, pointer - start - 1));
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 15, b = 0)
+    public void readFloatData() {
+        r3.set(vm.getMemory().getByteBuf().getFloat(pointer));
+        pointer += 4;
+    }
 }
