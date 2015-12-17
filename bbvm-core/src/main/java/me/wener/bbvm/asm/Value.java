@@ -1,6 +1,7 @@
 package me.wener.bbvm.asm;
 
 import com.google.common.base.Preconditions;
+import com.google.common.io.BaseEncoding;
 import io.netty.buffer.ByteBuf;
 import org.apache.commons.lang3.mutable.MutableDouble;
 
@@ -65,6 +66,21 @@ public class Value {
         return forNumber(token.image, type).setToken(token);
     }
 
+    public static Value forHexBytes(Token token) {
+        String c = token.image;
+        // Currently only support %
+        switch (c.codePointAt(0)) {
+            case '%':
+                c = c.substring(1, c.length() - 1);
+                if (c.length() % 2 != 0) {
+                    throw new RuntimeException(String.format("%s:%s Hex bytes length value (%s)'%s'", token.beginLine, token.beginColumn, c.length(), c));
+                }
+                return new Value().setToken(token).setValue(BaseEncoding.base16().decode(c));
+            default:
+                throw new AssertionError();
+        }
+    }
+
     public static Value forString(Token token) {
         Value val = new Value().setAssembly(token.image).setType(Type.STRING).setToken(token);
         // Strip the quote
@@ -106,6 +122,7 @@ public class Value {
 
     public Value setToken(Token token) {
         this.token = token;
+        assembly = token.image;
         return this;
     }
 
@@ -196,8 +213,10 @@ public class Value {
             type = Type.DOUBLE;
         } else if (value instanceof CharSequence) {
             string = value.toString();
+            type = Type.STRING;
         } else if (value instanceof byte[]) {
             bytes = (byte[]) value;
+            type = Type.BYTES;
         } else {
             throw new UnsupportedOperationException("Unsupported type " + value.getClass() + " : " + value);
         }

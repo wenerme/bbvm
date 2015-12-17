@@ -139,7 +139,8 @@ Value ValueLiteral():{
     // N based bytes ?
     LOOKAHEAD(2) v = IntegerValueLiteral(){return v;}
     |LOOKAHEAD(2) t = <STRING_LITERAL>{return Value.forString(t);}
-    |LOOKAHEAD(2) <FLOATING_POINT_LITERAL>{return Value.forNumber(token);}
+    |LOOKAHEAD(2) t = <FLOATING_POINT_LITERAL>{return Value.forNumber(t);}
+    |LOOKAHEAD(0) t = <HEX_BYTES_LITERAL>{return Value.forHexBytes(t);}
 }
 Value IntegerValueLiteral():{
     Token t = null;
@@ -198,6 +199,7 @@ Operand Operand():{
 // =========================================
 TOKEN :
 {
+  // TODO Consider POSITIVE as unary expression in constant formula
   < #POSITIVE_INTEGER_LITERAL:
         <DECIMAL_LITERAL> (["l","L"])?
       | <HEX_LITERAL> (["l","L"])?
@@ -241,6 +243,7 @@ TOKEN :
       )*
       "\""
   >
+| < HEX_BYTES_LITERAL: "%" ((["0"-"9","a"-"f","A"-"F"]))+ "%" >
 }
 
 
