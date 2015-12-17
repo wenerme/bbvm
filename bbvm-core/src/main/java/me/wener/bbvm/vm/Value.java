@@ -1,6 +1,8 @@
 package me.wener.bbvm.vm;
 
 import me.wener.bbvm.util.val.IsInt;
+import me.wener.bbvm.vm.res.Resource;
+import me.wener.bbvm.vm.res.ResourceManager;
 
 /**
  * @author wener
@@ -25,6 +27,10 @@ public interface Value<T extends Value> {
 
     default String getString() {
         return getVm().getString(get());
+    }
+
+    default <M extends ResourceManager<M, R>, R extends Resource> R getResource(M manager) {
+        return manager.getResource(get());
     }
 
     @SuppressWarnings("unchecked")

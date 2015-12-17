@@ -16,4 +16,8 @@ public abstract class AbstractResource implements Resource {
         return handler;
     }
 
+    @Override
+    public void close() throws Exception {
+
+    }
 }
