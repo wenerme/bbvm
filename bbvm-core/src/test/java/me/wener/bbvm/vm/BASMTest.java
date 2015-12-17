@@ -65,7 +65,7 @@ public class BASMTest {
     public void test() throws IOException, ParseException {
         BASMTest test = new BASMTest();
 //        System.out.println(new File(".").getAbsoluteFile());
-        test.init(new File("../bbvm-test/case/out/10.basm")).run();
+        test.init(new File("../bbvm-test/case/in/38.basm")).run();
     }
 
     public BASMTest init(File basm) throws IOException, ParseException {

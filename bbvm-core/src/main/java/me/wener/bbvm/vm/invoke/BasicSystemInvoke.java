@@ -21,14 +21,16 @@ public class BasicSystemInvoke {
     private final Register r3;
     private final Register r2;
     private final Register r1;
+    private final Register r0;
     private int pointer;
 
     @Inject
-    public BasicSystemInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1) {
+    public BasicSystemInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0) {
         this.vm = vm;
         this.r3 = r3;
         this.r2 = r2;
         this.r1 = r1;
+        this.r0 = r0;
     }
 
     /*
@@ -60,8 +62,8 @@ public class BasicSystemInvoke {
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 4)
     public void int2string(StringManager stringManager, @Named("A") Operand o) {
-        o.set(r3.get());
         r2.set(String.valueOf(r3.get()));
+        o.set(r3.get());
     }
 
     /*
@@ -72,25 +74,25 @@ public class BasicSystemInvoke {
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 5)
     public void stringCopy(@Named("A") Operand o) {
-        o.set(r3.get());
         r3.set(r2.getString());
+        o.set(r3.get());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 6)
     public void stringConcat(@Named("A") Operand o) {
-        o.set(r3.get());
         r3.set(r3.getString() + r2.getString());
+        o.set(r3.get());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 7)
-    public void stringLength(@Named("A") Operand o) {
+    public void stringLength(Operand o) {
         o.set(r3.getString().length());//TODO Char length or bytes length ?
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 8)
     public void releaseString(StringManager stringManager, Operand o) {
-        o.set(r3.get());
         stringManager.getResource(r3.get()).close();
+        o.set(r3.get());
     }
 
     /*
@@ -118,8 +120,8 @@ public class BasicSystemInvoke {
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 10)
     public void int2floatString(@Named("A") Operand o) {
-        o.set(r3.get());
         r2.set(String.format("%.6f", (float) r3.get()));
+        o.set(r3.get());
     }
 
     /*
@@ -150,11 +152,11 @@ public class BasicSystemInvoke {
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 13)
     public void stringReplace(Operand o) {
-        o.set(r3.get());
         // TODO Charset
         byte[] bytes = r3.getString().getBytes();
         bytes[r2.get()] = (byte) (r1.get() & 0xff);
         r3.set(new String(bytes));
+        o.set(r3.get());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 14)
@@ -203,8 +205,8 @@ public class BasicSystemInvoke {
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 22)
     public void pointerReset(Operand o) {
-        o.set(r3.get());
         pointer = r2.get();
+        o.set(r3.get());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 23)
@@ -214,7 +216,85 @@ public class BasicSystemInvoke {
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 24)
     public void pointerWrite(Operand o) {
-        o.set(r3.get());
         vm.getMemory().write(r3.get(), r2.get());
+        o.set(r3.get());
+    }
+
+    /*
+32 | 整数转换为字符串 | r3的值 | r1:整数<br>r3:目标字符串 | r3所代表字符串的内容被修改
+33 | 字符串转换为整数 | 整数 | r3:字符串 |
+34 | 获取字符第一个字符的ASCII码 | ASCII码 | r3:字符串 |
+35 | 左取字符串 | r3的值 | r1:截取长度<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改 （此端口似乎不正常）
+36 | 右取字符串 | r3的值 | r1:截取长度<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改
+37 | 中间取字符串 | r0截取长度 | r0:截取长度<br>r1:截取位置<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改
+38 | 查找字符串 | 位置 | r1:起始位置<br>r2:子字符串<br>r3:父字符串 |
+39 | 获取字符串长度 | 字符串长度 | r3:字符串 |
+     */
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 32)
+    public void int2string(@Named("A") Operand o) {
+        r3.set(Integer.toString(r1.get()));
+        o.set(r3.get());
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 33)
+    public void string2int(@Named("A") Operand o) {
+        try {
+            o.set((int) Float.parseFloat(r3.getString()));
+        } catch (NumberFormatException e) {
+            // TODO should I do this ?
+            o.set(0);
+        }
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 34)
+    public void firstCharCode(@Named("A") Operand o) {
+        //TODO How to handler unicode ?
+        o.set(r3.getString().codePointAt(0));
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 35)
+    public void stringLeft(Operand o) {
+        //TODO Exceptions
+        r3.set(r2.getString().substring(0, r1.get()));
+
+        o.set(r3.get());
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 36)
+    public void stringRight(Operand o) {
+        String s = r2.getString();
+        int start = s.length() - r1.get();
+        if (start < 0) {
+            log.warn("\"{}\".right(%s)", s, r1.get());
+            r3.set(s.substring(0, s.length()));
+        } else {
+            r3.set(s.substring(start, s.length()));
+        }
+
+        o.set(r3.get());
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 37)
+    public void stringMid(Operand o) {
+        int start = r1.get();
+        int end = start + r0.get();
+        r3.set(r2.getString().substring(start, end));
+
+        o.set(r0.get());
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 38)
+    public void indexOfString(Operand o) {
+        int i = r3.getString().indexOf(r2.getString(), r1.get());
+        // FIXME PC 虚拟机中有这个BUG,不知道小机中有这个BUG没
+        if (i < 0)
+            i = 0;
+        o.set(i);
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 39)
+    public void stringLength2(Operand o) {
+        // TODO Same as 7 ?
+        stringLength(o);
     }
 }
