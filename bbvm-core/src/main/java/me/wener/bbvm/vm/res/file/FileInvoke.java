@@ -18,10 +18,10 @@ public class FileInvoke {
     private final Register r2;
     private final Register r1;
     private final Register r0;
-    private final FileManager manager;
+    private final FileManagerImpl manager;
 
     @Inject
-    public FileInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, FileManager manager) {
+    public FileInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, FileManagerImpl manager) {
         this.vm = vm;
         this.r3 = r3;
         this.r2 = r2;
@@ -82,18 +82,18 @@ public class FileInvoke {
 
     /*
 52 | 判断文件位置指针是否指向文件尾 | 0;r3为0或1 | r3:文件号 |  Eof
-53 | 获取文件长度 | 0 | r3:文件号 |  Lof
+53 | 获取文件长度 | 0 | r3:文件号,返回在 r3 |  Lof
 54 | 获取文件位置指针的位置 | 0;返回值在r3 | r3:文件号 |  LOC(FILE)
 55 | 定位文件位置指针 | 16 | r2:文件号<br>r3:目标位置 |
      */
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 52)
     public void isEof(@Named("B") Operand b) {
-        b.set(r1.getResource(manager).isEof() ? 1 : 0);
+        r3.set(r3.getResource(manager).isEof() ? 1 : 0);
     }
 
-    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 53, b = 0)// TODO How to return value
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 53, b = 0)
     public void fileLength(@Named("B") Operand b) {
-        b.set(r3.getResource(manager).length());
+        r3.set(r3.getResource(manager).length());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 54, b = 0)
@@ -101,7 +101,7 @@ public class FileInvoke {
         r3.set(r3.getResource(manager).tell());
     }
 
-    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 55, b = 16)// TODO 16?
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 55, b = 0)
     public void seek() {
         r2.getResource(manager).seek(r3.get());
     }

@@ -1,6 +1,8 @@
 package me.wener.bbvm.vm;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
+import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.multibindings.OptionalBinder;
 import me.wener.bbvm.BeBasicVirtualMachine;
@@ -26,6 +28,13 @@ public class VirtualMachineModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        for (Object o : config.getModules()) {
+            if (o instanceof Module) {
+                install((Module) o);
+            } else {
+                throw new UnsupportedOperationException("Current can not handle inject module");
+            }
+        }
         OptionalBinder.newOptionalBinder(binder(), SystemInvokeManager.class)
                 .setDefault().to(SystemInvokeManagerImpl.class).in(Singleton.class);
 //        OptionalBinder.newOptionalBinder(binder(), StringManager.class)
@@ -43,6 +52,12 @@ public class VirtualMachineModule extends AbstractModule {
     @Singleton
     public VMConfig config() {
         return config;
+    }
+
+    @Provides
+    @Singleton
+    public EventBus eventBus() {
+        return new EventBus();
     }
 
     // region Generated Register

@@ -9,6 +9,7 @@ import me.wener.bbvm.asm.ParseException;
 import me.wener.bbvm.util.Dumper;
 import me.wener.bbvm.vm.invoke.BufferedReaderInput;
 import me.wener.bbvm.vm.invoke.PrintStreamOutput;
+import me.wener.bbvm.vm.res.file.FileModule;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -49,7 +50,9 @@ public class BASMTest {
     private TestSpec io = new TestSpec();
 
     public BASMTest() {
-        Injector injector = Guice.createInjector(new VirtualMachineModule(new VMConfig.Builder().build()));
+        VMConfig.Builder builder = new VMConfig.Builder()
+                .withModule(new FileModule());
+        Injector injector = Guice.createInjector(new VirtualMachineModule(builder.build()));
         injector.injectMembers(this);
         out = new ByteArrayOutputStream();
         in = new BufferedReaderInput();
@@ -65,7 +68,7 @@ public class BASMTest {
     public void test() throws IOException, ParseException {
         BASMTest test = new BASMTest();
 //        System.out.println(new File(".").getAbsoluteFile());
-        test.init(new File("../bbvm-test/case/in/38.basm")).run();
+        test.init(new File("../bbvm-test/case/file.basm")).run();
     }
 
     public BASMTest init(File basm) throws IOException, ParseException {

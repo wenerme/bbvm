@@ -8,6 +8,9 @@ import me.wener.bbvm.vm.res.Resource;
  */
 public interface FileResource extends Resource {
 
+    @Override
+    FileManager getManager();
+
     FileResource open(String string);
 
     int readInt(int address);

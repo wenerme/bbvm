@@ -29,6 +29,7 @@ import java.util.Map;
 class SystemInvokeManagerImpl implements SystemInvokeManager {
     final static Map<String, Function<Instruction, Object>> MAPPER_MAP;
     private final static Logger log = LoggerFactory.getLogger(SystemInvokeManager.class);
+
     static {
         ImmutableMap.Builder<String, Function<Instruction, Object>> builder = ImmutableMap.builder();
         builder.put("A", Instruction::getA);
@@ -71,6 +72,11 @@ class SystemInvokeManagerImpl implements SystemInvokeManager {
     }
 
     public void register(SystemInvoke invoke, InvokeHandler handler) {
+        if (log.isTraceEnabled()) {
+            log.trace("Register {} {}, {} -> {}"
+                    , invoke.type(), invoke.a() == SystemInvoke.ANY ? "ANY" : invoke.a()
+                    , invoke.b() == SystemInvoke.ANY ? "ANY" : invoke.b(), handler);
+        }
         register(invoke.type(), invoke.a(), invoke.b(), handler);
     }
 

@@ -1,16 +1,16 @@
 package me.wener.bbvm.vm.res.file;
 
 import me.wener.bbvm.exception.ExecutionException;
-import me.wener.bbvm.vm.res.ResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * @author wener
@@ -30,9 +30,10 @@ public class JavaFileResourceImpl implements FileResource {
 
     @Override
     public FileResource open(String string) {
-        log.info("Open file {}", string);
+        log.info("Open file #{} {}", handler, string);
         try {
-            channel = FileChannel.open(path);
+            path = Paths.get(string);
+            channel = FileChannel.open(path, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
         } catch (IOException e) {
             throw new ExecutionException(e);
         }
@@ -42,7 +43,7 @@ public class JavaFileResourceImpl implements FileResource {
     @Override
     public FileResource writeInt(int address, int v) {
         try {
-            ByteBuffer buf = channel.map(FileChannel.MapMode.READ_WRITE, address, 4);
+            ByteBuffer buf = ch().map(FileChannel.MapMode.READ_WRITE, address, 4);
             buf.putInt(v);
         } catch (IOException e) {
             throw new ExecutionException(e);
@@ -53,7 +54,7 @@ public class JavaFileResourceImpl implements FileResource {
     @Override
     public FileResource writeFloat(int address, float v) {
         try {
-            ByteBuffer buf = channel.map(FileChannel.MapMode.READ_WRITE, address, 4);
+            ByteBuffer buf = ch().map(FileChannel.MapMode.READ_WRITE, address, 4);
             buf.putFloat(v);
         } catch (IOException e) {
             throw new ExecutionException(e);
@@ -65,7 +66,7 @@ public class JavaFileResourceImpl implements FileResource {
     public FileResource writeString(int address, String v) {
         try {
             byte[] bytes = v.getBytes();
-            ByteBuffer buf = channel.map(FileChannel.MapMode.READ_WRITE, address, bytes.length + 1);
+            ByteBuffer buf = ch().map(FileChannel.MapMode.READ_WRITE, address, bytes.length + 1);
             buf.put(bytes).put((byte) 0);
         } catch (IOException e) {
             throw new ExecutionException(e);
@@ -75,18 +76,33 @@ public class JavaFileResourceImpl implements FileResource {
 
     @Override
     public boolean isEof() {
+        if (channel == null) {
+            log.info("File handler #{} not open yet", handler);
+            return true;
+        }
         try {
-            MappedByteBuffer buf = channel.map(FileChannel.MapMode.READ_ONLY, channel.position(), 1);
-            return buf.get() < 0;
+            ByteBuffer buffer = ByteBuffer.allocate(1);
+            boolean eof = channel.read(buffer) < 0;
+            if (!eof) {
+                channel.position(channel.position() - 1);
+            }
+            return eof;
         } catch (IOException e) {
             throw new ExecutionException(e);
         }
     }
 
+    private FileChannel ch() {
+        if (channel == null) {
+            throw new ExecutionException(String.format("File handler #%s not open yet", handler));
+        }
+        return channel;
+    }
+
     @Override
     public int length() {
         try {
-            return (int) channel.size();
+            return (int) ch().size();
         } catch (IOException e) {
             throw new ExecutionException(e);
         }
@@ -95,7 +111,7 @@ public class JavaFileResourceImpl implements FileResource {
     @Override
     public int readInt(int address) {
         try {
-            ByteBuffer buf = channel.map(FileChannel.MapMode.READ_WRITE, address, 4);
+            ByteBuffer buf = ch().map(FileChannel.MapMode.READ_WRITE, address, 4);
             return buf.getInt();
         } catch (IOException e) {
             throw new ExecutionException(e);
@@ -105,7 +121,7 @@ public class JavaFileResourceImpl implements FileResource {
     @Override
     public float readFloat(int address) {
         try {
-            ByteBuffer buf = channel.map(FileChannel.MapMode.READ_WRITE, address, 4);
+            ByteBuffer buf = ch().map(FileChannel.MapMode.READ_WRITE, address, 4);
             return buf.getFloat();
         } catch (IOException e) {
             throw new ExecutionException(e);
@@ -114,15 +130,18 @@ public class JavaFileResourceImpl implements FileResource {
 
     @Override
     public String readString(final int address) {
-        int pos = address;
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
-            byte b = -1;
-            while (b != 0) {
-                ByteBuffer buf = channel.map(FileChannel.MapMode.READ_WRITE, pos += 256, 256);
-                while ((b = buf.get()) != 0) {
-                    os.write(b);
+            FileChannel ch = ch().position(address);
+            ByteBuffer buffer = ByteBuffer.allocate(1);
+            while (ch.read(buffer) > 0) {
+                buffer.flip();
+                byte b = buffer.get();
+                if (b == 0) {
+                    break;
                 }
+                os.write(b);
+                buffer.clear();
             }
             // TODO Charset
             return os.toString("UTF-8");
@@ -134,7 +153,7 @@ public class JavaFileResourceImpl implements FileResource {
     @Override
     public int tell() {
         try {
-            return (int) channel.position();
+            return (int) ch().position();
         } catch (IOException e) {
             throw new ExecutionException(e);
         }
@@ -143,7 +162,7 @@ public class JavaFileResourceImpl implements FileResource {
     @Override
     public FileResource seek(int i) {
         try {
-            channel.position(i);
+            ch().position(i);
         } catch (IOException e) {
             throw new ExecutionException(e);
         }
@@ -156,14 +175,14 @@ public class JavaFileResourceImpl implements FileResource {
     }
 
     @Override
-    public ResourceManager getManager() {
+    public FileManager getManager() {
         return manager;
     }
 
     @Override
     public void close() {
         if (channel != null) {
-            log.info("Close file {}", path);
+            log.info("Close file #{} {}", handler, path);
             try {
                 channel.close();
             } catch (IOException e) {
