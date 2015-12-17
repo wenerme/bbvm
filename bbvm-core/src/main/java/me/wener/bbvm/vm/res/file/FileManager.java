@@ -13,8 +13,12 @@ public class FileManager implements ResourceManager<FileManager, FileResource> {
 
     public FileManager() {
         for (int i = 0; i < FILE_NUMBER; i++) {
-            resources[i] = new FileResource(i, this);
+            resources[i] = create(i);
         }
+    }
+
+    private FileResource create(int i) {
+        return null;
     }
 
     @Override
@@ -41,10 +45,5 @@ public class FileManager implements ResourceManager<FileManager, FileResource> {
     @Override
     public String getType() {
         return "File";
-    }
-
-    public FileManager close(FileResource resource) {
-
-        return this;
     }
 }
