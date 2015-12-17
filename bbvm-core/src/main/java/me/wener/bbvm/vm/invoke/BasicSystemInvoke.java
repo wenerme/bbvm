@@ -1,15 +1,18 @@
 package me.wener.bbvm.vm.invoke;
 
+import com.google.common.eventbus.EventBus;
 import me.wener.bbvm.vm.Operand;
 import me.wener.bbvm.vm.Register;
 import me.wener.bbvm.vm.SystemInvoke;
 import me.wener.bbvm.vm.VM;
+import me.wener.bbvm.vm.event.VmTestEvent;
 import me.wener.bbvm.vm.res.StringManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Random;
 
 /**
  * @author wener
@@ -22,15 +25,18 @@ public class BasicSystemInvoke {
     private final Register r2;
     private final Register r1;
     private final Register r0;
+    private final Random random = new Random(0);
+    private final EventBus eventBus;
     private int pointer;
 
     @Inject
-    public BasicSystemInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0) {
+    public BasicSystemInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, EventBus eventBus) {
         this.vm = vm;
         this.r3 = r3;
         this.r2 = r2;
         this.r1 = r1;
         this.r0 = r0;
+        this.eventBus = eventBus;
     }
 
     /*
@@ -325,4 +331,33 @@ public class BasicSystemInvoke {
         r3.set(vm.getMemory().getByteBuf().getFloat(pointer));
         pointer += 4;
     }
+
+    /*
+27 | 延迟一段时间 | 0 | r3:延迟时间 |  MSDELAY(MSEC)
+32 | 用种子初始化随机数生成器 | 0 | r3:SEED |  RANDOMIZE(SEED)
+33 | 获取范围内随机数 | 0 | r3:RANGE |  RND(RANGE)
+     */
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 27, b = 0)
+    public void delay() throws InterruptedException {
+        Thread.sleep(r3.get());
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 32, b = 0)
+    public void seed() {
+        random.setSeed(r3.get());
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 33, b = 0)
+    public void random() {// TODO 怎么返回
+        r3.set(random.nextInt(r3.get()));
+    }
+
+    /*
+255 | 虚拟机测试 | 0 | 0 |  VmTest
+     */
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 33, b = 0)
+    public void vmTest() {
+        eventBus.post(new VmTestEvent(vm));
+    }
+
 }
