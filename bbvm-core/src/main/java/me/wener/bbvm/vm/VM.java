@@ -1,10 +1,12 @@
 package me.wener.bbvm.vm;
 
 import com.google.common.base.Preconditions;
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import io.netty.buffer.ByteBuf;
 import me.wener.bbvm.exception.ExecutionException;
 import me.wener.bbvm.util.val.IntEnums;
+import me.wener.bbvm.vm.event.ResetEvent;
 import me.wener.bbvm.vm.invoke.BasicSystemInvoke;
 import me.wener.bbvm.vm.res.StringManager;
 import org.slf4j.Logger;
@@ -43,6 +45,8 @@ public class VM {
     @Inject
     private VMConfig config;
     private Throwable lastError;
+    @Inject
+    private EventBus eventBus;
 
     @Inject
     private VM() {
@@ -201,6 +205,7 @@ public class VM {
         if (memory != null) {
             memory.reset();
         }
+        eventBus.post(new ResetEvent(this));
         return this;
     }
 
@@ -343,6 +348,40 @@ public class VM {
 
     public Symbol getSymbol(int address) {
         return symbolTable != null ? symbolTable.getSymbol(address) : null;
+    }
+
+    /**
+     * @author wener
+     * @since 15/12/15
+     */
+    private static class Reg implements Register {
+        final RegisterType type;
+        final VM vm;
+        int value;
+
+        public Reg(RegisterType type, VM vm) {
+            this.type = type;
+            this.vm = vm;
+        }
+
+        public VM getVm() {
+            return vm;
+        }
+
+        @Override
+        public int get() {
+            return value;
+        }
+
+        public Reg set(int value) {
+            this.value = value;
+            return this;
+        }
+
+        @Override
+        public RegisterType getType() {
+            return type;
+        }
     }
 
     private class InstructionIterable implements Iterable<Instruction> {

@@ -96,7 +96,7 @@ public class BasicSystemInvoke {
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 8)
-    public void releaseString(StringManager stringManager, Operand o) {
+    public void releaseString(StringManager stringManager, Operand o) throws Exception {
         stringManager.getResource(r3.get()).close();
         o.set(r3.get());
     }
@@ -355,7 +355,7 @@ public class BasicSystemInvoke {
     /*
 255 | 虚拟机测试 | 0 | 0 |  VmTest
      */
-    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 33, b = 0)
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 255, b = 0)
     public void vmTest() {
         eventBus.post(new VmTestEvent(vm));
     }

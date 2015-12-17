@@ -9,7 +9,7 @@ import me.wener.bbvm.asm.ParseException;
 import me.wener.bbvm.util.Dumper;
 import me.wener.bbvm.vm.invoke.BufferedReaderInput;
 import me.wener.bbvm.vm.invoke.PrintStreamOutput;
-import me.wener.bbvm.vm.res.file.FileModule;
+import me.wener.bbvm.vm.res.Resources;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -51,7 +51,7 @@ public class BASMTest {
 
     public BASMTest() {
         VMConfig.Builder builder = new VMConfig.Builder()
-                .withModule(new FileModule());
+                .withModule(Resources.fileModule());
         Injector injector = Guice.createInjector(new VirtualMachineModule(builder.build()));
         injector.injectMembers(this);
         out = new ByteArrayOutputStream();

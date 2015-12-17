@@ -1,9 +1,10 @@
-package me.wener.bbvm.vm.res.file;
+package me.wener.bbvm.vm.invoke;
 
 import me.wener.bbvm.vm.Operand;
 import me.wener.bbvm.vm.Register;
 import me.wener.bbvm.vm.SystemInvoke;
 import me.wener.bbvm.vm.VM;
+import me.wener.bbvm.vm.res.Resources;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -18,10 +19,10 @@ public class FileInvoke {
     private final Register r2;
     private final Register r1;
     private final Register r0;
-    private final FileManagerImpl manager;
+    private final Resources.FileManagerImpl manager;
 
     @Inject
-    public FileInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, FileManagerImpl manager) {
+    public FileInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, Resources.FileManagerImpl manager) {
         this.vm = vm;
         this.r3 = r3;
         this.r2 = r2;

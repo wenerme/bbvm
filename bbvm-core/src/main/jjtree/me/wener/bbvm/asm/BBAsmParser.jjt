@@ -105,7 +105,6 @@ List<Assembly> Parse():{
            // Test current token
            if (token.specialToken != null) {
                addComment(token.specialToken, empty);
-               log.debug("Deal here {}", token.specialToken);
            }
            empty = false;
         }

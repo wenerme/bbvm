@@ -1,6 +1,4 @@
-package me.wener.bbvm.vm.res.file;
-
-import me.wener.bbvm.vm.res.ResourceManager;
+package me.wener.bbvm.vm.res;
 
 /**
  * @author wener

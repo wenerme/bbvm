@@ -9,7 +9,13 @@ public interface ResourceManager<M extends ResourceManager, R extends Resource> 
 
     M reset();
 
-    R create();
+    default R create() {
+        throw new UnsupportedOperationException();
+    }
+
+    default R create(int handler) {
+        throw new UnsupportedOperationException();
+    }
 
     String getType();
 }
