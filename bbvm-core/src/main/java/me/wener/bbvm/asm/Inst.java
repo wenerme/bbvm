@@ -9,7 +9,7 @@ import me.wener.bbvm.vm.Instruction;
  */
 public class Inst extends AbstractAssembly implements Assembly {
     private Instruction instruction;
-
+    private int line;
     public Inst(Instruction instruction) {
         this.instruction = instruction;
     }
@@ -36,6 +36,16 @@ public class Inst extends AbstractAssembly implements Assembly {
     @Override
     public void write(ByteBuf buf) {
         instruction.write(buf);
+    }
+
+    @Override
+    public int getLine() {
+        return line;
+    }
+
+    public Inst setLine(int line) {
+        this.line = line;
+        return this;
     }
 
     @Override

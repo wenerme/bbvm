@@ -83,7 +83,7 @@ public class BASMTest {
         out.reset();
         in.setReader(io.output().toString());
         parser.Parse();
-        int length = parser.estimateLabelAddress();
+        int length = parser.estimateAddress();
         System.out.printf("Estimate length is %s\n", length);
         System.out.printf("Expected output \n%s\nWith input\n%s\n", io.output(), io.input());
         parser.checkLabel();
@@ -92,7 +92,11 @@ public class BASMTest {
         System.out.println(basmContent);
         System.out.println(Dumper.hexDumpReadable(buf));
         try {
-            vm.reset().setSymbolTable(parser.createSymbolTable()).setMemory(Memory.load(buf)).run();
+            vm
+                    .reset()
+                    .setAddressTable(parser.getAddressTable())
+                    .setSymbolTable(parser.createSymbolTable())
+                    .setMemory(Memory.load(buf)).run();
             assertNull(vm.getLastError());
             io.assertMatch(out.toString());
             System.out.printf("Output\n%s\n", out.toString());

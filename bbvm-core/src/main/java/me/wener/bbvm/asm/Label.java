@@ -84,6 +84,10 @@ public class Label extends AbstractAssembly implements Symbol, Assembly {
         return token.toString() + commentAssembly();
     }
 
+    @Override
+    public int getLine() {
+        return token == null ? -1 : token.beginLine;
+    }
 
     static class OperandInfo {
         Operand operand;

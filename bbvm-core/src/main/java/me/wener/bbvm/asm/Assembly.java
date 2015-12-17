@@ -27,6 +27,8 @@ public interface Assembly {
 
     void write(ByteBuf buf);
 
+    int getLine();
+
     enum Type {
         LABEL, COMMENT, PSEUDO, INST
     }

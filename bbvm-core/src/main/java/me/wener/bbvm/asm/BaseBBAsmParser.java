@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 
 /**
  * @author wener
@@ -22,6 +23,7 @@ class BaseBBAsmParser {
     protected final static Logger log = LoggerFactory.getLogger(BBAsmParser.class);
     LinkedList<Assembly> assemblies = Lists.newLinkedList();
     Map<String, Label> labels = Maps.newHashMap();
+    NavigableMap<Integer, Integer> addressTable = Maps.newTreeMap();
 
     static String labelName(Token token) {
         String image = token.image;
@@ -112,14 +114,25 @@ class BaseBBAsmParser {
         return buf;
     }
 
+    public NavigableMap<Integer, Integer> getAddressTable() {
+        return addressTable;
+    }
+
     /**
+     * Will fill label address and generate address table
+     *
      * @return Estimated length
      */
-    public int estimateLabelAddress() {
+    public int estimateAddress() {
+        addressTable.clear();
         int pos = 0;
         for (Assembly assembly : assemblies) {
             if (assembly instanceof Label) {
                 ((Label) assembly).setValue(pos);
+            }
+            int line = assembly.getLine();
+            if (line >= 0) {
+                addressTable.put(pos, line);
             }
             pos += assembly.length();
         }

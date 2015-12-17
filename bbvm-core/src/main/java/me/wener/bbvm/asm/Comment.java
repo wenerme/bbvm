@@ -56,6 +56,11 @@ public class Comment implements Assembly {
     }
 
     @Override
+    public int getLine() {
+        return token.beginLine;
+    }
+
+    @Override
     public String toString() {
         return "Comment{" + token.toString() + "}";
     }

@@ -96,7 +96,7 @@ List<Assembly> Parse():{
             <NL>{empty=true;}
             |LOOKAHEAD(2) (
                 o = <T_LABEL>{addLabel(o);}
-                | inst = Instruction(){add(inst);}
+                | inst = Instruction(){add(new Inst(inst).setLine(token.beginLine));}
                 | asm = PseudoData(){add(asm);}
             ) (<NL>|<EOF>)
             // DATA ID [DT] _DATA,_DATA

@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.NavigableMap;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -32,6 +34,7 @@ public class VM {
     final Register rp = new Reg(RegisterType.RP, this);
     Memory memory;
     SymbolTable symbolTable;
+    NavigableMap<Integer, Integer> addressTable;
     @Inject
     StringManager stringManager;
     @Inject
@@ -92,6 +95,15 @@ public class VM {
                 break;
         }
         return vc;
+    }
+
+    public NavigableMap<Integer, Integer> getAddressTable() {
+        return addressTable;
+    }
+
+    public VM setAddressTable(NavigableMap<Integer, Integer> addressTable) {
+        this.addressTable = addressTable;
+        return this;
     }
 
     /**
@@ -192,16 +204,29 @@ public class VM {
         return this;
     }
 
+    public int getLine(int address) {
+        if (addressTable == null) {
+            return -1;
+        }
+        Map.Entry<Integer, Integer> entry = addressTable.ceilingEntry(address);
+        if (entry == null) {
+            return -1;
+        }
+        return entry.getValue();
+    }
+
     public void run(Instruction inst) {
         checkState(!exit, "Exited");
         if (log.isTraceEnabled()) {
             log.trace("{}", inst);
         }
-        log.debug("{} ' A={} B={} {}",
-                inst.toAssembly(),
-                inst.hasA() ? inst.getA().get() : "NaN",
-                inst.hasB() ? inst.getB().get() : "NaN",
-                debugAsm());
+        if (log.isDebugEnabled()) {
+            log.debug("{} ' A={} B={} {} @{}",
+                    inst.toAssembly(),
+                    inst.hasA() ? inst.getA().get() : "NaN",
+                    inst.hasB() ? inst.getB().get() : "NaN",
+                    debugAsm(), getLine(inst.getAddress()));
+        }
         run(inst, inst.opcode, inst.a, inst.b);
     }
 
