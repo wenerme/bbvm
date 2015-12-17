@@ -7,6 +7,7 @@ import io.netty.buffer.Unpooled;
 import me.wener.bbvm.asm.BBAsmParser;
 import me.wener.bbvm.asm.ParseException;
 import me.wener.bbvm.util.Dumper;
+import me.wener.bbvm.vm.invoke.BufferedReaderInput;
 import me.wener.bbvm.vm.invoke.PrintStreamOutput;
 import org.junit.Test;
 
@@ -28,6 +29,7 @@ import static org.junit.Assert.assertNull;
  */
 public class BASMTest {
     private final ByteArrayOutputStream out;
+    private final BufferedReaderInput in;
     // Parse basm
     // Compare with bin
     // Extract io from basm
@@ -50,7 +52,8 @@ public class BASMTest {
         Injector injector = Guice.createInjector(new VirtualMachineModule(new VMConfig.Builder().build()));
         injector.injectMembers(this);
         out = new ByteArrayOutputStream();
-        systemInvokeManager.register(new PrintStreamOutput(out));
+        in = new BufferedReaderInput();
+        systemInvokeManager.register(new PrintStreamOutput(out), in);
     }
 
     public static void main(String[] args) throws IOException, ParseException {
@@ -62,7 +65,7 @@ public class BASMTest {
     public void test() throws IOException, ParseException {
         BASMTest test = new BASMTest();
 //        System.out.println(new File(".").getAbsoluteFile());
-        test.init(new File("../bbvm-test/case/in/13.basm")).run();
+        test.init(new File("../bbvm-test/case/out/10.basm")).run();
     }
 
     public BASMTest init(File basm) throws IOException, ParseException {
@@ -75,6 +78,7 @@ public class BASMTest {
 
     public void run() throws ParseException {
         out.reset();
+        in.setReader(io.output().toString());
         parser.Parse();
         int length = parser.estimateLabelAddress();
         System.out.printf("Estimate length is %s\n", length);
@@ -88,9 +92,10 @@ public class BASMTest {
             vm.reset().setSymbolTable(parser.createSymbolTable()).setMemory(Memory.load(buf)).run();
             assertNull(vm.getLastError());
             io.assertMatch(out.toString());
-        }catch (Throwable e){
+            System.out.printf("Output\n%s\n", out.toString());
+        } catch (Throwable e) {
             throw e;
-        }finally {
+        } finally {
             System.err.flush();
         }
     }

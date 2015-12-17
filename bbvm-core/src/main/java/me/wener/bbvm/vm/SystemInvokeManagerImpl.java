@@ -48,11 +48,12 @@ class SystemInvokeManagerImpl implements SystemInvokeManager {
         }
     }
 
-    @Override
     public void register(Object handler) {
         Object o = handler;
         if (o instanceof Class) {
             o = injector.getInstance((Class) o);
+        } else {
+            injector.injectMembers(o);
         }
         for (Method m : o.getClass().getMethods()) {
             SystemInvokes invokes = m.getAnnotation(SystemInvokes.class);
@@ -71,6 +72,13 @@ class SystemInvokeManagerImpl implements SystemInvokeManager {
 
     public void register(SystemInvoke invoke, InvokeHandler handler) {
         register(invoke.type(), invoke.a(), invoke.b(), handler);
+    }
+
+    @Override
+    public void register(Object... handlers) {
+        for (Object handler : handlers) {
+            register(handler);
+        }
     }
 
     @Override

@@ -8,7 +8,7 @@ import com.google.common.base.Function;
  */
 public interface SystemInvokeManager {
 
-    void register(Object o);
+    void register(Object... handlers);
 
 
     void register(SystemInvoke.Type type, int a, int b, Function<Instruction, Object> handler);
