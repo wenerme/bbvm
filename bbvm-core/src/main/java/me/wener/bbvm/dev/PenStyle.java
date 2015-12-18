@@ -1,6 +1,6 @@
 package me.wener.bbvm.dev;
 
-import me.wener.bbvm.util.val.IsInt;
+import me.wener.bbvm.util.IsInt;
 
 public enum PenStyle implements IsInt {
     PEN_SOLID(0), PEN_DASH(1);

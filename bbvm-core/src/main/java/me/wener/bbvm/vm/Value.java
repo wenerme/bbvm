@@ -1,6 +1,6 @@
 package me.wener.bbvm.vm;
 
-import me.wener.bbvm.util.val.IsInt;
+import me.wener.bbvm.util.IsInt;
 import me.wener.bbvm.vm.res.Resource;
 import me.wener.bbvm.vm.res.ResourceManager;
 

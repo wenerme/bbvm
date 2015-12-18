@@ -6,7 +6,7 @@ import com.google.inject.Guice;
 import io.netty.buffer.ByteBuf;
 import me.wener.bbvm.exception.ExecutionException;
 import me.wener.bbvm.exception.ResourceMissingException;
-import me.wener.bbvm.util.val.IntEnums;
+import me.wener.bbvm.util.IntEnums;
 import me.wener.bbvm.vm.event.ResetEvent;
 import me.wener.bbvm.vm.invoke.BasicSystemInvoke;
 import me.wener.bbvm.vm.res.StringManager;

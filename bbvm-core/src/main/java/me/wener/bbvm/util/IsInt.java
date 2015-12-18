@@ -1,4 +1,4 @@
-package me.wener.bbvm.util.val;
+package me.wener.bbvm.util;
 
 public interface IsInt {
     int asInt();

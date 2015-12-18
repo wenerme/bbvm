@@ -2,9 +2,9 @@ package me.wener.bbvm.vm;
 
 import com.google.common.base.MoreObjects;
 import io.netty.buffer.ByteBuf;
-import me.wener.bbvm.util.val.IntEnums;
+import me.wener.bbvm.util.IntEnums;
 
-import static me.wener.bbvm.util.val.IntEnums.fromInt;
+import static me.wener.bbvm.util.IntEnums.fromInt;
 
 
 /**

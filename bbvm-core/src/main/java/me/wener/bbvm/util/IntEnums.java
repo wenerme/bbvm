@@ -1,4 +1,4 @@
-package me.wener.bbvm.util.val;
+package me.wener.bbvm.util;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;

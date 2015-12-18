@@ -1,6 +1,6 @@
 package me.wener.bbvm.dev;
 
-import me.wener.bbvm.util.val.IsInt;
+import me.wener.bbvm.util.IsInt;
 
 public enum BrushStyle implements IsInt {
     BRUSH_SOLID(0);

@@ -2,9 +2,9 @@ package me.wener.bbvm.vm;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import me.wener.bbvm.util.val.IsInt;
+import me.wener.bbvm.util.IsInt;
 
-import static me.wener.bbvm.util.val.IntEnums.fromInt;
+import static me.wener.bbvm.util.IntEnums.fromInt;
 
 /**
  * @author wener

@@ -1,6 +1,6 @@
 package me.wener.bbvm.vm;
 
-import me.wener.bbvm.util.val.IsInt;
+import me.wener.bbvm.util.IsInt;
 
 /**
  * 算数操作符

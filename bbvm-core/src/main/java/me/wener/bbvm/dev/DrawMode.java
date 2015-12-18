@@ -1,6 +1,6 @@
 package me.wener.bbvm.dev;
 
-import me.wener.bbvm.util.val.IsInt;
+import me.wener.bbvm.util.IsInt;
 
 public enum DrawMode implements IsInt {
     KEY_COLOR(1);
