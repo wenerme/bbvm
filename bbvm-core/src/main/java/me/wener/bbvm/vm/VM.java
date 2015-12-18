@@ -5,6 +5,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import io.netty.buffer.ByteBuf;
 import me.wener.bbvm.exception.ExecutionException;
+import me.wener.bbvm.exception.ResourceMissingException;
 import me.wener.bbvm.util.val.IntEnums;
 import me.wener.bbvm.vm.event.ResetEvent;
 import me.wener.bbvm.vm.invoke.BasicSystemInvoke;
@@ -319,11 +320,22 @@ public class VM {
         return memory.pop();
     }
 
+    /**
+     * If i >= 0 then read the string from memory, if i < 0 will get string from string resource.
+     * If i > memory size or ResourceMissing will return null
+     */
     public String getString(int i) {
         if (i >= 0) {
+            if (i > memory.getMemorySize()) {
+                return null;
+            }
             return memory.getString(i, config.getCharset());
         }
-        return stringManager.getResource(i).getValue();
+        try {
+            return stringManager.getResource(i).getValue();
+        } catch (ResourceMissingException e) {
+            return null;
+        }
     }
 
     public Register getRegister(RegisterType type) {

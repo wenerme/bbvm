@@ -1,5 +1,6 @@
 package me.wener.bbvm.vm;
 
+import com.google.common.base.Throwables;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.netty.buffer.ByteBuf;
@@ -8,9 +9,12 @@ import me.wener.bbvm.asm.BBAsmParser;
 import me.wener.bbvm.asm.ParseException;
 import me.wener.bbvm.util.Dumper;
 import me.wener.bbvm.vm.invoke.BufferedReaderInput;
+import me.wener.bbvm.vm.invoke.GraphInvoke;
 import me.wener.bbvm.vm.invoke.PrintStreamOutput;
 import me.wener.bbvm.vm.res.Resources;
-import org.junit.Test;
+import me.wener.bbvm.vm.res.Swings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -28,7 +32,8 @@ import static org.junit.Assert.assertNull;
  * @author wener
  * @since 15/12/13
  */
-public class BASMTest {
+public class BasmTester {
+    private final static Logger log = LoggerFactory.getLogger(BasmTester.class);
     private final ByteArrayOutputStream out;
     private final BufferedReaderInput in;
     // Parse basm
@@ -49,9 +54,11 @@ public class BASMTest {
     private BBAsmParser parser;
     private TestSpec io = new TestSpec();
 
-    public BASMTest() {
+    public BasmTester() {
         VMConfig.Builder builder = new VMConfig.Builder()
-                .withModule(Resources.fileModule());
+                .withModule(Resources.fileModule())
+                .withModule(Swings.graphModule())
+                .invokeWith(GraphInvoke.class);
         Injector injector = Guice.createInjector(new VirtualMachineModule(builder.build()));
         injector.injectMembers(this);
         out = new ByteArrayOutputStream();
@@ -60,29 +67,31 @@ public class BASMTest {
     }
 
     public static void main(String[] args) throws IOException, ParseException {
-        BASMTest test = new BASMTest();
-        test.init(new File("bbvm-test/case/in/13.basm")).run();
+        BasmTester test = new BasmTester();
+        test.init(new File("bbvm-test/case/in/12.basm")).run();
     }
 
-    @Test
-    public void test() throws IOException, ParseException {
-        BASMTest test = new BASMTest();
-//        System.out.println(new File(".").getAbsoluteFile());
-        test.init(new File("../bbvm-test/case/read-restore.basm")).run();
-    }
-
-    public BASMTest init(File basm) throws IOException, ParseException {
+    public BasmTester init(File basm) {
+        log.info("Init basm tester {}", basm);
         basmFile = basm;
-        basmContent = new String(Files.readAllBytes(basm.toPath()), charset);
+        try {
+            basmContent = new String(Files.readAllBytes(basm.toPath()), charset);
+        } catch (IOException e) {
+            throw Throwables.propagate(e);
+        }
         parser = new BBAsmParser(new StringReader(basmContent));
-        io.accept(basmContent);
+        io.clear().accept(basmContent);
         return this;
     }
 
-    public void run() throws ParseException {
+    public void run() {
         out.reset();
         in.setReader(io.output().toString());
-        parser.Parse();
+        try {
+            parser.Parse();
+        } catch (ParseException e) {
+            Throwables.propagate(e);
+        }
         int length = parser.estimateAddress();
         System.out.printf("Estimate length is %s\n", length);
         System.out.printf("Expected output \n%s\nWith input\n%s\n", io.output(), io.input());

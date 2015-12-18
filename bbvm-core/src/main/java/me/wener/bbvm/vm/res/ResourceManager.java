@@ -1,11 +1,13 @@
 package me.wener.bbvm.vm.res;
 
+import me.wener.bbvm.exception.ResourceMissingException;
+
 /**
  * @author wener
  * @since 15/12/13
  */
 public interface ResourceManager<M extends ResourceManager, R extends Resource> {
-    R getResource(int handler);
+    R getResource(int handler) throws ResourceMissingException;
 
     @SuppressWarnings("unchecked")
     default M reset() {

@@ -1,10 +1,9 @@
 package me.wener.bbvm.vm.invoke;
 
 import com.google.common.eventbus.EventBus;
-import me.wener.bbvm.vm.Operand;
-import me.wener.bbvm.vm.Register;
-import me.wener.bbvm.vm.SystemInvoke;
-import me.wener.bbvm.vm.VM;
+import me.wener.bbvm.dev.EnvType;
+import me.wener.bbvm.exception.ResourceMissingException;
+import me.wener.bbvm.vm.*;
 import me.wener.bbvm.vm.event.VmTestEvent;
 import me.wener.bbvm.vm.res.StringManager;
 import org.slf4j.Logger;
@@ -27,16 +26,18 @@ public class BasicSystemInvoke {
     private final Register r0;
     private final Random random = new Random(0);
     private final EventBus eventBus;
+    private final StringManager stringManager;
     private int pointer;
 
     @Inject
-    public BasicSystemInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, EventBus eventBus) {
+    public BasicSystemInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, EventBus eventBus, StringManager stringManager) {
         this.vm = vm;
         this.r3 = r3;
         this.r2 = r2;
         this.r1 = r1;
         this.r0 = r0;
         this.eventBus = eventBus;
+        this.stringManager = stringManager;
     }
 
     /*
@@ -63,7 +64,12 @@ public class BasicSystemInvoke {
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 3)
     public void string2int(StringManager stringManager, @Named("A") Operand o) {
-        o.set(Integer.parseInt(r3.getString()));
+        String s = r3.getString();
+        if (s != null) {
+            o.set(Integer.parseInt(s));
+        } else {
+            o.set(r3.get());
+        }
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 4)
@@ -79,25 +85,43 @@ public class BasicSystemInvoke {
 ;8 | 释放字符串句柄 | r3的值 | r3:字符串句柄 | strPool.release(r3);return r3
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 5)
-    public void stringCopy(@Named("A") Operand o) {
-        r3.set(r2.getString());
+    public void stringCopy(Instruction inst, @Named("A") Operand o) {
+        try {
+            r3.set(r2.getString());
+        } catch (ResourceMissingException e) {
+            log.debug("For {}", inst, e);
+        }
         o.set(r3.get());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 6)
-    public void stringConcat(@Named("A") Operand o) {
-        r3.set(r3.getString() + r2.getString());
+    public void stringConcat(Instruction inst, @Named("A") Operand o) {
+        try {
+            r3.set(r3.getString() + r2.getString());
+        } catch (ResourceMissingException e) {
+            log.debug("For {}", inst, e);
+        }
         o.set(r3.get());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 7)
-    public void stringLength(Operand o) {
-        o.set(r3.getString().length());//TODO Char length or bytes length ?
+    public void stringLength(Instruction inst, Operand o) {
+        String s = r3.getString();
+        if (s != null) {
+            o.set(s.length());//TODO Char length or bytes length ?
+        } else {
+            log.debug("String not found for {}", inst);
+            o.set(r3.get());
+        }
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 8)
-    public void releaseString(StringManager stringManager, Operand o) throws Exception {
-        stringManager.getResource(r3.get()).close();
+    public void releaseString(Instruction inst, Operand o) throws Exception {
+        try {
+            stringManager.getResource(r3.get()).close();
+        } catch (ResourceMissingException e) {
+            log.debug("For {}", inst, e);
+        }
         o.set(r3.get());
     }
 
@@ -107,7 +131,7 @@ public class BasicSystemInvoke {
 ; 参数: r2:基准字符串, r3:比较字符串
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 9)
-    public void stringCompare(@Named("A") Operand o) {
+    public void stringCompare(Operand o) {
         int cmp = r2.getString().compareTo(r3.getString());
         if (cmp > 0) {
             o.set(1);
@@ -141,6 +165,21 @@ public class BasicSystemInvoke {
             o.set(Float.parseFloat(r3.getString()));
         } catch (NumberFormatException e) {
             log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+            o.set(0);
+        }
+    }
+
+    /*
+; 12 | 获取字符的ASCII码
+; 返回: ASCII码
+; 参数: r2:字符位置, r3:字符串
+; 备注: 返回的结果范围为有符号的 8bit值,因此对中文操作时返回负数
+     */
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 12)
+    public void charCodeAt(Operand o) {
+        try {
+            o.set((byte) r3.getString().charAt(r2.get()));
+        } catch (StringIndexOutOfBoundsException e) {
             o.set(0);
         }
     }
@@ -227,6 +266,14 @@ public class BasicSystemInvoke {
     }
 
     /*
+25 | 获取环境值 | 环境值 |  |
+     */
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 25)
+    public void getEnv(Operand o) {
+        o.set(EnvType.ENV_SIM.asInt());
+    }
+
+    /*
 32 | 整数转换为字符串 | r3的值 | r1:整数<br>r3:目标字符串 | r3所代表字符串的内容被修改
 33 | 字符串转换为整数 | 整数 | r3:字符串 |
 34 | 获取字符第一个字符的ASCII码 | ASCII码 | r3:字符串 |
@@ -299,9 +346,9 @@ public class BasicSystemInvoke {
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 39)
-    public void stringLength2(Operand o) {
+    public void stringLength2(Instruction inst, Operand o) {
         // TODO Same as 7 ?
-        stringLength(o);
+        stringLength(inst, o);
     }
 
     /*
