@@ -1,5 +1,7 @@
 package me.wener.bbvm.vm;
 
+import me.wener.bbvm.util.IsInt;
+
 /**
  * Z    | 0x1 | 等于
  * B    | 0x2 | Below,小于
@@ -8,7 +10,7 @@ package me.wener.bbvm.vm;
  * AE   | 0x5 | 大于等于
  * NZ   | 0x6 | 不等于
  */
-public enum CompareType implements IsMachineCode {
+public enum CompareType implements IsInt {
     Z(0x1),
     B(0x2),
     BE(0x3),

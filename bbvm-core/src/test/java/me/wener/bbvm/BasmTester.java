@@ -1,4 +1,4 @@
-package me.wener.bbvm.vm;
+package me.wener.bbvm;
 
 import com.google.common.base.Throwables;
 import com.google.inject.Guice;
@@ -8,6 +8,7 @@ import io.netty.buffer.Unpooled;
 import me.wener.bbvm.asm.BBAsmParser;
 import me.wener.bbvm.asm.ParseException;
 import me.wener.bbvm.util.Dumper;
+import me.wener.bbvm.vm.*;
 import me.wener.bbvm.vm.invoke.BufferedReaderInput;
 import me.wener.bbvm.vm.invoke.GraphInvoke;
 import me.wener.bbvm.vm.invoke.PrintStreamOutput;

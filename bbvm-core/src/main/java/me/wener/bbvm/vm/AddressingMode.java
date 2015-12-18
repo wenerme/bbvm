@@ -1,6 +1,8 @@
 package me.wener.bbvm.vm;
 
-public enum AddressingMode implements IsMachineCode {
+import me.wener.bbvm.util.IsInt;
+
+public enum AddressingMode implements IsInt {
     /*
     表示	| 字节码 | 说明
 --------|-----|----

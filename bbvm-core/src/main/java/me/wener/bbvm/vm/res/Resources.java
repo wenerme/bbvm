@@ -32,14 +32,6 @@ import java.util.Map;
  * @since 15/12/18
  */
 public class Resources {
-    public static Module stringModule() {
-        return new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(StringManager.class).to(StringManagerImpl.class);
-            }
-        };
-    }
 
     public static Class<? extends StringManager> stringManager() {
         return StringManagerImpl.class;

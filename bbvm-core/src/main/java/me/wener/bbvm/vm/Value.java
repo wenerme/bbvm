@@ -39,8 +39,6 @@ public interface Value<T extends Value> {
         return (T) this;
     }
 
-//    public T add()
-
     VM getVm();
 
     default T add(int v) {

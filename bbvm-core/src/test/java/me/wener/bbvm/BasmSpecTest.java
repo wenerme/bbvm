@@ -1,4 +1,4 @@
-package me.wener.bbvm.vm;
+package me.wener.bbvm;
 
 import me.wener.bbvm.asm.ParseException;
 import org.junit.Test;

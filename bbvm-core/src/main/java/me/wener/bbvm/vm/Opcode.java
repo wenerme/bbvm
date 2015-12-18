@@ -1,6 +1,7 @@
 package me.wener.bbvm.vm;
 
 import com.google.common.collect.Maps;
+import me.wener.bbvm.util.IsInt;
 
 import java.util.EnumMap;
 
@@ -22,7 +23,7 @@ import java.util.EnumMap;
  * EXIT   | 0xF
  * </pre>
  */
-public enum Opcode implements IsMachineCode {
+public enum Opcode implements IsInt {
     NOP(0x0),
     LD(0x1),
     PUSH(0x2),

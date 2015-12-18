@@ -1,5 +1,7 @@
 package me.wener.bbvm.vm;
 
+import me.wener.bbvm.util.IsInt;
+
 /**
  * 数据类型<pre>
  * DWORD  | 0x0
@@ -9,7 +11,7 @@ package me.wener.bbvm.vm;
  * INT    | 0x4
  * </pre>
  */
-public enum DataType implements IsMachineCode {
+public enum DataType implements IsInt {
     DWORD(0x0),
     WORD(0x1),
     BYTE(0x2),

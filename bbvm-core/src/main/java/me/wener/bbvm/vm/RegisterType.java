@@ -1,5 +1,7 @@
 package me.wener.bbvm.vm;
 
+import me.wener.bbvm.util.IsInt;
+
 /**
  * 寄存器类型
  * <pre>
@@ -13,7 +15,7 @@ package me.wener.bbvm.vm;
  * R3 | 0x7 | #3 寄存器
  * </pre>
  */
-public enum RegisterType implements IsMachineCode {
+public enum RegisterType implements IsInt {
     RP(0x0),
     RF(0x1),
     RS(0x2),
