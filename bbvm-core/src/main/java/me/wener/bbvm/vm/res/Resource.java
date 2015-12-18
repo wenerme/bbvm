@@ -13,5 +13,6 @@ public interface Resource extends AutoCloseable, Wrapper {
      * Destroy this resource
      */
     @Override
-    void close() throws Exception;
+    default void close() throws Exception {
+    }
 }

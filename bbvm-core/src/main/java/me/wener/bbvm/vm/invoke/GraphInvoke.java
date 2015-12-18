@@ -87,19 +87,19 @@ public class GraphInvoke {
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 23, b = 0)
     public void fillPage() {
         Params params = params(r3.get(), 6);
-        pages.getResource(params.next()).fill(params.next(), params.next(), params.next(), params.next(), pages.color(params.next()));
+        pages.getResource(params.next()).fill(params.next(), params.next(), params.next(), params.next(), params.next());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 24, b = 0)
     public void pixel() {
         Params params = params(r3.get(), 4);
-        pages.getResource(params.next()).pixel(params.next(), params.next(), pages.color(params.next()));
+        pages.getResource(params.next()).pixel(params.next(), params.next(), params.next());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 25, b = 0)
     public void readPixel() {
         Params params = params(r3.get(), 3);
-        r3.set(pages.getResource(params.next()).pixel(params.next(), params.next()).asInt());
+        r3.set(pages.getResource(params.next()).pixel(params.next(), params.next()));
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 26, b = 0)
@@ -171,12 +171,12 @@ public class GraphInvoke {
 
         Params(VM vm, int pos, int n) {
             this.vm = vm;
-            this.pos = pos - n * 4;
+            this.pos = pos + n * 4;
             this.limit = pos;
         }
 
         public int next() {
-
+            assert pos >= limit;
             return vm.getMemory().read(pos -= 4);
         }
     }

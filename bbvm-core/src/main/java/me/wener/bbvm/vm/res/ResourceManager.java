@@ -7,7 +7,10 @@ package me.wener.bbvm.vm.res;
 public interface ResourceManager<M extends ResourceManager, R extends Resource> {
     R getResource(int handler);
 
-    M reset();
+    @SuppressWarnings("unchecked")
+    default M reset() {
+        return (M) this;
+    }
 
     default R create() {
         throw new UnsupportedOperationException();
@@ -17,5 +20,8 @@ public interface ResourceManager<M extends ResourceManager, R extends Resource> 
         throw new UnsupportedOperationException();
     }
 
-    String getType();
+    default String getType() {
+        return this.getClass().getSimpleName();
+    }
+
 }

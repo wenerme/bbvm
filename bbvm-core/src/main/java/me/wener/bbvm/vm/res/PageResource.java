@@ -5,6 +5,9 @@ package me.wener.bbvm.vm.res;
  * @since 15/12/18
  */
 public interface PageResource extends Resource, Drawable {
+    @Override
+    PageManager getManager();
+
     PageResource show(Drawable o, int dx, int dy, int w, int h, int x, int y, int mode);
 
     /**
@@ -14,11 +17,11 @@ public interface PageResource extends Resource, Drawable {
 
     PageResource show(PageResource resource);
 
-    PageResource fill(int x, int y, int w, int h, Color color);
+    PageResource fill(int x, int y, int w, int h, int color);
 
-    PageResource pixel(int x, int y, Color color);
+    PageResource pixel(int x, int y, int color);
 
-    Color pixel(int x, int y);
+    int pixel(int x, int y);
 
     PageResource clear();
 
