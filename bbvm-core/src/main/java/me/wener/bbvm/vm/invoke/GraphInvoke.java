@@ -34,6 +34,13 @@ public class GraphInvoke {
         this.images = images;
     }
 
+    /**
+     * bgr2rgb &lt;-> rgb2bgr
+     */
+    static int color(int c) {
+        return ((c & 0xff) << 16) | (c & 0xff00) | c >> 16 & 0xff;
+    }
+
     /*
 16 | 设定模拟器屏幕 | 0 | r2:宽, r3:高 |  SETLCD(WIDTH,HEIGHT)
 17 | 申请画布句柄 | 0 ,r3:PAGE句柄 | - | CREATEPAGE()
@@ -47,6 +54,11 @@ public class GraphInvoke {
 25 | 读取画布某点颜色 | 0 | r3:参数地址 |  READPIXEL(PAGE,X,Y)
 26 | 释放图片句柄 | 0 | r3:资源句柄 |  FREERES(ID)
     */
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 16, b = 0)
+    public void setSize() {
+        pages.setSize(r2.get(), r3.get());
+    }
+
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 17, b = 0)
     public void createPage() {
         r3.set(pages.create().getHandler());
@@ -67,7 +79,7 @@ public class GraphInvoke {
     public void showPic() {
         // SHOWPIC(PAGE,PIC,DX,DY,W,H,X,Y,MODE)
         Params params = params(r3.get(), 9);
-        pages.getResource(0).show(images.getResource(params.next()),
+        pages.getResource(0).draw(images.getResource(params.next()),
                 params.next(), params.next(),
                 params.next(), params.next(),
                 params.next(), params.next(),
@@ -81,25 +93,26 @@ public class GraphInvoke {
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 22, b = 0)
     public void showPage() {
-        r2.get(pages).show(r3.get(pages));
+        r2.get(pages).draw(r3.get(pages));
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 23, b = 0)
     public void fillPage() {
         Params params = params(r3.get(), 6);
-        pages.getResource(params.next()).fill(params.next(), params.next(), params.next(), params.next(), params.next());
+        pages.getResource(params.next()).fill(params.next(), params.next(), params.next(), params.next(), color(params.next()));
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 24, b = 0)
     public void pixel() {
         Params params = params(r3.get(), 4);
-        pages.getResource(params.next()).pixel(params.next(), params.next(), params.next());
+        pages.getResource(params.next()).pixel(params.next(), params.next(), color(params.next()));
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 25, b = 0)
     public void readPixel() {
         Params params = params(r3.get(), 3);
-        r3.set(pages.getResource(params.next()).pixel(params.next(), params.next()));
+        int c = pages.getResource(params.next()).pixel(params.next(), params.next());
+        r3.set(color(c));
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 26, b = 0)
@@ -124,24 +137,12 @@ public class GraphInvoke {
      */
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 35, b = 0)
     public void pageClear() throws Exception {
-        pages.screen().clear();
+        pages.getScreen().clear();
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 40)
     public void imageWidth() throws Exception {
         r3.set(r3.get(images).getWidth());
-    }
-
-    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 41)
-    public void imageHeight() throws Exception {
-        r3.set(r3.get(images).getHeight());
-    }
-
-    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 43)
-    public void showPart() {
-        Params params = params(r3.get(), 3);
-        int x = params.next(), y = params.next(), dest = params.next(), src = params.next();
-        pages.getResource(dest).show(pages.getResource(src), x, y);
     }
     /*
 64 | 设置画笔 | 0 | r3:参数地址 |  SETPEN(PAGE,STYLE,WID,COLOR)
@@ -153,11 +154,58 @@ public class GraphInvoke {
 80 | 复制部分画布扩展 | 0 | r3:参数地址 |  STRETCHBLTPAGEEX(X,Y,WID,HGT,CX,CY,DEST,SRC)
      */
 
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 41)
+    public void imageHeight() throws Exception {
+        r3.set(r3.get(images).getHeight());
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 43)
+    public void showPart() {
+        Params params = params(r3.get(), 4);
+        int x = params.next(), y = params.next(), dest = params.next(), src = params.next();
+        pages.getResource(dest).draw(pages.getResource(src), x, y);
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 64)
+    public void setPen() {
+        Params params = params(r3.get(), 4);
+        int page = params.next(), style = params.next(), wid = params.next(), color = params.next();
+        pages.getResource(page).pen(wid, style, color(color));
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 66)
+    public void moveTo() {
+        Params params = params(r3.get(), 3);
+        int page = params.next(), x = params.next(), y = params.next();
+        pages.getResource(page).move(x, y);
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 67)
+    public void lineTo() {
+        Params params = params(r3.get(), 3);
+        int page = params.next(), x = params.next(), y = params.next();
+        pages.getResource(page).line(x, y);
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 68)
+    public void drawRect() {
+        Params params = params(r3.get(), 5);
+        int page = params.next(), left = params.next(), top = params.next(), right = params.next(), bottom = params.next();
+        pages.getResource(page).rectangle(left, top, right, bottom);
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 69)
+    public void drawCircle() {
+        Params params = params(r3.get(), 4);
+        int page = params.next(), x = params.next(), y = params.next(), r = params.next();
+        pages.getResource(page).circle(x, y, r);
+    }
+
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 80)
     public void showPartEx() {
-        Params params = params(r3.get(), 3);
+        Params params = params(r3.get(), 8);
         int x = params.next(), y = params.next(), w = params.next(), h = params.next(), cx = params.next(), cy = params.next(), dest = params.next(), src = params.next();
-        pages.getResource(dest).show(pages.getResource(src), x, y, w, h, cx, cy);
+        pages.getResource(dest).draw(pages.getResource(src), x, y, w, h, cx, cy);
     }
 
     Params params(int address, int n) {

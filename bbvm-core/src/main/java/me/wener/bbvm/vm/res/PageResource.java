@@ -8,24 +8,34 @@ public interface PageResource extends Resource, Drawable {
     @Override
     PageManager getManager();
 
-    PageResource show(Drawable o, int dx, int dy, int w, int h, int x, int y, int mode);
+    PageResource draw(Drawable o, int dx, int dy, int w, int h, int x, int y, int mode);
 
     /**
      * Display on screen
      */
     PageResource display();
 
-    PageResource show(PageResource resource);
+    PageResource draw(PageResource resource);
 
-    PageResource fill(int x, int y, int w, int h, int color);
+    PageResource fill(int x, int y, int w, int h, int rgb);
 
-    PageResource pixel(int x, int y, int color);
+    PageResource pixel(int x, int y, int rgb);
 
     int pixel(int x, int y);
 
     PageResource clear();
 
-    PageResource show(PageResource resource, int x, int y);
+    PageResource draw(PageResource resource, int x, int y);
 
-    PageResource show(PageResource resource, int x, int y, int w, int h, int cx, int cy);
+    PageResource draw(PageResource resource, int x, int y, int w, int h, int cx, int cy);
+
+    PageResource pen(int width, int style, int rgb);
+
+    PageResource circle(int cx, int cy, int r);
+
+    PageResource rectangle(int left, int top, int right, int bottom);
+
+    PageResource line(int x, int y);
+
+    PageResource move(int x, int y);
 }

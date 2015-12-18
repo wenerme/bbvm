@@ -1,42 +1,131 @@
 package me.wener.bbvm.vm.res;
 
+import com.google.common.collect.Maps;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.AbstractModule;
+import com.google.inject.Module;
+import me.wener.bbvm.exception.ExecutionException;
+import me.wener.bbvm.vm.event.ResetEvent;
+import me.wener.bbvm.vm.event.VmTestEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.Map;
+import java.util.NavigableSet;
 
 /**
  * @author wener
  * @since 15/12/18
  */
 public class Swings {
-    private static class PageMgr implements PageManager {
-        int handler = 1;
+    public static Module graphModule() {
+        return new SwingModule();
+    }
+
+    static class SwingModule extends AbstractModule {
 
         @Override
-        public PageResource screen() {
+        protected void configure() {
+            bind(PageManager.class).to(PageMgr.class);
+            bind(ImageManager.class).to(ImageMgr.class);
+        }
+
+    }
+
+    @Singleton
+    static class PageMgr implements PageManager {
+        private final static Logger log = LoggerFactory.getLogger(PageManager.class);
+        private final Map<Integer, Page> resources = Maps.newConcurrentMap();
+        private int handler = 0;
+        private NavigableSet<Integer> handlers;
+        private int width, height;
+
+        @Override
+        public PageManager reset() {
+            resources.forEach((k, v) -> v.close());
+            return this;
+        }
+
+        @Override
+        public PageResource create() {
+            Page page = new Page(handler++, this);
+            resources.put(page.getHandler(), page);
+            return page;
+        }
+
+        @Override
+        public PageResource getScreen() {
             return getResource(0);
         }
 
         @Override
         public int getWidth() {
-            return 0;
+            return width;
         }
 
         @Override
         public int getHeight() {
-            return 0;
+            return height;
+        }
+
+        @Override
+        public PageManager setSize(int w, int h) {
+            log.info("{} set size to {},{}", getType(), w, h);
+            // Clear all pages
+            width = w;
+            height = h;
+            reset();
+            Page page = new Page(-1, this);
+            resources.put(-1, page);
+            return this;
         }
 
         @Override
         public PageResource getResource(int handler) {
-            return null;
+            Page page = resources.get(handler);
+            if (page == null) {
+                throw new ExecutionException(String.format("%s resource #%s not found", getType(), handler));
+            }
+            return page;
         }
 
         public void close(Page page) {
+            resources.remove(page.getHandler());
+        }
 
+        @Inject
+        public void init(EventBus eventBus) {
+            eventBus.register(this);
+        }
+
+        @Subscribe
+        public void onVmTest(VmTestEvent e) {
+            try {
+                log.debug("Dump screen to file");
+                for (Map.Entry<Integer, Page> entry : resources.entrySet()) {
+                    String fn = "page-" + (entry.getKey() == -1 ? "screen" : entry.getKey()) + ".png";
+                    ImageIO.write(entry.getValue().image, "png", new File(fn));
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        @Subscribe
+        public void onReset(ResetEvent e) {
+            log.debug("Reset {} resources", getType());
+            reset();
         }
     }
 
-    private static class ImageMgr implements ImageManager {
+    static class ImageMgr implements ImageManager {
 
         @Override
         public PageResource load(String file, int index) {
@@ -47,6 +136,10 @@ public class Swings {
         public ImageResource getResource(int handler) {
             return null;
         }
+
+        public void close(Image image) {
+
+        }
     }
 
     private static class Draw implements Drawable {
@@ -56,6 +149,7 @@ public class Swings {
         private Draw(BufferedImage image) {
             this.image = image;
             g = image.createGraphics();
+//            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         }
 
         public int getWidth() {
@@ -68,7 +162,7 @@ public class Swings {
     }
 
 
-    private static class Image extends Draw implements ImageResource {
+    static class Image extends Draw implements ImageResource {
         private final int handler;
         private final ImageMgr manager;
 
@@ -90,14 +184,16 @@ public class Swings {
 
         @Override
         public void close() throws Exception {
+            manager.close(this);
         }
     }
 
-    private static class Page extends Draw implements PageResource {
+    static class Page extends Draw implements PageResource {
         private final int handler;
         private final PageMgr manager;
+        private final Point pen = new Point();
 
-        private Page(int handler, PageMgr manager, BufferedImage image) {
+        Page(int handler, PageMgr manager, BufferedImage image) {
             super(image);
             this.handler = handler;
             this.manager = manager;
@@ -108,7 +204,7 @@ public class Swings {
         }
 
         @Override
-        public PageResource show(Drawable o, int dx, int dy, int w, int h, int x, int y, int mode) {
+        public PageResource draw(Drawable o, int dx, int dy, int w, int h, int x, int y, int mode) {
             // TODO Ignore mode
             g.drawImage(o.unwrap(Draw.class).image, dx, dy, dx + w, dy + h, w, y, x + w, y + h, null);
             return this;
@@ -116,12 +212,12 @@ public class Swings {
 
         @Override
         public PageResource display() {
-            manager.screen().show(this);
+            manager.getScreen().draw(this);
             return this;
         }
 
         @Override
-        public PageResource show(PageResource resource) {
+        public PageResource draw(PageResource resource) {
             image.copyData(resource.unwrap(Draw.class).image.getRaster());
             return this;
         }
@@ -166,14 +262,46 @@ public class Swings {
         }
 
         @Override
-        public PageResource show(PageResource resource, int x, int y) {
+        public PageResource draw(PageResource resource, int x, int y) {
             g.drawImage(resource.unwrap(Draw.class).image, x, y, null);
             return this;
         }
 
         @Override
-        public PageResource show(PageResource resource, int x, int y, int w, int h, int cx, int cy) {
+        public PageResource draw(PageResource resource, int x, int y, int w, int h, int cx, int cy) {
             g.drawImage(resource.unwrap(Draw.class).image, x, y, x + w, y + h, cx, cy, cx + w, cy + h, null);
+            return this;
+        }
+
+        @Override
+        public PageResource pen(int width, int style, int color) {
+            // TODO Ignore width and style
+            g.setColor(new Color(color));
+            return this;
+        }
+
+        @Override
+        public PageResource circle(int cx, int cy, int r) {
+            int i = r * 2;
+            g.drawOval(cx - r, cy - r, i, i);
+            return this;
+        }
+
+        @Override
+        public PageResource rectangle(int left, int top, int right, int bottom) {
+            g.drawRect(left, top, right - left, bottom - top);
+            return this;
+        }
+
+        @Override
+        public PageResource line(int x, int y) {
+            g.drawLine(pen.x, pen.y, x, y);
+            return this;
+        }
+
+        @Override
+        public PageResource move(int x, int y) {
+            pen.setLocation(x, y);
             return this;
         }
 
@@ -188,7 +316,7 @@ public class Swings {
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() {
             manager.close(this);
         }
     }

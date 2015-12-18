@@ -94,7 +94,7 @@ class SystemInvokeManagerImpl implements SystemInvokeManager {
         if (function == null) {
             handlers.put(a, b, handler);
         } else {
-            throw new RuntimeException("Can not register " + handler + ",handler already exists " + a + "," + b + " -> " + function);
+            throw new RuntimeException("Duplicated invoke register " + handler + ",handler already exists " + a + "," + b + " -> " + function);
         }
     }
 

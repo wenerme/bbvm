@@ -6,9 +6,11 @@ package me.wener.bbvm.vm.res;
  */
 public interface PageManager extends ResourceManager<PageManager, PageResource> {
 
-    PageResource screen();
+    PageResource getScreen();
 
     int getWidth();
 
     int getHeight();
+
+    PageManager setSize(int w, int h);
 }

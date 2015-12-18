@@ -156,7 +156,7 @@ public class VM {
             try {
                 run(instruction);
             } catch (ExecutionException e) {
-                log.warn("Cache exception when > {} ' {} @ {}", instruction.toAssembly(), debugAsm(), instruction.address, e);
+                log.warn("Cache exception when > {} ' {} @ {}", instruction.toAssembly(), debugAsm(), getLine(instruction.address), e);
                 e.setVm(this);
                 if (config.getErrorHandler().apply(e)) {
                     exit();
@@ -284,9 +284,11 @@ public class VM {
             }
             break;
             case CAL: {
-                Number vc = cal(CalculateType.SUB, inst.getDataType(), a, b).intValue();
+                Number vc = cal(inst.getCalculateType(), inst.getDataType(), a, b).intValue();
                 if (inst.getDataType() == DataType.FLOAT) {
                     a.set(vc.floatValue());
+                } else {
+                    a.set(vc.intValue());
                 }
             }
             break;
