@@ -10,10 +10,9 @@ public interface SystemInvokeManager {
 
     void register(Object... handlers);
 
-
     void register(SystemInvoke.Type type, int a, int b, Function<Instruction, Object> handler);
 
-    void invoke(Instruction inst);
+    Object invoke(Instruction inst);
 
     Function<Instruction, Object> getHandler(SystemInvoke.Type type, int a, int b);
 }

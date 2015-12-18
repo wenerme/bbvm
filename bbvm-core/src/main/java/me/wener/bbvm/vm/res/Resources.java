@@ -49,10 +49,6 @@ public class Resources {
         return new FileModule();
     }
 
-    /**
-     * @author wener
-     * @since 15/12/13
-     */
     private static class StringResourceImpl implements StringResource {
         final private StringManagerImpl manager;
         final private int handler;
@@ -323,14 +319,9 @@ public class Resources {
         }
     }
 
-    /**
-     * @author wener
-     * @since 15/12/17
-     */
     @Singleton
     public static class FileManagerImpl implements FileManager {
         static final int HANDLER_NUMBER = 10;
-        static final String TYPE = "File";
         private final static Logger log = LoggerFactory.getLogger(FileManager.class);
         private final FileResource[] resources = new FileResource[10];
         private final Function<Integer, FileResource> creator;
@@ -371,11 +362,6 @@ public class Resources {
         @Override
         public FileResource create() {
             throw new ExecutionException("Resource for file is fixed");
-        }
-
-        @Override
-        public String getType() {
-            return TYPE;
         }
 
         @Inject

@@ -4,7 +4,7 @@ import me.wener.bbvm.vm.Operand;
 import me.wener.bbvm.vm.Register;
 import me.wener.bbvm.vm.SystemInvoke;
 import me.wener.bbvm.vm.VM;
-import me.wener.bbvm.vm.res.Resources;
+import me.wener.bbvm.vm.res.FileManager;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -19,10 +19,10 @@ public class FileInvoke {
     private final Register r2;
     private final Register r1;
     private final Register r0;
-    private final Resources.FileManagerImpl manager;
+    private final FileManager manager;
 
     @Inject
-    public FileInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, Resources.FileManagerImpl manager) {
+    public FileInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, FileManager manager) {
         this.vm = vm;
         this.r3 = r3;
         this.r2 = r2;
@@ -43,42 +43,42 @@ public class FileInvoke {
      */
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 48, b = 0)
     public void open() {
-        r1.getResource(manager).open(r3.getString());
+        r1.get(manager).open(r3.getString());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 49)
     public void close(@Named("B") Operand b) {
-        b.getResource(manager).close();
+        b.get(manager).close();
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 50, b = 16)
     public void readInt() {
-        r3.set(r1.getResource(manager).readInt(r2.get()));
+        r3.set(r1.get(manager).readInt(r2.get()));
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 50, b = 17)
     public void readFloat() {
-        r3.set(r1.getResource(manager).readFloat(r2.get()));
+        r3.set(r1.get(manager).readFloat(r2.get()));
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 50, b = 18)
     public void readString() {
-        r3.set(r1.getResource(manager).readString(r2.get()));
+        r3.set(r1.get(manager).readString(r2.get()));
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 51, b = 16)
     public void writeInt() {
-        r1.getResource(manager).writeInt(r2.get(), r3.get());
+        r1.get(manager).writeInt(r2.get(), r3.get());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 51, b = 17)
     public void writeFloat() {
-        r1.getResource(manager).writeFloat(r2.get(), r3.getFloat());
+        r1.get(manager).writeFloat(r2.get(), r3.getFloat());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 51, b = 18)
     public void writeString() {
-        r1.getResource(manager).writeString(r2.get(), r3.getString());
+        r1.get(manager).writeString(r2.get(), r3.getString());
     }
 
     /*
@@ -89,21 +89,21 @@ public class FileInvoke {
      */
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 52)
     public void isEof(@Named("B") Operand b) {
-        r3.set(r3.getResource(manager).isEof() ? 1 : 0);
+        r3.set(r3.get(manager).isEof() ? 1 : 0);
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 53, b = 0)
     public void fileLength(@Named("B") Operand b) {
-        r3.set(r3.getResource(manager).length());
+        r3.set(r3.get(manager).length());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 54, b = 0)
     public void tell() {
-        r3.set(r3.getResource(manager).tell());
+        r3.set(r3.get(manager).tell());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 55, b = 0)
     public void seek() {
-        r2.getResource(manager).seek(r3.get());
+        r2.get(manager).seek(r3.get());
     }
 }

@@ -99,7 +99,7 @@ class SystemInvokeManagerImpl implements SystemInvokeManager {
     }
 
     @Override
-    public void invoke(Instruction inst) {
+    public Object invoke(Instruction inst) {
         int a = inst.getA().get();
         int b = inst.getB().get();
         Function<Instruction, Object> handler;
@@ -116,7 +116,7 @@ class SystemInvokeManagerImpl implements SystemInvokeManager {
         if (handler == null) {
             throw new ExecutionException(String.format("No handler for system invoke %s %s,%s", inst.opcode, a, b));
         }
-        handler.apply(inst);
+        return handler.apply(inst);
     }
 
     @Override

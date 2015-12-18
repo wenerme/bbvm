@@ -29,7 +29,7 @@ public interface Value<T extends Value> {
         return getVm().getString(get());
     }
 
-    default <M extends ResourceManager<M, R>, R extends Resource> R getResource(M manager) {
+    default <M extends ResourceManager<M, R>, R extends Resource> R get(M manager) {
         return manager.getResource(get());
     }
 
