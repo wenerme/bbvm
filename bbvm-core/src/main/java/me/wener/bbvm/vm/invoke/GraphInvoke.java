@@ -175,16 +175,12 @@ public class GraphInvoke {
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 66)
     public void moveTo() {
-        Params params = params(r3.get(), 3);
-        int page = params.next(), x = params.next(), y = params.next();
-        pages.getResource(page).move(x, y);
+        r1.get(pages).move(r2.get(), r3.get());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 67)
     public void lineTo() {
-        Params params = params(r3.get(), 3);
-        int page = params.next(), x = params.next(), y = params.next();
-        pages.getResource(page).line(x, y);
+        r1.get(pages).line(r2.get(), r3.get());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 68)
