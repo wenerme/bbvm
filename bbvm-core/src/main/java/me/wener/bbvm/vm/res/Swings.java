@@ -62,7 +62,7 @@ public class Swings {
 
         @Override
         public PageResource getScreen() {
-            return getResource(0);
+            return getResource(-1);
         }
 
         @Override
@@ -253,11 +253,8 @@ public class Swings {
         }
 
         @Override
-        public PageResource clear() {
-            java.awt.Color old = g.getColor();
-            g.setColor(java.awt.Color.BLACK);
+        public PageResource fill() {
             g.fillRect(0, 0, getWidth(), getHeight());
-            g.setColor(old);
             return this;
         }
 
