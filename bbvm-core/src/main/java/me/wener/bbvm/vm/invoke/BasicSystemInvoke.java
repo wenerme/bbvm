@@ -132,7 +132,7 @@ public class BasicSystemInvoke {
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 9)
     public void stringCompare(Operand o) {
-        int cmp = r2.getString().compareTo(r3.getString());
+        int cmp = r3.getString().compareTo(r2.getString());
         if (cmp > 0) {
             o.set(1);
         } else if (cmp < 0) {
