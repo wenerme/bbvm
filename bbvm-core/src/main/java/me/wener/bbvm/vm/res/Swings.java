@@ -228,7 +228,7 @@ public class Swings {
         @Override
         public PageResource draw(Drawable o, int dx, int dy, int w, int h, int x, int y, int mode) {
             // TODO Ignore mode
-            g.drawImage(o.unwrap(Draw.class).image, dx, dy, dx + w, dy + h, w, y, x + w, y + h, null);
+            g.drawImage(o.unwrap(Draw.class).image, dx, dy, dx + w, dy + h, x, y, x + w, y + h, null);
             return this;
         }
 
