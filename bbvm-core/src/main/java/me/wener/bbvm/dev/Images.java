@@ -1,6 +1,7 @@
 package me.wener.bbvm.dev;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import io.netty.buffer.ByteBuf;
@@ -33,6 +34,14 @@ public class Images {
     private static final Map<String, ImageCodec> CODEC = Maps.newHashMap();
 
     static {
+        register(new LibRGB565ImageCodec());
+        register(new Lib2BitGrayBEImageCodec());
+        register(new Lib2BitGrayLEImageCodec());
+        register(new RLBImageCodec());
+    }
+
+    private static void register(ImageCodec codec) {
+        CODEC.put(codec.getType(), codec);
     }
 
     public static List<ImageInfo> load(String file) throws IOException {
@@ -40,7 +49,16 @@ public class Images {
         for (Map.Entry<String, ImageCodec> entry : CODEC.entrySet()) {
             ImageCodec codec = entry.getValue();
             if (codec.accept(path)) {
-                return codec.load(path);
+                try {
+                    List<ImageInfo> infos = codec.load(path);
+                    if (infos != null) {
+                        return infos;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedOperationException e) {
+//                    e.printStackTrace();
+                }
             }
         }
         throw new RuntimeException("Can not load image file " + file);
@@ -55,9 +73,13 @@ public class Images {
     }
 
 
-    private static List<ImageInfo> loadInfos(Path file, String type, boolean hasName, ByteOrder order) throws IOException {
+    private static List<ImageInfo> loadInfos(Path file, String type, boolean hasName, ByteOrder order, int expectedBits) throws IOException {
         try (FileChannel ch = FileChannel.open(file, StandardOpenOption.READ)) {
             int n = ch.map(FileChannel.MapMode.READ_ONLY, 0, 4).order(order).getInt();
+            // Never reach this size
+            if (n > 65535) {
+                throw new UnsupportedOperationException();
+            }
             ByteBuf buf = Unpooled.wrappedBuffer(ch.map(FileChannel.MapMode.READ_ONLY, 4, n * (4 + 32))).order(order);
             List<ImageInfo> list = new ArrayList<>(n);
             for (int i = 0; i < n; i++) {
@@ -73,7 +95,18 @@ public class Images {
                 if (name == null) {
                     name = "NO-" + i;
                 }
-                list.add(new ImageInfo(i, name, offset, file.toString(), type));
+                ImageInfo info = new ImageInfo(i, name, offset, file.toString(), type);
+
+                buf = Unpooled.wrappedBuffer(ch.map(FileChannel.MapMode.READ_ONLY, offset, 12)).order(order);
+                info.setSize(buf.readInt() - 12)
+                        .setWidth(buf.readUnsignedShort())
+                        .setHeight(buf.readUnsignedShort());
+
+                if (expectedBits > 0 && info.getBits() != expectedBits) {
+                    throw new UnsupportedOperationException("Expected bits " + expectedBits + " but got " + info.getBits());
+                }
+
+                list.add(info);
 
             }
             return list;
@@ -99,7 +132,7 @@ public class Images {
 
         @Override
         public List<ImageInfo> load(Path file) throws IOException {
-            return loadInfos(file, getType(), false, ByteOrder.LITTLE_ENDIAN);
+            return loadInfos(file, getType(), false, ByteOrder.LITTLE_ENDIAN, 16);
         }
 
         @Override
@@ -110,7 +143,7 @@ public class Images {
         @Override
         public boolean accept(Path path) {
             File file = path.toFile();
-            return !file.isDirectory() && Files.getFileExtension(file.getName()).equalsIgnoreCase("RLB");
+            return !file.isDirectory() && Files.getFileExtension(file.getName()).equalsIgnoreCase("LIB");
         }
 
         @Override
@@ -130,15 +163,74 @@ public class Images {
         }
     }
 
-    static class Lib2BitGrayImageCodec implements ImageCodec {
+
+    static class Lib2BitGrayLEImageCodec extends Lib2BitGrayImageCodec {
+
+        Lib2BitGrayLEImageCodec() {
+            super(ByteOrder.LITTLE_ENDIAN);
+        }
+
+        @Override
+        public String getType() {
+            return super.getType() + "_LE";
+        }
+    }
+
+    static class Lib2BitGrayBEImageCodec extends Lib2BitGrayImageCodec {
+
+        Lib2BitGrayBEImageCodec() {
+            super(ByteOrder.BIG_ENDIAN);
+        }
+
+        @Override
+        public String getType() {
+            return super.getType() + "_BE";
+        }
+    }
+
+    static class GenericImageCodec implements ImageCodec {
 
         @Override
         public List<ImageInfo> load(Path file) throws IOException {
-            try {
-                return loadInfos(file, getType() + "_LE", false, ByteOrder.LITTLE_ENDIAN);
-            } catch (IOException e) {
-                return loadInfos(file, getType() + "_BE", false, ByteOrder.BIG_ENDIAN);
+            BufferedImage image = ImageIO.read(file.toFile());
+            if (image == null) {
+                throw new UnsupportedOperationException(file + " is not generic image");
             }
+            GenericImage im = new GenericImage(0, "NO-0", 0, file.toString(), getType(), image);
+            im.setHeight(im.getHeight()).setWidth(im.getWidth());
+            return ImmutableList.of(im);
+        }
+
+        @Override
+        public String getType() {
+            return "GENERIC";
+        }
+
+        @Override
+        public boolean accept(Path path) {
+            return true;
+        }
+
+        @Override
+        public BufferedImage read(ImageInfo info) throws IOException {
+            if (info instanceof GenericImage) {
+                return ((GenericImage) info).getImage();
+            }
+            return ImageIO.read(new File(info.getFilename()));
+        }
+    }
+
+    static class Lib2BitGrayImageCodec implements ImageCodec {
+
+        private final ByteOrder order;
+
+        Lib2BitGrayImageCodec(ByteOrder order) {
+            this.order = order;
+        }
+
+        @Override
+        public List<ImageInfo> load(Path file) throws IOException {
+            return loadInfos(file, getType(), false, order, 2);
         }
 
         @Override
@@ -154,11 +246,7 @@ public class Images {
 
         @Override
         public BufferedImage read(ImageInfo info) throws IOException {
-            if (info.getType().endsWith("_LE")) {
-                return read0(info, ByteOrder.LITTLE_ENDIAN);
-            } else {
-                return read0(info, ByteOrder.BIG_ENDIAN);
-            }
+            return read0(info, order);
         }
 
         private BufferedImage read0(ImageInfo info, ByteOrder order) throws IOException {
@@ -185,7 +273,7 @@ public class Images {
     static class RLBImageCodec implements ImageCodec {
         @Override
         public List<ImageInfo> load(Path path) throws IOException {
-            return loadInfos(path, getType(), true, ByteOrder.LITTLE_ENDIAN);
+            return loadInfos(path, getType(), true, ByteOrder.LITTLE_ENDIAN, -1);
         }
 
         @Override
@@ -213,12 +301,36 @@ public class Images {
         }
     }
 
+    static class GenericImage extends ImageInfo {
+        private BufferedImage image;
+
+        public GenericImage(int index, String name, int offset, String filename, String type, BufferedImage image) {
+            super(index, name, offset, filename, type);
+            this.image = image;
+        }
+
+        public BufferedImage getImage() {
+            return image;
+        }
+
+        public GenericImage setImage(BufferedImage image) {
+            this.image = image;
+            return this;
+        }
+    }
+
     static class ImageInfo {
-        private final int index;
-        private final String name;
-        private final int offset;
-        private final String filename;
-        private final String type;
+        private int index;
+        private String name;
+        private int offset;
+        private String filename;
+        private String type;
+        private int width = -1;
+        private int height = -1;
+        private int size = -1;
+
+        public ImageInfo() {
+        }
 
         public ImageInfo(int index, String name, int offset, String filename, String type) {
             this.index = index;
@@ -248,6 +360,40 @@ public class Images {
             return filename;
         }
 
+        public int getWidth() {
+            return width;
+        }
+
+        public ImageInfo setWidth(int width) {
+            this.width = width;
+            return this;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public ImageInfo setHeight(int height) {
+            this.height = height;
+            return this;
+        }
+
+        /**
+         * Pixel pre size
+         */
+        public int getBits() {
+            return size * 8 / (width * height);
+        }
+
+        public int getSize() {
+            return size;
+        }
+
+        public ImageInfo setSize(int size) {
+            this.size = size;
+            return this;
+        }
+
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this)
@@ -256,6 +402,9 @@ public class Images {
                     .add("offset", offset)
                     .add("filename", filename)
                     .add("type", type)
+                    .add("width", width)
+                    .add("height", height)
+                    .add("size", size)
                     .toString();
         }
     }
