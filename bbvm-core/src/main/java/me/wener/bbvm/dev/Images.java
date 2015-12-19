@@ -8,9 +8,9 @@ import io.netty.buffer.Unpooled;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferUShort;
-import java.awt.image.DirectColorModel;
-import java.awt.image.WritableRaster;
+import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,9 +31,6 @@ import java.util.Map;
  */
 public class Images {
     private static final Map<String, ImageCodec> CODEC = Maps.newHashMap();
-    private static final int DCM_565_RED_MASK = 0xf800;
-    private static final int DCM_565_GRN_MASK = 0x07E0;
-    private static final int DCM_565_BLU_MASK = 0x001F;
 
     static {
     }
@@ -58,10 +55,10 @@ public class Images {
     }
 
 
-    private static List<ImageInfo> loadInfos(Path file, String type, boolean hasName) throws IOException {
+    private static List<ImageInfo> loadInfos(Path file, String type, boolean hasName, ByteOrder order) throws IOException {
         try (FileChannel ch = FileChannel.open(file, StandardOpenOption.READ)) {
-            int n = ch.map(FileChannel.MapMode.READ_ONLY, 0, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
-            ByteBuf buf = Unpooled.wrappedBuffer(ch.map(FileChannel.MapMode.READ_ONLY, 4, n * (4 + 32))).order(ByteOrder.LITTLE_ENDIAN);
+            int n = ch.map(FileChannel.MapMode.READ_ONLY, 0, 4).order(order).getInt();
+            ByteBuf buf = Unpooled.wrappedBuffer(ch.map(FileChannel.MapMode.READ_ONLY, 4, n * (4 + 32))).order(order);
             List<ImageInfo> list = new ArrayList<>(n);
             for (int i = 0; i < n; i++) {
                 int offset = buf.readInt();
@@ -102,7 +99,7 @@ public class Images {
 
         @Override
         public List<ImageInfo> load(Path file) throws IOException {
-            return loadInfos(file, getType(), false);
+            return loadInfos(file, getType(), false, ByteOrder.LITTLE_ENDIAN);
         }
 
         @Override
@@ -124,22 +121,71 @@ public class Images {
                 int w = buf.readUnsignedShort(), h = buf.readUnsignedShort();
                 ByteBuffer buffer = ByteBuffer.allocate(w * h * 2).order(ByteOrder.LITTLE_ENDIAN);
                 ch.read(buffer);
+                BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_USHORT_565_RGB);
                 // Fast way to load the data
-                DirectColorModel colorModel = new DirectColorModel(16, DCM_565_RED_MASK, DCM_565_GRN_MASK, DCM_565_BLU_MASK);
-                WritableRaster raster = colorModel.createCompatibleWritableRaster(w, h);
-
                 buffer.flip();
-                buffer.asShortBuffer().get(((DataBufferUShort) raster.getDataBuffer()).getData());
-                return new BufferedImage(colorModel, raster, false, null);
+                buffer.asShortBuffer().get(((DataBufferUShort) image.getRaster().getDataBuffer()).getData());
+                return image;
+            }
+        }
+    }
+
+    static class Lib2BitGrayImageCodec implements ImageCodec {
+
+        @Override
+        public List<ImageInfo> load(Path file) throws IOException {
+            try {
+                return loadInfos(file, getType() + "_LE", false, ByteOrder.LITTLE_ENDIAN);
+            } catch (IOException e) {
+                return loadInfos(file, getType() + "_BE", false, ByteOrder.BIG_ENDIAN);
+            }
+        }
+
+        @Override
+        public String getType() {
+            return "LIB_2BIT_GRAY";
+        }
+
+        @Override
+        public boolean accept(Path path) {
+            File file = path.toFile();
+            return !file.isDirectory() && Files.getFileExtension(file.getName()).equalsIgnoreCase("LIB");
+        }
+
+        @Override
+        public BufferedImage read(ImageInfo info) throws IOException {
+            if (info.getType().endsWith("_LE")) {
+                return read0(info, ByteOrder.LITTLE_ENDIAN);
+            } else {
+                return read0(info, ByteOrder.BIG_ENDIAN);
+            }
+        }
+
+        private BufferedImage read0(ImageInfo info, ByteOrder order) throws IOException {
+            try (FileChannel ch = FileChannel.open(Paths.get(info.getFilename()), StandardOpenOption.READ)) {
+                ByteBuf buf = Unpooled.wrappedBuffer(ch.map(FileChannel.MapMode.READ_ONLY, info.getOffset(), 8)).order(order);
+                final int len = buf.readInt() - 12;
+                int w = buf.readUnsignedShort(), h = buf.readUnsignedShort();
+                ByteBuffer buffer = ch.map(FileChannel.MapMode.READ_ONLY, info.getOffset() + 12, len).order(order);
+                byte[] gray;
+                if (order == ByteOrder.BIG_ENDIAN) {
+                    gray = new byte[]{-127, 127, 64, 0};
+                } else {
+                    gray = new byte[]{0, 64, 127, -127};
+                }
+                BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_BINARY, new IndexColorModel(2, 4, gray, gray, gray));
+
+                byte[] data = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+                buffer.get(data);
+                return image;
             }
         }
     }
 
     static class RLBImageCodec implements ImageCodec {
-
         @Override
         public List<ImageInfo> load(Path path) throws IOException {
-            return loadInfos(path, getType(), true);
+            return loadInfos(path, getType(), true, ByteOrder.LITTLE_ENDIAN);
         }
 
         @Override
