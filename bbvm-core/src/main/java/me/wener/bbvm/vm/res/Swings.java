@@ -5,7 +5,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import me.wener.bbvm.dev.Images;
 import me.wener.bbvm.exception.ExecutionException;
+import me.wener.bbvm.exception.ResourceMissingException;
 import me.wener.bbvm.vm.event.ResetEvent;
 import me.wener.bbvm.vm.event.VmTestEvent;
 import org.slf4j.Logger;
@@ -17,6 +19,7 @@ import javax.inject.Singleton;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.NavigableSet;
 
@@ -27,6 +30,13 @@ import java.util.NavigableSet;
 public class Swings {
     public static Module graphModule() {
         return new SwingModule();
+    }
+
+    private static <T> T checkMissing(ResourceManager mgr, int handler, T v) {
+        if (v == null) {
+            throw new ResourceMissingException(String.format("%s #%s not exists", mgr.getType(), handler), handler);
+        }
+        return v;
     }
 
     static class SwingModule extends AbstractModule {
@@ -91,7 +101,10 @@ public class Swings {
         public PageResource getResource(int handler) {
             Page page = resources.get(handler);
             if (page == null) {
-                throw new ExecutionException(String.format("%s resource #%s not found", getType(), handler));
+                log.warn("{} #{} not found", getType(), handler);
+//                throw new ExecutionException(String.format("%s resource #%s not found", getType(), handler));
+                // FIXME This is a bug in bbvm, so we reveal this bug
+                return getScreen();
             }
             return page;
         }
@@ -126,19 +139,28 @@ public class Swings {
     }
 
     static class ImageMgr implements ImageManager {
+        private final Map<Integer, Image> resources = Maps.newConcurrentMap();
+        private int handle = 0;
 
         @Override
-        public PageResource load(String file, int index) {
-            return null;
+        public ImageResource load(String file, int index) {
+            try {
+                // Index start from 0
+                Image image = new Image(handle++, this, Images.read(file, index - 1));
+                resources.put(image.handler, image);
+                return image;
+            } catch (IOException e) {
+                throw new ExecutionException(e);
+            }
         }
 
         @Override
         public ImageResource getResource(int handler) {
-            return null;
+            return checkMissing(this, handler, resources.get(handler));
         }
 
         public void close(Image image) {
-
+            resources.remove(image.getHandler());
         }
     }
 

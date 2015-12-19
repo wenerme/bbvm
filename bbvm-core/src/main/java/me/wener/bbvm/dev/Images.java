@@ -46,6 +46,9 @@ public class Images {
 
     public static List<ImageInfo> load(String file) throws IOException {
         Path path = Paths.get(file);
+        if (!path.toFile().exists()) {
+            throw new RuntimeException("File not found " + path.toAbsolutePath());
+        }
         for (Map.Entry<String, ImageCodec> entry : CODEC.entrySet()) {
             ImageCodec codec = entry.getValue();
             if (codec.accept(path)) {
@@ -61,6 +64,7 @@ public class Images {
                 }
             }
         }
+
         throw new RuntimeException("Can not load image file " + file);
     }
 

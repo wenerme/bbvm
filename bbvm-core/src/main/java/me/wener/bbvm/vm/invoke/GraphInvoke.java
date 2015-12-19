@@ -72,14 +72,13 @@ public class GraphInvoke {
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 19)
     public void loadRes(@Named("B") Operand o) {
         r3.set(images.load(r3.getString(), r2.get()).getHandler());
-        o.set(r3.get());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 20, b = 0)
     public void showPic() {
         // SHOWPIC(PAGE,PIC,DX,DY,W,H,X,Y,MODE)
         Params params = params(r3.get(), 9);
-        pages.getResource(0).draw(images.getResource(params.next()),
+        pages.getResource(params.next()).draw(images.getResource(params.next()),
                 params.next(), params.next(),
                 params.next(), params.next(),
                 params.next(), params.next(),
