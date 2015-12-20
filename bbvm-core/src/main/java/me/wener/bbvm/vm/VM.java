@@ -57,7 +57,7 @@ public class VM {
         return Guice.createInjector(new VirtualMachineModule(new VMConfig.Builder().build())).getInstance(VM.class);
     }
 
-    private static Number cal(CalculateType calculateType, DataType dataType, Operand a, Operand b) {
+    private static float cal(CalculateType calculateType, DataType dataType, Operand a, Operand b) {
         float va;
         float vb;
         if (dataType == DataType.FLOAT) {
@@ -67,7 +67,7 @@ public class VM {
             va = a.get();
             vb = b.get();
         }
-        Number vc;
+        float vc;
         switch (calculateType) {
             case ADD:
                 vc = va + vb;
@@ -87,16 +87,24 @@ public class VM {
             default:
                 throw new UnsupportedOperationException();
         }
+        return vc;
+    }
+
+    private static float cal(CalculateType calculateType, DataType dataType, Operand a, Operand b, Value out) {
+        float vc = cal(calculateType, dataType, a, b);
         switch (dataType) {
+            case FLOAT:
+                out.set(vc);
+                break;
             case DWORD:
             case INT:
-                vc = vc.intValue();
+                out.set((int) vc);
                 break;
             case WORD:
-                vc = vc.shortValue();
+                out.set((short) vc);
                 break;
             case BYTE:
-                vc = vc.byteValue();
+                out.set((byte) vc);
                 break;
         }
         return vc;
@@ -275,7 +283,7 @@ public class VM {
                 ret();
                 break;
             case CMP: {
-                float vc = cal(CalculateType.SUB, inst.getDataType(), a, b).intValue();
+                float vc = cal(CalculateType.SUB, inst.getDataType(), a, b);
                 if (vc > 0)
                     rf.set(CompareType.A);
                 else if (vc < 0)
@@ -285,12 +293,7 @@ public class VM {
             }
             break;
             case CAL: {
-                Number vc = cal(inst.getCalculateType(), inst.getDataType(), a, b).intValue();
-                if (inst.getDataType() == DataType.FLOAT) {
-                    a.set(vc.floatValue());
-                } else {
-                    a.set(vc.intValue());
-                }
+                cal(inst.getCalculateType(), inst.getDataType(), a, b, a);
             }
             break;
             case EXIT:
