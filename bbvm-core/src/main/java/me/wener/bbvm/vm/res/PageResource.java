@@ -41,4 +41,18 @@ public interface PageResource extends Resource, Drawable {
     PageResource line(int x, int y);
 
     PageResource move(int x, int y);
+
+    /**
+     * Position of cursor in font size column, start from 1
+     */
+    PageResource locate(int row, int column);
+
+    /**
+     * Position of cursor in pixel
+     */
+    PageResource cursor(int row, int column);
+
+    PageResource draw(String text);
+
+    PageResource font(int font);
 }

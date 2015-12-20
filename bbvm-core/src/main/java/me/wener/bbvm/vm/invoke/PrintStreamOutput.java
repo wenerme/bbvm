@@ -41,11 +41,7 @@ public class PrintStreamOutput extends PrintStream {
                 break;
             case 5:
                 float v = b.getFloat();
-                if (v == 0) {
-                    print("000.000000");// Match the same result
-                } else {
-                    print(String.format("%.6f", v));
-                }
+                print(String.format("%.6f", v));
                 break;
         }
     }

@@ -207,6 +207,26 @@ public class GraphInvoke {
         return new Params(vm, address, n);
     }
 
+    /*
+36 | 按行列定位光标 | 0 | r2:行,r3:列 |  LOCATE(LINE,ROW)
+38 | 设定文字字体大小 | 0 | r3:FONT |  FONT(F)
+42 | 按坐标定位光标 | - | r2:行,r3:列 |  PIXLOCATE(LINE,ROW)
+     */
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 36, b = 0)
+    public void locate() {
+        pages.getScreen().locate(r2.get(), r3.get());
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 38, b = 0)
+    public void setFont() {
+        pages.getScreen().font(r3.get());
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 42, b = 0)
+    public void cursor() {
+        pages.getScreen().cursor(r2.get(), r3.get());
+    }
+
     static class Params {
         private final VM vm;
         private final int limit;

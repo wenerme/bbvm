@@ -1,13 +1,16 @@
 package me.wener.bbvm.vm.res;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import me.wener.bbvm.dev.FontType;
 import me.wener.bbvm.dev.Images;
 import me.wener.bbvm.exception.ExecutionException;
 import me.wener.bbvm.exception.ResourceMissingException;
+import me.wener.bbvm.util.IntEnums;
 import me.wener.bbvm.vm.event.ResetEvent;
 import me.wener.bbvm.vm.event.VmTestEvent;
 import org.slf4j.Logger;
@@ -22,12 +25,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.NavigableSet;
+import java.util.function.Consumer;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * @author wener
  * @since 15/12/18
  */
 public class Swings {
+    static {
+        IntEnums.cache(FontType.class);
+    }
+
     public static Module graphModule() {
         return new SwingModule();
     }
@@ -59,7 +69,7 @@ public class Swings {
 
         @Override
         public PageManager reset() {
-            resources.forEach((k, v) -> v.close());
+            setSize(320, 240);
             return this;
         }
 
@@ -72,7 +82,11 @@ public class Swings {
 
         @Override
         public PageResource getScreen() {
-            return getResource(-1);
+            Page screen = resources.get(-1);
+            if (screen == null) {
+                throw new ExecutionException("Screen not found, may not initialize correctly.");
+            }
+            return screen;
         }
 
         @Override
@@ -91,7 +105,8 @@ public class Swings {
             // Clear all pages
             width = w;
             height = h;
-            reset();
+            resources.forEach((k, v) -> v.close());
+            checkState(resources.size() == 0, "%s resources should be cleared", getType());
             Page page = new Page(-1, this);
             resources.put(-1, page);
             return this;
@@ -211,14 +226,20 @@ public class Swings {
     }
 
     static class Page extends Draw implements PageResource {
+        final static CharMatcher EMPTY = CharMatcher.anyOf("\n\t");
+        private final static Logger log = LoggerFactory.getLogger(PageResource.class);
         private final int handler;
         private final PageMgr manager;
         private final Point pen = new Point();
+        private final StringDrawer stringDrawer;
 
         Page(int handler, PageMgr manager, BufferedImage image) {
             super(image);
             this.handler = handler;
             this.manager = manager;
+            Font font = new Font("楷体", Font.PLAIN, 12);
+            g.setFont(font);
+            stringDrawer = new StringDrawer(g, getWidth(), getHeight());
         }
 
         private Page(int handler, PageMgr manager) {
@@ -254,7 +275,6 @@ public class Swings {
 
         @Override
         public PageResource fill(int x, int y, int w, int h, int color) {
-            // TODO Color transform
             color(color, () -> {
                 g.fillRect(x, y, w, h);
             });
@@ -263,14 +283,12 @@ public class Swings {
 
         @Override
         public PageResource pixel(int x, int y, int color) {
-            // TODO Color transform
             image.setRGB(x, y, color);
             return this;
         }
 
         @Override
         public int pixel(int x, int y) {
-            // TODO Color transform
             return image.getRGB(x, y);
         }
 
@@ -325,6 +343,30 @@ public class Swings {
         }
 
         @Override
+        public PageResource locate(int row, int column) {
+            stringDrawer.locate(row, column);
+            return this;
+        }
+
+        @Override
+        public PageResource cursor(int row, int column) {
+            stringDrawer.cursor(row, column);
+            return this;
+        }
+
+        @Override
+        public PageResource draw(String text) {
+            stringDrawer.draw(text);
+            return this;
+        }
+
+        @Override
+        public PageResource font(int font) {
+            log.info("Set font to {}", IntEnums.fromInt(FontType.class, font));
+            return this;
+        }
+
+        @Override
         public int getHandler() {
             return handler;
         }
@@ -337,6 +379,92 @@ public class Swings {
         @Override
         public void close() {
             manager.close(this);
+        }
+    }
+
+    static class StringDrawer {
+        protected final Graphics2D g;
+        private int x, y, w, h;
+        private FontMetrics metrics;
+        private int fontSize;
+        private Consumer<StringDrawer> nextPage = (d) -> d.g.fillRect(0, 0, w, h);
+
+        StringDrawer(Graphics2D g, int w, int h) {
+            this.g = g;
+            this.w = w;
+            this.h = h;
+            getFontInfo();
+            locate(1, 0);
+        }
+
+        public void setFont(Font f) {
+            g.setFont(f);
+        }
+
+        private void getFontInfo() {
+            metrics = g.getFontMetrics();
+            Font font = g.getFont();
+            fontSize = font.getSize();
+        }
+
+        public void locate(int row, int column) {
+            int width = g.getFont().getSize();
+            x = column * width / 2;
+            y = row * width;
+        }
+
+        public void cursor(int row, int column) {
+            x = column;
+            y = row;
+        }
+
+        public void draw(String text) {
+            text.chars().forEach(this::draw);
+        }
+
+        public void draw(int ch) {
+            switch (ch) {
+                case '\n':
+                    nextCursorLine();
+                    break;
+                case '\t':
+                    for (int i = 0; i < 8; i++) {
+                        drawNormal(' ');
+                    }
+                    break;
+                default:
+                    drawNormal(ch);
+            }
+        }
+
+        private void advanceCursor(int width) {
+            x += width;
+            if (x > w) {
+                nextCursorLine();
+            }
+        }
+
+        void drawNormal(int ch) {
+            int width = metrics.charWidth(ch);
+            if (x + width > w) {
+                nextCursorLine();
+            }
+
+            g.drawString(String.valueOf((char) ch), x, y);
+            advanceCursor(width);
+        }
+
+        void nextCursorLine() {
+            x = 0;
+            y += fontSize;
+            if (y + fontSize > h) {// Not enough
+                nextPage();
+            }
+        }
+
+        private void nextPage() {
+            locate(1, 0);
+//            nextPage.accept(this);
         }
     }
 }

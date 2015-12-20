@@ -2,6 +2,10 @@ BBVM - BeBasic Virtual Machine
 ===========================
 [![Build Status](https://travis-ci.org/wenerme/bbvm.svg)](https://travis-ci.org/wenerme/bbvm)
 [![Coverage Status](https://coveralls.io/repos/wenerme/bbvm/badge.svg?branch=master&service=github)](https://coveralls.io/github/wenerme/bbvm?branch=master)
+[![Build with love](https://img.shields.io/badge/bbvm-%F0%9F%92%97-orange.svg)](https://github.com/wenerme)
+[![GitHub issues](https://img.shields.io/github/issues/wenerme/bbvm.svg)](https://github.com/wenerme/bbvm/issues)
+[![GitHub license](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/wenerme/bbvm/master/LICENSE)
+[![Twitter](https://img.shields.io/twitter/url/https/github.com/wenerme/bbvm.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https://github.com/wenerme/bbvm/)
 
 该项目为原步步高BBasic的一个仿照实现.并在原来的基础上进行了扩展.
 
