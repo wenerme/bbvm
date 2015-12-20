@@ -8,3 +8,6 @@ os:
 
 before_install:
   - git clone --depth=1 https://github.com/wenerme/bbvm-test.git
+
+after_success:
+  - mvn clean cobertura:cobertura coveralls:report -DrepoToken=$COVERALLS_TOKEN
