@@ -1,5 +1,7 @@
-BBVM - BeBasic Virtual Machine [![Build Status](https://travis-ci.org/wenerme/bbvm.svg)](https://travis-ci.org/wenerme/bbvm)
+BBVM - BeBasic Virtual Machine
 ===========================
+[![Build Status](https://travis-ci.org/wenerme/bbvm.svg)](https://travis-ci.org/wenerme/bbvm)
+[![Coverage Status](https://coveralls.io/repos/wenerme/bbvm/badge.svg?branch=master&service=github)](https://coveralls.io/github/wenerme/bbvm?branch=master)
 
 该项目为原步步高BBasic的一个仿照实现.并在原来的基础上进行了扩展.
 
