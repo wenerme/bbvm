@@ -19,10 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -49,6 +46,7 @@ public class BasmTester {
     @Inject
     @Named("R3")
     Register r3;
+    private PrintStream printStream = System.out;
     @Inject
     private VM vm;
     private String basmContent;
@@ -69,7 +67,12 @@ public class BasmTester {
 
     public static void main(String[] args) throws IOException, ParseException {
         BasmTester test = new BasmTester();
-        test.init(new File("bbvm-test/case/in/12.basm")).run();
+        test.init(new File("bbvm-test/case/showpic.basm")).run();
+    }
+
+    public BasmTester setPrintStream(PrintStream printStream) {
+        this.printStream = printStream;
+        return this;
     }
 
     public BasmTester init(File basm) {
@@ -94,13 +97,13 @@ public class BasmTester {
             Throwables.propagate(e);
         }
         int length = parser.estimateAddress();
-        System.out.printf("Estimate length is %s\n", length);
-        System.out.printf("Expected output \n%s\nWith input\n%s\n", io.output(), io.input());
+        printStream.printf("Estimate length is %s\n", length);
+        printStream.printf("Expected output \n%s\nWith input\n%s\n", io.output(), io.input());
         parser.checkLabel();
         ByteBuf buf = Unpooled.buffer(length).order(ByteOrder.LITTLE_ENDIAN);
         parser.write(buf);
-        System.out.println(basmContent);
-        System.out.println(Dumper.hexDumpReadable(buf));
+        printStream.println(basmContent);
+        printStream.println(Dumper.hexDumpReadable(buf));
         try {
             vm
                     .reset()
@@ -109,7 +112,7 @@ public class BasmTester {
                     .setMemory(Memory.load(buf)).run();
             assertNull(vm.getLastError());
             io.assertMatch(out.toString());
-            System.out.printf("Output\n%s\n", out.toString());
+            printStream.printf("Output\n%s\n", out.toString());
         } catch (Throwable e) {
             throw e;
         } finally {

@@ -3,7 +3,9 @@ package me.wener.bbvm;
 import me.wener.bbvm.asm.ParseException;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -39,9 +41,20 @@ public class BasmSpecTest {
 
     private void doTest(String first) throws IOException {
         BasmTester test = new BasmTester();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        test.setPrintStream(new PrintStream(out));
         Files.walk(Paths.get(first))
                 .filter(p -> !p.toFile().isDirectory())
                 .filter(p -> p.toFile().getName().endsWith(".basm"))
-                .forEach(p -> test.init(p.toFile()).run());
+                .forEach(p -> {
+                    // When test failed, we need the output
+                    try {
+                        out.reset();
+                        test.init(p.toFile()).run();
+                    } catch (Throwable e) {
+                        System.out.println(out.toString());
+                        throw e;
+                    }
+                });
     }
 }
