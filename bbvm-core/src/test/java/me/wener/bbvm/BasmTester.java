@@ -12,13 +12,13 @@ import me.wener.bbvm.vm.*;
 import me.wener.bbvm.vm.invoke.BufferedReaderInput;
 import me.wener.bbvm.vm.invoke.GraphInvoke;
 import me.wener.bbvm.vm.invoke.PrintStreamOutput;
+import me.wener.bbvm.vm.res.ImageManager;
 import me.wener.bbvm.vm.res.Resources;
 import me.wener.bbvm.vm.res.Swings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.*;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
@@ -43,9 +43,6 @@ public class BasmTester {
     Charset charset = Charset.forName("UTF-8");
     @Inject
     SystemInvokeManager systemInvokeManager;
-    @Inject
-    @Named("R3")
-    Register r3;
     private PrintStream printStream = System.out;
     @Inject
     private VM vm;
@@ -60,14 +57,10 @@ public class BasmTester {
                 .invokeWith(GraphInvoke.class);
         Injector injector = Guice.createInjector(new VirtualMachineModule(builder.build()));
         injector.injectMembers(this);
+        injector.getInstance(ImageManager.class).getResourceDirectory().add("../bbvm-test/image");
         out = new ByteArrayOutputStream();
         in = new BufferedReaderInput();
         systemInvokeManager.register(new PrintStreamOutput(out), in);
-    }
-
-    public static void main(String[] args) throws IOException, ParseException {
-        BasmTester test = new BasmTester();
-        test.init(new File("bbvm-test/case/showpic.basm")).run();
     }
 
     public BasmTester setPrintStream(PrintStream printStream) {

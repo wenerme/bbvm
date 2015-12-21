@@ -1,6 +1,7 @@
 package me.wener.bbvm.vm.res;
 
-import com.google.common.base.CharMatcher;
+import com.google.common.base.MoreObjects;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -23,9 +24,11 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
-import java.util.NavigableSet;
-import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -64,7 +67,8 @@ public class Swings {
         private final static Logger log = LoggerFactory.getLogger(PageManager.class);
         private final Map<Integer, Page> resources = Maps.newConcurrentMap();
         private int handler = 0;
-        private NavigableSet<Integer> handlers;
+        // TODO Need to reuse the page handler ?
+//        private NavigableSet<Integer> handlers;
         private int width, height;
 
         @Override
@@ -153,20 +157,46 @@ public class Swings {
         }
     }
 
+    @Singleton
     static class ImageMgr implements ImageManager {
+        private final static Logger log = LoggerFactory.getLogger(ImageManager.class);
         private final Map<Integer, Image> resources = Maps.newConcurrentMap();
+        private final List<String> directories = Lists.newArrayList(".");
         private int handle = 0;
 
         @Override
         public ImageResource load(String file, int index) {
             try {
+                String fn = null;
+                for (String directory : directories) {
+                    Path path = Paths.get(directory, file);
+                    if (Files.exists(path)) {
+                        fn = path.toAbsolutePath().toString();
+                    }
+                }
+                if (fn == null) {
+                    throw new ExecutionException(String.format("Load %s resource not found #%s %s in %s", getType(), index, file, directories));
+                }
                 // Index start from 0
-                Image image = new Image(handle++, this, Images.read(file, index - 1));
+                Image image = new Image(handle++, this, Images.read(fn, index));
+                image.name = index + "@" + fn;
+                log.debug("Load {} resource #{} {}@{}", getType(), handle, index, image);
                 resources.put(image.handler, image);
                 return image;
             } catch (IOException e) {
                 throw new ExecutionException(e);
             }
+        }
+
+        @Override
+        public ImageManager reset() {
+            resources.forEach((k, v) -> v.close());
+            return this;
+        }
+
+        @Override
+        public List<String> getResourceDirectory() {
+            return directories;
         }
 
         @Override
@@ -176,6 +206,23 @@ public class Swings {
 
         public void close(Image image) {
             resources.remove(image.getHandler());
+        }
+
+        @Inject
+        public void init(EventBus eventBus) {
+            eventBus.register(this);
+        }
+
+        @Subscribe
+        public void onVmTest(VmTestEvent e) {
+            log.debug("VmTest {} loaded {}", getType(), resources.size());
+            resources.forEach((k, v) -> log.debug("Image #{} -> {}", k, v));
+        }
+
+        @Subscribe
+        public void onReset(ResetEvent e) {
+            log.debug("Reset {} resources", getType());
+            reset();
         }
     }
 
@@ -202,6 +249,7 @@ public class Swings {
     static class Image extends Draw implements ImageResource {
         private final int handler;
         private final ImageMgr manager;
+        public String name;
 
         private Image(int handler, ImageMgr manager, BufferedImage image) {
             super(image);
@@ -220,13 +268,22 @@ public class Swings {
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() {
             manager.close(this);
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this)
+                    .add("handler", handler)
+                    .add("width", getWidth())
+                    .add("height", getHeight())
+                    .add("name", name)
+                    .toString();
         }
     }
 
     static class Page extends Draw implements PageResource {
-        final static CharMatcher EMPTY = CharMatcher.anyOf("\n\t");
         private final static Logger log = LoggerFactory.getLogger(PageResource.class);
         private final int handler;
         private final PageMgr manager;
@@ -275,9 +332,7 @@ public class Swings {
 
         @Override
         public PageResource fill(int x, int y, int w, int h, int color) {
-            color(color, () -> {
-                g.fillRect(x, y, w, h);
-            });
+            color(color, () -> g.fillRect(x, y, w, h));
             return this;
         }
 
@@ -387,7 +442,7 @@ public class Swings {
         private int x, y, w, h;
         private FontMetrics metrics;
         private int fontSize;
-        private Consumer<StringDrawer> nextPage = (d) -> d.g.fillRect(0, 0, w, h);
+//        private Consumer<StringDrawer> nextPage = (d) -> d.g.fillRect(0, 0, w, h);
 
         StringDrawer(Graphics2D g, int w, int h) {
             this.g = g;

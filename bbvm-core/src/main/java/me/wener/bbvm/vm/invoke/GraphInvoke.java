@@ -71,7 +71,8 @@ public class GraphInvoke {
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 19)
     public void loadRes(@Named("B") Operand o) {
-        r3.set(images.load(r3.getString(), r2.get()).getHandler());
+        // Index start from 1
+        r3.set(images.load(r3.getString(), r2.get() - 1).getHandler());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 20, b = 0)
