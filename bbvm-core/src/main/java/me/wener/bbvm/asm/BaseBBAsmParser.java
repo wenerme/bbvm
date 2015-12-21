@@ -3,7 +3,6 @@ package me.wener.bbvm.asm;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.netty.buffer.ByteBuf;
-import me.wener.bbvm.vm.Instruction;
 import me.wener.bbvm.vm.Operand;
 import me.wener.bbvm.vm.SymbolTable;
 import me.wener.bbvm.vm.Symbols;
@@ -56,10 +55,6 @@ class BaseBBAsmParser {
         labels.put(label.name, label);
         assemblies.add(label);
         return label;
-    }
-
-    public void add(Instruction instruction) {
-        assemblies.add(new Inst(instruction));
     }
 
     public void add(Assembly assembly) {

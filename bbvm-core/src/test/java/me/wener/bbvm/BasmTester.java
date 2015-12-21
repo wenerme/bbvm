@@ -86,6 +86,7 @@ public class BasmTester {
         in.setReader(io.output().toString());
         try {
             parser.Parse();
+//            parser.getAssemblies().stream().map(Assembly::toAssembly).forEach(printStream::println);
         } catch (ParseException e) {
             Throwables.propagate(e);
         }
