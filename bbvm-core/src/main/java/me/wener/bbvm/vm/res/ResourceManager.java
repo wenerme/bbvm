@@ -9,8 +9,14 @@ import me.wener.bbvm.exception.ResourceMissingException;
 public interface ResourceManager<M extends ResourceManager, R extends Resource> {
     R getResource(int handler) throws ResourceMissingException;
 
+    /**
+     * Close this resource, if the resource is not exists may not throw an exception
+     */
+//    R close(int handler);
+
     @SuppressWarnings("unchecked")
     default M reset() {
+        // If this resources do not need to reset
         return (M) this;
     }
 
@@ -18,12 +24,6 @@ public interface ResourceManager<M extends ResourceManager, R extends Resource> 
         throw new UnsupportedOperationException();
     }
 
-    default R create(int handler) {
-        throw new UnsupportedOperationException();
-    }
-
-    default String getType() {
-        return this.getClass().getSimpleName();
-    }
+    String getType();
 
 }

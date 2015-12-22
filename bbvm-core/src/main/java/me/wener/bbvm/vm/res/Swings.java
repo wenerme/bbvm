@@ -3,6 +3,7 @@ package me.wener.bbvm.vm.res;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.AbstractModule;
@@ -29,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -120,10 +122,9 @@ public class Swings {
         public PageResource getResource(int handler) {
             Page page = resources.get(handler);
             if (page == null) {
-                log.warn("{} #{} not found", getType(), handler);
-//                throw new ExecutionException(String.format("%s resource #%s not found", getType(), handler));
-                // FIXME This is a bug in bbvm, so we reveal this bug
-                return getScreen();
+//                log.warn("{} #{} not found", getType(), handler);
+                throw new ExecutionException(String.format("%s resource #%s not found", getType(), handler));
+//                return getScreen();
             }
             return page;
         }
@@ -162,6 +163,7 @@ public class Swings {
         private final static Logger log = LoggerFactory.getLogger(ImageManager.class);
         private final Map<Integer, Image> resources = Maps.newConcurrentMap();
         private final List<String> directories = Lists.newArrayList(".");
+        private final NavigableSet<Integer> handlers = Sets.newTreeSet();
         private int handle = 0;
 
         @Override
@@ -178,7 +180,7 @@ public class Swings {
                     throw new ExecutionException(String.format("Load %s resource not found #%s %s in %s", getType(), index, file, directories));
                 }
                 // Index start from 0
-                Image image = new Image(handle++, this, Images.read(fn, index));
+                Image image = new Image(nextHandler(), this, Images.read(fn, index));
                 image.name = index + "@" + fn;
                 log.debug("Load {} resource #{} {}@{}", getType(), handle, index, image);
                 resources.put(image.handler, image);
@@ -188,6 +190,12 @@ public class Swings {
             }
         }
 
+        int nextHandler() {
+            if (handlers.isEmpty()) {
+                return handle++;
+            }
+            return handlers.pollFirst();
+        }
         @Override
         public ImageManager reset() {
             resources.forEach((k, v) -> v.close());
@@ -205,7 +213,9 @@ public class Swings {
         }
 
         public void close(Image image) {
-            resources.remove(image.getHandler());
+            int handler = image.getHandler();
+            handlers.add(handler);
+            resources.remove(handler);
         }
 
         @Inject

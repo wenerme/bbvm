@@ -13,4 +13,9 @@ public interface PageManager extends ResourceManager<PageManager, PageResource> 
     int getHeight();
 
     PageManager setSize(int w, int h);
+
+    @Override
+    default String getType() {
+        return "page";
+    }
 }

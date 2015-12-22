@@ -17,4 +17,9 @@ public interface ImageManager extends ResourceManager<ImageManager, ImageResourc
      * @return Mutable directories to search the resource
      */
     List<String> getResourceDirectory();
+
+    @Override
+    default String getType() {
+        return "image";
+    }
 }
