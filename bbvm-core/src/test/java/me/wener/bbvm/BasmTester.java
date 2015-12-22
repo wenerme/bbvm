@@ -11,8 +11,9 @@ import me.wener.bbvm.util.Dumper;
 import me.wener.bbvm.vm.*;
 import me.wener.bbvm.vm.invoke.BufferedReaderInput;
 import me.wener.bbvm.vm.invoke.GraphInvoke;
-import me.wener.bbvm.vm.invoke.PrintStreamOutput;
+import me.wener.bbvm.vm.invoke.PrintOutput;
 import me.wener.bbvm.vm.res.ImageManager;
+import me.wener.bbvm.vm.res.PageManager;
 import me.wener.bbvm.vm.res.Resources;
 import me.wener.bbvm.vm.res.Swings;
 import org.slf4j.Logger;
@@ -60,7 +61,16 @@ public class BasmTester {
         injector.getInstance(ImageManager.class).getResourceDirectory().add("../bbvm-test/image");
         out = new ByteArrayOutputStream();
         in = new BufferedReaderInput();
-        systemInvokeManager.register(new PrintStreamOutput(out), in);
+        // TODO Need a way to makeup the input and output
+        PageManager manager = injector.getInstance(PageManager.class);
+        systemInvokeManager.register(new PrintOutput((s) -> {
+            try {
+                out.write(s.getBytes());
+            } catch (IOException e) {
+                Throwables.propagate(e);
+            }
+            manager.getScreen().draw(s);
+        }), in);
     }
 
     public BasmTester setPrintStream(PrintStream printStream) {
@@ -86,7 +96,7 @@ public class BasmTester {
         in.setReader(io.output().toString());
         try {
             parser.Parse();
-//            parser.getAssemblies().stream().map(Assembly::toAssembly).forEach(printStream::println);
+            parser.getAssemblies().stream().forEach(s -> printStream.printf("%02d %s\n", s.getLine(), s.toAssembly()));
         } catch (ParseException e) {
             Throwables.propagate(e);
         }

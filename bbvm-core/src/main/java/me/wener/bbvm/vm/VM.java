@@ -1,6 +1,7 @@
 package me.wener.bbvm.vm;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import io.netty.buffer.ByteBuf;
@@ -165,13 +166,17 @@ public class VM {
             instruction.reset().read(buf, last);
             try {
                 run(instruction);
-            } catch (ExecutionException e) {
-                log.warn("Cache exception when > {} ' {} @ {}", instruction.toAssembly(), debugAsm(), getLine(instruction.address), e);
-                e.setVm(this);
+            } catch (Exception e) {
+                log.warn("Catch exception when > {} ' {} @ {}", instruction, debugAsm(), getLine(instruction.address), e);
+                if (e instanceof ExecutionException) {
+                    ((ExecutionException) e).setVm(this);
+                }
+                lastError = e;
                 if (config.getErrorHandler().apply(e)) {
                     exit();
                 }
-                lastError = e;
+                Throwables.propagateIfInstanceOf(e, ExecutionException.class);
+                throw new ExecutionException(e);
             }
             if (exit) {
                 return;
@@ -215,6 +220,7 @@ public class VM {
         if (memory != null) {
             memory.reset();
         }
+        log.debug("VM Reset {}",debugAsm());
         eventBus.post(new ResetEvent(this));
         return this;
     }
@@ -236,11 +242,11 @@ public class VM {
             log.trace("{}", inst);
         }
         if (log.isDebugEnabled()) {
-            log.debug("{} ' A={} B={} {} @{}",
+            log.debug("{} ' A={} B={} {} @{} {}",
                     inst.toAssembly(),
                     inst.hasA() ? inst.getA().get() : "NaN",
                     inst.hasB() ? inst.getB().get() : "NaN",
-                    debugAsm(), getLine(inst.getAddress()));
+                    debugAsm(), getLine(inst.getAddress()), inst.getAddress());
         }
         run(inst, inst.opcode, inst.a, inst.b);
     }

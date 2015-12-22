@@ -54,5 +54,13 @@ public interface PageResource extends Resource, Drawable {
 
     PageResource draw(String text);
 
+    /**
+     * Change the font
+     */
     PageResource font(int font);
+
+    /**
+     * Set the font style
+     */
+    PageResource font(int frontColor, int backColor, int frame);
 }

@@ -6,9 +6,8 @@ import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Module;
 import com.typesafe.config.Config;
-import me.wener.bbvm.exception.ExecutionException;
 import me.wener.bbvm.vm.invoke.BufferedReaderInput;
-import me.wener.bbvm.vm.invoke.PrintStreamOutput;
+import me.wener.bbvm.vm.invoke.PrintOutput;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -21,7 +20,7 @@ import java.util.List;
  */
 public class VMConfig {
     final Charset charset;
-    final Predicate<ExecutionException> errorHandler;
+    final Predicate<Exception> errorHandler;
     private final Config config;
     private final List<Object> invokeHandlers;
     private final List<Object> modules;
@@ -72,7 +71,7 @@ public class VMConfig {
         return null;
     }
 
-    public Predicate<ExecutionException> getErrorHandler() {
+    public Predicate<Exception> getErrorHandler() {
         return errorHandler;
     }
 
@@ -80,7 +79,7 @@ public class VMConfig {
         private final List<Object> modules = Lists.newArrayList();
         private List<Object> invokeHandlers = Lists.newArrayList();
         private Charset charset = Charset.forName("UTF-8");
-        private Predicate<ExecutionException> errorHandler = e -> {
+        private Predicate<Exception> errorHandler = e -> {
             throw Throwables.propagate(e);
         };
         private Config config;
@@ -103,7 +102,7 @@ public class VMConfig {
         /**
          * @return Handle the exception, return true for exit
          */
-        public Builder errorHandler(Predicate<ExecutionException> val) {
+        public Builder errorHandler(Predicate<Exception> val) {
             errorHandler = val;
             return this;
         }
@@ -142,7 +141,7 @@ public class VMConfig {
         }
 
         public Builder invokeWithSystemOutput() {
-            return invokeWith(new PrintStreamOutput(System.out));
+            return invokeWith(new PrintOutput(System.out::print));
         }
 
         public Builder invokeWith(Object handler) {

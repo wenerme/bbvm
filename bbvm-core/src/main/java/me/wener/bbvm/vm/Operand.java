@@ -112,7 +112,7 @@ public class Operand implements Value<Operand> {
     public String toAssembly() {
         switch (addressingMode) {
             case REGISTER:
-                return fromInt(RegisterType.class, getInterval()).toString();
+                return String.valueOf(fromInt(RegisterType.class, getInterval()));
             case REGISTER_DEFERRED:
                 return "[" + fromInt(RegisterType.class, getInterval()) + "]";
             case IMMEDIATE:

@@ -159,7 +159,7 @@ public class GraphInvoke {
         r3.set(r3.get(images).getHeight());
     }
 
-    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 43)
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 43, b = 0)
     public void showPart() {
         Params params = params(r3.get(), 4);
         int x = params.next(), y = params.next(), dest = params.next(), src = params.next();
@@ -226,6 +226,16 @@ public class GraphInvoke {
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 42, b = 0)
     public void cursor() {
         pages.getScreen().cursor(r2.get(), r3.get());
+    }
+
+    /*
+37 | 设定文字颜色 | 0 | r3:参数地址 |  COLOR(FRONT,BACK,FRAME)
+ */
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 37, b = 0)
+    public void setFontColor() {
+        // TODO Transparent background
+        Params params = params(r3.get(), 3);
+        pages.getScreen().font(color(params.next()), color(params.next()), params.next());
     }
 
     static class Params {

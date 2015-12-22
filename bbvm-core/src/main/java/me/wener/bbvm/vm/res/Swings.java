@@ -75,7 +75,12 @@ public class Swings {
 
         @Override
         public PageManager reset() {
-            setSize(320, 240);
+            log.info("Reset {} resource", getType());
+            handler = 0;
+            resources.forEach((k, v) -> v.close());
+            checkState(resources.size() == 0, "%s resources should be cleared", getType());
+            Page page = new Page(-1, this);
+            resources.put(-1, page);
             return this;
         }
 
@@ -107,16 +112,22 @@ public class Swings {
 
         @Override
         public PageManager setSize(int w, int h) {
-            log.info("{} set size to {},{}", getType(), w, h);
-            // Clear all pages
-            width = w;
-            height = h;
-            handler = 0;
-            resources.forEach((k, v) -> v.close());
-            checkState(resources.size() == 0, "%s resources should be cleared", getType());
-            Page page = new Page(-1, this);
-            resources.put(-1, page);
+            setSize0(w, h);
             return this;
+        }
+
+        private boolean setSize0(int w, int h) {
+            if (width == w && height == h) {
+                log.debug("{} manager size already in {},{}", w, h);
+                return false;
+            } else {
+                log.info("{} set size to {},{}", getType(), w, h);
+                // Clear all pages
+                width = w;
+                height = h;
+                reset();
+                return true;
+            }
         }
 
         @Override
@@ -124,7 +135,7 @@ public class Swings {
             Page page = resources.get(handler);
             if (page == null) {
 //                log.warn("{} #{} not found", getType(), handler);
-                throw new ExecutionException(String.format("%s resource #%s not found", getType(), handler));
+                throw new ResourceMissingException(getType(), handler);
 //                return getScreen();
             }
             return page;
@@ -154,8 +165,9 @@ public class Swings {
 
         @Subscribe
         public void onReset(ResetEvent e) {
-            log.debug("Reset {} resources", getType());
-            reset();
+            if (!setSize0(240, 320)) {
+                reset();
+            }
         }
     }
 
@@ -302,12 +314,16 @@ public class Swings {
         private final Point pen = new Point();
         private final StringDrawer stringDrawer;
 
+        // Use Graphics color as pen color
+//        private Color penColor = Color.WHITE;
+
         Page(int handler, PageMgr manager, BufferedImage image) {
             super(image);
             this.handler = handler;
             this.manager = manager;
             Font font = new Font("楷体", Font.PLAIN, 12);
             g.setFont(font);
+            g.setColor(Color.BLACK);
             stringDrawer = new StringDrawer(g, getWidth(), getHeight());
         }
 
@@ -412,6 +428,10 @@ public class Swings {
 
         @Override
         public PageResource locate(int row, int column) {
+            if (row == 0 || column == 0) {
+                log.debug("Bad locate {},{}", row, column);
+                return this;
+            }
             stringDrawer.locate(row, column);
             return this;
         }
@@ -424,13 +444,23 @@ public class Swings {
 
         @Override
         public PageResource draw(String text) {
+            Color color = g.getColor();
             stringDrawer.draw(text);
+            g.setColor(color);
             return this;
         }
 
         @Override
         public PageResource font(int font) {
             log.info("Set font to {}", IntEnums.fromInt(FontType.class, font));
+            return this;
+        }
+
+        @Override
+        public PageResource font(int frontColor, int backColor, int frame) {
+            // TODO Ignore frame
+            stringDrawer.front = new Color(frontColor);
+            stringDrawer.back = new Color(frontColor);
             return this;
         }
 
@@ -455,6 +485,8 @@ public class Swings {
         private int x, y, w, h;
         private FontMetrics metrics;
         private int fontSize;
+        private Color front = Color.WHITE;
+        private Color back = Color.BLACK;
 //        private Consumer<StringDrawer> nextPage = (d) -> d.g.fillRect(0, 0, w, h);
 
         StringDrawer(Graphics2D g, int w, int h) {
@@ -462,7 +494,7 @@ public class Swings {
             this.w = w;
             this.h = h;
             getFontInfo();
-            locate(1, 0);
+            locate(1, 1);
         }
 
         public void setFont(Font f) {
@@ -475,9 +507,12 @@ public class Swings {
             fontSize = font.getSize();
         }
 
+        /**
+         * Start from 1
+         */
         public void locate(int row, int column) {
             int width = g.getFont().getSize();
-            x = column * width / 2;
+            x = (column - 1) * width / 2;
             y = row * width;
         }
 
@@ -518,6 +553,8 @@ public class Swings {
                 nextCursorLine();
             }
 
+            // Draw char
+            g.setColor(front);
             g.drawString(String.valueOf((char) ch), x, y);
             advanceCursor(width);
         }

@@ -53,6 +53,8 @@ public class BasmSpecTest {
                         test.init(p.toFile()).run();
                     } catch (Throwable e) {
                         System.out.println(out.toString());
+                        System.out.println("Test failed for " + p);
+                        e.printStackTrace();
                         throw e;
                     }
                 });

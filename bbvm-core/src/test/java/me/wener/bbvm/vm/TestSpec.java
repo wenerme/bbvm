@@ -91,7 +91,7 @@ public class TestSpec {
 
         try {
             assertEquals(expected.size(), actually.size());
-        } catch (Error e) {
+        } catch (Throwable e) {
             System.out.printf("Expected\n%s\nActually\n%s\n", output, out);
             throw e;
         }
