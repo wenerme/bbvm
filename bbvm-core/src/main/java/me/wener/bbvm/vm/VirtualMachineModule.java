@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.nio.charset.Charset;
 
 /**
  * @author wener
@@ -47,6 +48,7 @@ public class VirtualMachineModule extends AbstractModule {
             return config.isModuleEnabled(input.getKey());
         }));
 
+        bind(Charset.class).toInstance(config.getCharset());
     }
 
     @Provides

@@ -186,7 +186,7 @@ Value ValueLiteral():{
 }{
     // N based bytes ?
     LOOKAHEAD(2) v = IntegerValueLiteral(){return v;}
-    |LOOKAHEAD(2) t = <STRING_LITERAL>{return Value.forString(t);}
+    |LOOKAHEAD(2) t = <STRING_LITERAL>{return Value.forString(t).setCharset(charset);}
     |LOOKAHEAD(2) t = <FLOATING_POINT_LITERAL>{return Value.forNumber(t);}
     |LOOKAHEAD(0) t = <HEX_BYTES_LITERAL>{return Value.forHexBytes(t);}
 }
@@ -229,7 +229,6 @@ Operand Operand():{
 }
 {
 
-    // FIXME A should be a IDENTIFIER but mark as CMP_OP
     (
         t = <T_REGISTER> {op.setInternal(RegisterType.valueOf(t.image.toUpperCase())).setAddressingMode(REGISTER);}
         |t = <IDENTIFIER> {op.setAddressingMode(IMMEDIATE).setInternal(-1);addLabelOperand(t,op);}

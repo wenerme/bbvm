@@ -7,6 +7,12 @@ import io.netty.buffer.ByteBuf;
  * @since 15/12/11
  */
 public interface Assembly {
+    /**
+     * If this assembly interests parser
+     */
+    default void setParser(BBAsmParser parser) {
+    }
+
     Type getType();
 
     String toAssembly();

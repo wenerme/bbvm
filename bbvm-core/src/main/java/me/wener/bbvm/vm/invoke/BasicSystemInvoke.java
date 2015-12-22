@@ -197,7 +197,7 @@ public class BasicSystemInvoke {
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 13)
     public void stringReplace(Operand o) {
-        // TODO Charset
+        // TODO Charset or use char array replace
         byte[] bytes = r3.getString().getBytes();
         bytes[r2.get()] = (byte) (r1.get() & 0xff);
         r3.set(new String(bytes));

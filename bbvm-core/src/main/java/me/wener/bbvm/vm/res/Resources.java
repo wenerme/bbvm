@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -137,12 +138,14 @@ public class Resources {
         private final static Logger log = LoggerFactory.getLogger(FileResource.class);
         private final int handler;
         private final FileManager manager;
+        private final Charset charset;
         private Path path;
         private FileChannel channel;
 
-        protected JavaFileResourceImpl(int handler, FileManager manager) {
+        protected JavaFileResourceImpl(int handler, FileManager manager, Charset charset) {
             this.handler = handler;
             this.manager = manager;
+            this.charset = charset;
         }
 
         @Override
@@ -260,8 +263,7 @@ public class Resources {
                     os.write(b);
                     buffer.clear();
                 }
-                // TODO Charset
-                return os.toString("UTF-8");
+                return os.toString(charset.name());
             } catch (IOException e) {
                 throw new ExecutionException(e);
             }
@@ -383,10 +385,12 @@ public class Resources {
         private static class JavaFileResourceFunction implements Function<Integer, FileResource> {
             @Inject
             FileManager fileManager;
+            @Inject
+            Charset charset;
 
             @Override
             public FileResource apply(Integer input) {
-                return new JavaFileResourceImpl(input, fileManager);
+                return new JavaFileResourceImpl(input, fileManager, charset);
             }
         }
     }

@@ -1,7 +1,12 @@
 package me.wener.bbvm;
 
+import com.google.common.base.Splitter;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import me.wener.bbvm.asm.ParseException;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,6 +19,8 @@ import java.nio.file.Paths;
  * @since 15/12/18
  */
 public class BasmSpecTest {
+    private final static Logger log = LoggerFactory.getLogger(BasmSpecTest.class);
+
     @Test
     public void in() throws IOException, ParseException {
         doTest("../bbvm-test/case/in");
@@ -43,10 +50,19 @@ public class BasmSpecTest {
         BasmTester test = new BasmTester();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         test.setPrintStream(new PrintStream(out));
+        Splitter.MapSplitter separator = Splitter.on('&').omitEmptyStrings().withKeyValueSeparator('=');
         Files.walk(Paths.get(first))
                 .filter(p -> !p.toFile().isDirectory())
                 .filter(p -> p.toFile().getName().endsWith(".basm"))
                 .forEach(p -> {
+                    BasmTester tester = test;
+                    String fn = com.google.common.io.Files.getNameWithoutExtension(p.toString());
+                    if (fn.contains("=")) {
+                        Config config = ConfigFactory.parseMap(separator.split(fn));
+                        tester = new BasmTester(config);
+                        log.info("Create BasmTester for {} -> {}", config, p);
+                    }
+
                     // When test failed, we need the output
                     try {
                         out.reset();

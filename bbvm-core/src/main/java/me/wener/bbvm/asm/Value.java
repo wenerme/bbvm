@@ -5,6 +5,9 @@ import com.google.common.io.BaseEncoding;
 import io.netty.buffer.ByteBuf;
 import org.apache.commons.lang3.mutable.MutableDouble;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 /**
  * @author wener
  * @since 15/12/11
@@ -17,6 +20,7 @@ public class Value {
     Token token;
     Type type;
     String assembly;
+    Charset charset = StandardCharsets.UTF_8;
 
     public static Value forNumber(Token v) {
         return forNumber(v.image).setToken(v);
@@ -88,6 +92,11 @@ public class Value {
         return val;
     }
 
+    public Value setCharset(Charset charset) {
+        this.charset = charset;
+        return this;
+    }
+
     public int length() {
         switch (type) {
             case INTEGER:
@@ -97,8 +106,7 @@ public class Value {
             case DOUBLE:
                 return 8;
             case STRING:
-                // TODO Charset
-                return string.getBytes().length;
+                return string.getBytes(charset).length;
             case BYTES:
                 return bytes.length;
             default:
@@ -144,8 +152,7 @@ public class Value {
                 buf.writeBytes(bytes);
                 break;
             case STRING:
-                // TODO Charset
-                buf.writeBytes(string.getBytes());
+                buf.writeBytes(string.getBytes(charset));
                 break;
             default:
                 throw new AssertionError();

@@ -9,6 +9,8 @@ import me.wener.bbvm.vm.Symbols;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,7 @@ import java.util.NavigableMap;
  */
 class BaseBBAsmParser {
     protected final static Logger log = LoggerFactory.getLogger(BBAsmParser.class);
+    protected Charset charset = StandardCharsets.UTF_8;
     LinkedList<Assembly> assemblies = Lists.newLinkedList();
     Map<String, Label> labels = Maps.newHashMap();
     NavigableMap<Integer, Integer> addressTable = Maps.newTreeMap();
@@ -30,6 +33,15 @@ class BaseBBAsmParser {
             image = image.substring(0, image.length() - 1).trim();
         }
         return image;
+    }
+
+    public Charset getCharset() {
+        return charset;
+    }
+
+    public BBAsmParser setCharset(Charset charset) {
+        this.charset = charset;
+        return (BBAsmParser) this;
     }
 
     void jjtreeOpenNodeScope(Node n) {

@@ -3,6 +3,8 @@ package me.wener.bbvm;
 import com.google.common.base.Throwables;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import me.wener.bbvm.asm.BBAsmParser;
@@ -33,17 +35,19 @@ import static org.junit.Assert.assertNull;
  */
 public class BasmTester {
     private final static Logger log = LoggerFactory.getLogger(BasmTester.class);
+    private static final Config DEFAULT_CONFIG = ConfigFactory.parseString("charset=UTF-8");
     private final ByteArrayOutputStream out;
     private final BufferedReaderInput in;
+    private final Charset charset;
     // Parse basm
     // Compare with bin
     // Extract io from basm
     // Run
     // Compare io
     File basmFile;
-    Charset charset = Charset.forName("UTF-8");
     @Inject
     SystemInvokeManager systemInvokeManager;
+    private Config c;
     private PrintStream printStream = System.out;
     @Inject
     private VM vm;
@@ -52,9 +56,19 @@ public class BasmTester {
     private TestSpec io = new TestSpec();
 
     public BasmTester() {
+        this(DEFAULT_CONFIG);
+    }
+
+    public BasmTester(Config config) {
+        this.c = config;
+        if (c == DEFAULT_CONFIG) {
+            c = c.withFallback(DEFAULT_CONFIG);
+        }
+        this.charset = Charset.forName(c.getString("charset"));
         VMConfig.Builder builder = new VMConfig.Builder()
                 .withModule(Resources.fileModule())
                 .withModule(Swings.graphModule())
+                .charset(charset)
                 .invokeWith(GraphInvoke.class);
         Injector injector = Guice.createInjector(new VirtualMachineModule(builder.build()));
         injector.injectMembers(this);
@@ -87,6 +101,7 @@ public class BasmTester {
             throw Throwables.propagate(e);
         }
         parser = new BBAsmParser(new StringReader(basmContent));
+        parser.setCharset(charset);
         io.clear().accept(basmContent);
         return this;
     }

@@ -62,7 +62,7 @@ public class Memory {
     }
 
     public void push(int v) {
-        // TODO
+        // TODO Stack bounds check
 //        if (rb.intValue() - rs.intValue() < 4) {
 //            throw new RuntimeException("Stack overflow");
 //        }
