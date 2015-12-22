@@ -48,20 +48,20 @@ TOKEN :{
 
 TOKEN :
 {
-	<I_CAL:	    "CAL">
+	<I_CAL:	    "CAL">  : DO_CAL
 	| <I_CALL:	"CALL">
 	| <I_CMP:	"CMP">
 	| <I_EXIT:	"EXIT">
 	| <I_IN:	"IN">
 	| <I_JMP:	"JMP">
-	| <I_JPC:	"JPC"> : DoJPC
-	| <I_LD:	"LD">
+	| <I_JPC:	"JPC">  : NEED_CMP_OP
+	| <I_LD:	"LD">   : NEED_DATA_TYPE
 	| <I_NOP:	"NOP">
 	| <I_OUT:	"OUT">
 	| <I_POP:	"POP">
 	| <I_PUSH:	"PUSH">
 	| <I_RET:	"RET">
-	| <I_DATA:  "DATA">
+	| <I_DATA:  "DATA"> : DO_DATA
 	| <I_BLOCK:  ".BLOCK">
 }
 
@@ -69,23 +69,44 @@ TOKEN :
 TOKEN :
 {
     <T_REGISTER : "R0" | "R1" | "R2" | "R3" | "RP" | "RF" |"RS" | "RB">
-    | <DATA_TYPE: "DWORD" | "WORD" | "BYTE" | "FLOAT" | "INT">
-    | <PSEUDO_DATA_TYPE: "CHAR" >
-    | <CAL_OP: "ADD" | "SUB" | "MUL" | "DIV" | "MOD">
+// We need below TOKEN in special context, other wise they are just IDENTIFIER
+//    | <DATA_TYPE: "DWORD" | "WORD" | "BYTE" | "FLOAT" | "INT">
+//    | <PSEUDO_DATA_TYPE: "CHAR" >
+//    | <CAL_OP: "ADD" | "SUB" | "MUL" | "DIV" | "MOD">
 //    | <CMP_OP: "Z" | "B" | "BE" | "A" | "AE" | "NZ">
     | <T_LABEL: <IDENTIFIER> ([" "])* <COLON>>
 }
 
-<DoJPC> TOKEN:
+// Now we need a CMP OP
+<NEED_CMP_OP> TOKEN:
 {
     <CMP_OP: "Z" | "B" | "BE" | "A" | "AE" | "NZ"> : DEFAULT
 }
-
-// FIXME May use keyword as LABEL or IDENTIFIER
-//<DoCAL,DoLD> TOKEN:
-//{
-//    <DATA_TYPE: "DWORD" | "WORD" | "BYTE" | "FLOAT" | "INT"> : DEFAULT
-//}
+// Now we need a DATA TYPE
+<NEED_DATA_TYPE,DO_CAL> TOKEN:
+{
+    // EXTENSION Add char to data type
+    <DATA_TYPE: "DWORD" | "WORD" | "BYTE" | "FLOAT" | "INT" | "CHAR"> {
+        if(curLexState == DO_CAL){
+            SwitchTo(NEED_CAL_OP);
+        }else{
+            SwitchTo(DEFAULT);
+        }
+    }
+}
+// We need a CAL OP
+<NEED_CAL_OP> TOKEN:
+{
+    <CAL_OP: "ADD" | "SUB" | "MUL" | "DIV" | "MOD"> : DEFAULT
+}
+// Aslo need to skip the empty
+<NEED_DATA_TYPE,NEED_CAL_OP,NEED_CMP_OP,DO_CAL,DO_DATA> SKIP:
+{
+    " "
+|   "\t"
+|   "\r"
+|   "\f"
+}
 
 /* COMMENTS */
 
@@ -149,7 +170,7 @@ PseudoData PseudoData():{
     Value v;
     Token t,dt = null;
 }{
-    <I_DATA> t = <IDENTIFIER> (dt = <PSEUDO_DATA_TYPE> | dt = <DATA_TYPE>)? v = ValueLiteral() {pseudo.add(v);} (<COMMA> v = ValueLiteral(){pseudo.add(v);})*
+    <I_DATA> t = <IDENTIFIER> (dt = <DATA_TYPE>)? v = ValueLiteral() {pseudo.add(v);} (<COMMA> v = ValueLiteral(){pseudo.add(v);})*
     {
         pseudo.token = t;
         pseudo.name = t.image;
@@ -277,9 +298,9 @@ TOKEN :
 
 /* IDENTIFIERS */
 
-TOKEN :
+<DEFAULT,DO_DATA>TOKEN :
 {
-  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >{ if(curLexState == DO_DATA){SwitchTo(NEED_DATA_TYPE);}else{SwitchTo(DEFAULT);}}
 |
   < #LETTER:
       [
