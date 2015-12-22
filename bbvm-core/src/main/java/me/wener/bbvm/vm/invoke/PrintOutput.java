@@ -47,7 +47,7 @@ public class PrintOutput {
     }
 
     protected void print(String s) {
-        consumer.accept("\n");
+        consumer.accept(s);
     }
 
     protected void println(String s) {

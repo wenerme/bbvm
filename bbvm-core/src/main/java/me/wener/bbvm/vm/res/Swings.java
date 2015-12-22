@@ -452,7 +452,14 @@ public class Swings {
 
         @Override
         public PageResource font(int font) {
-            log.info("Set font to {}", IntEnums.fromInt(FontType.class, font));
+            FontType type = IntEnums.fromInt(FontType.class, font);
+            if (type == null) {
+                log.warn("Font {} not found", font);
+            } else {
+                log.info("Set font to {}", type);
+                g.setFont(g.getFont().deriveFont((float) type.getSize()));
+                stringDrawer.fontChanged();
+            }
             return this;
         }
 
@@ -497,8 +504,8 @@ public class Swings {
             locate(1, 1);
         }
 
-        public void setFont(Font f) {
-            g.setFont(f);
+        public void fontChanged() {
+            getFontInfo();
         }
 
         private void getFontInfo() {
