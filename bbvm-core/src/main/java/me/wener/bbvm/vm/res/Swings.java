@@ -141,7 +141,7 @@ public class Swings {
         @Subscribe
         public void onVmTest(VmTestEvent e) {
             try {
-                log.debug("Dump screen to file");
+                log.debug("Dump pages to file");
                 for (Map.Entry<Integer, Page> entry : resources.entrySet()) {
                     String fn = "page-" + (entry.getKey() == -1 ? "screen" : entry.getKey()) + ".png";
                     ImageIO.write(entry.getValue().image, "png", new File(fn));
@@ -196,6 +196,7 @@ public class Swings {
             }
             return handlers.pollFirst();
         }
+
         @Override
         public ImageManager reset() {
             resources.forEach((k, v) -> v.close());
@@ -328,7 +329,8 @@ public class Swings {
 
         @Override
         public PageResource draw(PageResource resource) {
-            image.copyData(resource.unwrap(Draw.class).image.getRaster());
+//            image.copyData(resource.unwrap(Draw.class).image.getRaster());
+            g.drawImage(resource.unwrap(Draw.class).image, 0, 0, null);
             return this;
         }
 

@@ -87,7 +87,7 @@ public class GraphInvoke {
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 21, b = 0)
-    public void display() {
+    public void flipPage() {
         r3.get(pages).display();
     }
 
