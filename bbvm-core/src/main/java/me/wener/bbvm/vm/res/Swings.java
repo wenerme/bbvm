@@ -111,6 +111,7 @@ public class Swings {
             // Clear all pages
             width = w;
             height = h;
+            handler = 0;
             resources.forEach((k, v) -> v.close());
             checkState(resources.size() == 0, "%s resources should be cleared", getType());
             Page page = new Page(-1, this);

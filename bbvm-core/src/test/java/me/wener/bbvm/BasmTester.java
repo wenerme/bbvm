@@ -103,7 +103,8 @@ public class BasmTester {
                     .reset()
                     .setAddressTable(parser.getAddressTable())
                     .setSymbolTable(parser.createSymbolTable())
-                    .setMemory(Memory.load(buf)).run();
+                    .setMemory(Memory.load(buf))
+                    .run();
             assertNull(vm.getLastError());
             io.assertMatch(out.toString());
             printStream.printf("Output\n%s\n", out.toString());

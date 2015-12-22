@@ -42,10 +42,6 @@ public class Memory {
         for (int i = 0; i < bytes.length; i++) {
             bytes[i] = 0;
         }
-        if (vm != null) {
-            rb.set(mem.maxCapacity());
-            rs.set(mem.maxCapacity() - stackSize);
-        }
         return this;
     }
 

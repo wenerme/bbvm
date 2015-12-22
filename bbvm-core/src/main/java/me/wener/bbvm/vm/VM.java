@@ -13,6 +13,7 @@ import me.wener.bbvm.vm.res.StringManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.util.Iterator;
 import java.util.Map;
@@ -196,7 +197,7 @@ public class VM {
         return memory;
     }
 
-    public VM setMemory(Memory memory) {
+    public VM setMemory(@Nonnull Memory memory) {
         this.memory = memory.setVm(this);
         return this;
     }
