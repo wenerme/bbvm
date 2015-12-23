@@ -63,4 +63,9 @@ public interface PageResource extends Resource, Drawable {
      * Set the font style
      */
     PageResource font(int frontColor, int backColor, int frame);
+
+    /**
+     * @see me.wener.bbvm.dev.BackgroundMode
+     */
+    PageResource setBackgroundMode(int mode);
 }

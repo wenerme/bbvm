@@ -166,6 +166,11 @@ public class GraphInvoke {
         pages.getResource(dest).draw(pages.getResource(src), x, y);
     }
 
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 44, b = 0)
+    public void setBgMode() {
+        pages.getScreen().setBackgroundMode(r3.get());
+    }
+
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 64)
     public void setPen() {
         Params params = params(r3.get(), 4);

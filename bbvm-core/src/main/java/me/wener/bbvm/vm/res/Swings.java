@@ -8,6 +8,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import me.wener.bbvm.dev.BackgroundMode;
 import me.wener.bbvm.dev.FontType;
 import me.wener.bbvm.dev.Images;
 import me.wener.bbvm.exception.ExecutionException;
@@ -325,6 +326,7 @@ public class Swings {
             g.setFont(font);
             g.setColor(Color.BLACK);
             stringDrawer = new StringDrawer(g, getWidth(), getHeight());
+            stringDrawer.setBackgroundVisible(true);// Default
         }
 
         private Page(int handler, PageMgr manager) {
@@ -467,7 +469,13 @@ public class Swings {
         public PageResource font(int frontColor, int backColor, int frame) {
             // TODO Ignore frame
             stringDrawer.front = new Color(frontColor);
-            stringDrawer.back = new Color(frontColor);
+            stringDrawer.back = new Color(backColor);
+            return this;
+        }
+
+        @Override
+        public PageResource setBackgroundMode(int mode) {
+            stringDrawer.setBackgroundVisible(mode == BackgroundMode.OPAQUE.asInt());
             return this;
         }
 
@@ -494,6 +502,7 @@ public class Swings {
         private int fontSize;
         private Color front = Color.WHITE;
         private Color back = Color.BLACK;
+        private boolean backgroundVisible;
 //        private Consumer<StringDrawer> nextPage = (d) -> d.g.fillRect(0, 0, w, h);
 
         StringDrawer(Graphics2D g, int w, int h) {
@@ -560,6 +569,11 @@ public class Swings {
                 nextCursorLine();
             }
 
+            if (backgroundVisible) {
+                g.setColor(back);
+                g.fillRect(x, y - fontSize, width, fontSize);
+            }
+
             // Draw char
             g.setColor(front);
             g.drawString(String.valueOf((char) ch), x, y);
@@ -577,6 +591,10 @@ public class Swings {
         private void nextPage() {
             locate(1, 0);
 //            nextPage.accept(this);
+        }
+
+        public void setBackgroundVisible(boolean b) {
+            this.backgroundVisible = b;
         }
     }
 }
