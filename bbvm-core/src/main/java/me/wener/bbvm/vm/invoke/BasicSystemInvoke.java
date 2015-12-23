@@ -67,8 +67,16 @@ public class BasicSystemInvoke {
         try {
             o.set((int) Float.parseFloat(r3.getString("Nan")));
         } catch (NumberFormatException e) {
-            // TODO should I do this ?
             o.set(r3.get());
+        }
+    }
+
+    @SystemInvoke(type = SystemInvoke.Type.IN, b = 33)
+    public void string2int2(@Named("A") Operand o) {
+        try {
+            o.set((int) Float.parseFloat(r3.getString("Nan")));
+        } catch (NumberFormatException e) {
+            o.set(0);// exception return value is different
         }
     }
 
@@ -289,10 +297,6 @@ public class BasicSystemInvoke {
         o.set(r3.get());
     }
 
-    @SystemInvoke(type = SystemInvoke.Type.IN, b = 33)
-    public void string2int2(@Named("A") Operand o) {
-        string2int(o);
-    }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 34)
     public void firstCharCode(@Named("A") Operand o) {
