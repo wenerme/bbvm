@@ -13,6 +13,11 @@ import java.io.IOException;
  */
 public class ImagesTest {
 
+    @Test(expected = Exception.class)
+    public void testFileNotFound() throws IOException {
+        Images.load("../bbvm-test/image/9288-xxxx.lib").get(0);
+    }
+
     @Test
     public void testLib2BitLeGray() throws IOException {
         ImageInfo info = Images.load("../bbvm-test/image/9288.lib").get(0);
@@ -34,6 +39,12 @@ public class ImagesTest {
     @Test
     public void testRlb() throws IOException {
         ImageInfo info = Images.load("../bbvm-test/image/bmp.rlb").get(0);
+        ImageIO.write(Images.read(info), "BMP", new File(info.getType() + ".bmp"));
+    }
+
+    @Test
+    public void testGeneric() throws IOException {
+        ImageInfo info = Images.load("../bbvm-test/image/bmp.bmp").get(0);
         ImageIO.write(Images.read(info), "BMP", new File(info.getType() + ".bmp"));
     }
 }

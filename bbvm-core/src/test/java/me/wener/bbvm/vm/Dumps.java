@@ -1,4 +1,4 @@
-package me.wener.bbvm.system;
+package me.wener.bbvm.vm;
 
 import io.netty.buffer.ByteBuf;
 import me.wener.bbvm.TestUtil;

@@ -1,6 +1,5 @@
 package me.wener.bbvm.vm;
 
-import me.wener.bbvm.system.Dumps;
 import org.junit.Test;
 
 /**

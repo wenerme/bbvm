@@ -6,6 +6,8 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -31,6 +33,7 @@ import java.util.Map;
  * @since 15/12/19
  */
 public class Images {
+    private final static Logger log = LoggerFactory.getLogger(Images.class);
     private static final Map<String, ImageCodec> CODEC = Maps.newHashMap();
 
     static {
@@ -38,6 +41,7 @@ public class Images {
         register(new Lib2BitGrayBEImageCodec());
         register(new Lib2BitGrayLEImageCodec());
         register(new RLBImageCodec());
+        register(new GenericImageCodec());
     }
 
     private static void register(ImageCodec codec) {
@@ -57,10 +61,8 @@ public class Images {
                     if (infos != null) {
                         return infos;
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedOperationException e) {
-//                    e.printStackTrace();
+                } catch (UnsupportedOperationException | IOException e) {
+                    log.debug("Load {} use {} failed with {}", file, codec.getType(), e.getMessage());
                 }
             }
         }
