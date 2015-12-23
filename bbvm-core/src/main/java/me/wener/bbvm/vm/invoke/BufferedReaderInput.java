@@ -35,8 +35,7 @@ public class BufferedReaderInput {
     }
 
     public BufferedReaderInput setReader(String content) {
-        this.reader = new BufferedReader(new StringReader(content));
-        return this;
+        return setReader(new BufferedReader(new StringReader(content)));
     }
 /*
 10 | 键入整数 | 0 |  | r3的值变为键入的整数

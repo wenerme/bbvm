@@ -59,54 +59,77 @@ public class VM {
         return Guice.createInjector(new VirtualMachineModule(new VMConfig.Builder().build())).getInstance(VM.class);
     }
 
-    private static float cal(CalculateType calculateType, DataType dataType, Operand a, Operand b) {
-        float va;
-        float vb;
-        if (dataType == DataType.FLOAT) {
-            va = a.getFloat();
-            vb = b.getFloat();
-        } else {
-            va = a.get();
-            vb = b.get();
+    private static double cal(CalculateType calculateType, DataType dataType, Operand a, Operand b) {
+        int ia = a.get(), ib = b.get();
+        switch (dataType) {
+            case FLOAT: {
+                float fa = a.getFloat(), fb = b.getFloat();
+                switch (calculateType) {
+                    case ADD:
+                        fa += fb;
+                        break;
+                    case SUB:
+                        fa -= fb;
+                        break;
+                    case MUL:
+                        fa *= fb;
+                        break;
+                    case DIV:
+                        fa /= fb;
+                        break;
+                    case MOD:
+                        fa %= fb;
+                        break;
+                }
+                return fa;
+            }
+            case WORD:
+                ia &= 0xffff;
+                ib &= 0xffff;
+                break;
+            case BYTE:
+                ia &= 0xff;
+                ib &= 0xff;
+                break;
         }
-        float vc;
         switch (calculateType) {
             case ADD:
-                vc = va + vb;
+                ia += ib;
                 break;
             case SUB:
-                vc = va - vb;
+                ia -= ib;
                 break;
             case MUL:
-                vc = va * vb;
+                ia *= ib;
                 break;
             case DIV:
-                vc = va / vb;
+                ia /= ib;
                 break;
             case MOD:
-                vc = va % vb;
+                ia %= ib;
                 break;
-            default:
-                throw new UnsupportedOperationException();
         }
-        return vc;
+        return ia;
     }
 
-    private static float cal(CalculateType calculateType, DataType dataType, Operand a, Operand b, Value out) {
-        float vc = cal(calculateType, dataType, a, b);
+    private static double cal(CalculateType calculateType, DataType dataType, Operand a, Operand b, Value out) {
+        double vc = cal(calculateType, dataType, a, b);
         switch (dataType) {
             case FLOAT:
-                out.set(vc);
+                out.set((float) vc);
                 break;
             case DWORD:
             case INT:
-                out.set((int) vc);
+                // Allowed overflow
+                out.set((int) (((long) vc)));
                 break;
             case WORD:
-                out.set((short) vc);
+                // TODO is unsigned ok ?
+                // Same on the PC vm, not sure in the 9688
+                out.set(((short) vc) & 0xffff);
                 break;
             case BYTE:
-                out.set((byte) vc);
+                out.set(((byte) vc) & 0xff);
                 break;
         }
         return vc;
@@ -220,7 +243,7 @@ public class VM {
         if (memory != null) {
             memory.reset();
         }
-        log.debug("VM Reset {}",debugAsm());
+        log.debug("VM Reset {}", debugAsm());
         eventBus.post(new ResetEvent(this));
         return this;
     }
@@ -290,7 +313,7 @@ public class VM {
                 ret();
                 break;
             case CMP: {
-                float vc = cal(CalculateType.SUB, inst.getDataType(), a, b);
+                double vc = cal(CalculateType.SUB, inst.getDataType(), a, b);
                 if (vc > 0)
                     rf.set(CompareType.A);
                 else if (vc < 0)

@@ -50,7 +50,7 @@ TOKEN :
 {
 	<I_CAL:	    "CAL">  : DO_CAL
 	| <I_CALL:	"CALL">
-	| <I_CMP:	"CMP">
+	| <I_CMP:	"CMP">  : NEED_DATA_TYPE
 	| <I_EXIT:	"EXIT">
 	| <I_IN:	"IN">
 	| <I_JMP:	"JMP">
@@ -209,7 +209,7 @@ Instruction Instruction():{
         | (o = <I_CALL> |o = <I_PUSH> |o = <I_POP> |o = <I_JMP>) a = Operand()
         | (o = <I_IN> | o = <I_OUT>) a = Operand() <COMMA> b = Operand()
         | o = <I_CAL> dataType = <DATA_TYPE> calType = <CAL_OP> a = Operand() <COMMA> b = Operand()
-        | o = <I_LD> dataType = <DATA_TYPE> a = Operand() <COMMA> b = Operand()
+        | (o = <I_LD> | o = <I_CMP>) dataType = <DATA_TYPE> a = Operand() <COMMA> b = Operand()
         | o = <I_JPC> cmpType = <CMP_OP> a = Operand()
     )
     {

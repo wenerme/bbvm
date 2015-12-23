@@ -63,12 +63,12 @@ public class BasicSystemInvoke {
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 3)
-    public void string2int(StringManager stringManager, @Named("A") Operand o) {
-        String s = r3.getString();
-        if (s != null) {
-            o.set(Integer.parseInt(s));
-        } else {
-            o.set(r3.get());
+    public void string2int( @Named("A") Operand o) {
+        try {
+            o.set((int) Float.parseFloat(r3.getString()));
+        } catch (NumberFormatException e) {
+            // TODO should I do this ?
+            o.set(0);
         }
     }
 
@@ -290,13 +290,8 @@ public class BasicSystemInvoke {
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 33)
-    public void string2int(@Named("A") Operand o) {
-        try {
-            o.set((int) Float.parseFloat(r3.getString()));
-        } catch (NumberFormatException e) {
-            // TODO should I do this ?
-            o.set(0);
-        }
+    public void string2int2(@Named("A") Operand o) {
+        string2int(o);
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 34)
