@@ -65,10 +65,10 @@ public class BasicSystemInvoke {
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 3)
     public void string2int( @Named("A") Operand o) {
         try {
-            o.set((int) Float.parseFloat(r3.getString()));
+            o.set((int) Float.parseFloat(r3.getString("Nan")));
         } catch (NumberFormatException e) {
             // TODO should I do this ?
-            o.set(0);
+            o.set(r3.get());
         }
     }
 

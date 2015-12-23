@@ -29,6 +29,14 @@ public interface Value<T extends Value> {
         return getVm().getString(get());
     }
 
+    /**
+     * @param def Default value if getString return null
+     */
+    default String getString(String def) {
+        String s = getString();
+        return s == null ? def : s;
+    }
+
     default <M extends ResourceManager<M, R>, R extends Resource> R get(M manager) {
         return manager.getResource(get());
     }
