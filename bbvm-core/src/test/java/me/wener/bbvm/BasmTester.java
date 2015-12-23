@@ -125,10 +125,10 @@ public class BasmTester {
         printStream.println(Dumper.hexDumpReadable(buf));
         try {
             vm
-                    .reset()
                     .setAddressTable(parser.getAddressTable())
                     .setSymbolTable(parser.createSymbolTable())
                     .setMemory(Memory.load(buf))
+                    .reset()
                     .run();
             assertNull(vm.getLastError());
             io.assertMatch(out.toString());

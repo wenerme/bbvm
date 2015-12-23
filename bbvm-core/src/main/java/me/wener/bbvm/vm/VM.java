@@ -230,6 +230,9 @@ public class VM {
         return this;
     }
 
+    /**
+     * Reset virtual machine state, should be this before every rerun
+     */
     public VM reset() {
         r0.set(0);
         r1.set(0);
@@ -241,7 +244,8 @@ public class VM {
         rp.set(0);
         exit = false;
         if (memory != null) {
-            memory.reset();
+            rs.set(memory.getMemorySize() + memory.getStackSize() - 4);
+            rb.set(memory.getMemorySize() - 4);
         }
         log.debug("VM Reset {}", debugAsm());
         eventBus.post(new ResetEvent(this));

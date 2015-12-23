@@ -13,6 +13,7 @@ import java.nio.charset.Charset;
  */
 public class Memory {
     public static final int DEFAULT_MEMORY = 1024 * 1024 * 4;
+    public static final int DEFAULT_STACK_SIZE = 1000;
     Register rs;
     Register rb;
     private ByteBuf mem;
@@ -20,23 +21,26 @@ public class Memory {
     private int stackSize;
     private VM vm;
 
-    public Memory() {
-        this(DEFAULT_MEMORY, 1024);
+    private Memory() {
+        this(DEFAULT_MEMORY, DEFAULT_STACK_SIZE);
     }
 
-    public Memory(int memorySize, int stackSize) {
+    private Memory(int memorySize, int stackSize) {
         mem = Unpooled.buffer(memorySize + stackSize, memorySize + stackSize).order(ByteOrder.LITTLE_ENDIAN);
         this.stackSize = stackSize;
         this.memorySize = memorySize;
     }
 
     public static Memory load(ByteBuf buf) {
-        Memory memory = new Memory(buf.readableBytes(), 1024);
+        Memory memory = new Memory(buf.readableBytes(), DEFAULT_STACK_SIZE);
         memory.mem.writeBytes(buf);
         return memory;
     }
 
-    public Memory reset() {
+    /**
+     * Fill memory with zero
+     */
+    public Memory clear() {
         mem.clear();
         byte[] bytes = mem.array();
         for (int i = 0; i < bytes.length; i++) {
