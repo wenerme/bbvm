@@ -5,37 +5,25 @@ import me.wener.bbvm.vm.SystemInvoke;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
+import java.util.function.Supplier;
 
 /**
  * @author wener
  * @since 15/12/17
  */
-public class BufferedReaderInput {
-    private BufferedReader reader;
+public class InputInvoke {
     @Inject
     @Named("R3")
     private Register r3;
-    @Inject
-    @Named("R2")
-    private Register r2;
+    private Supplier<String> supplier;
 
-    public BufferedReaderInput() {
+    public InputInvoke() {
     }
 
-    public BufferedReaderInput(BufferedReader reader) {
-        this.reader = reader;
-    }
-
-    public BufferedReaderInput setReader(BufferedReader reader) {
-        this.reader = reader;
+    public InputInvoke setSupplier(Supplier<String> supplier) {
+        this.supplier = supplier;
         return this;
-    }
-
-    public BufferedReaderInput setReader(String content) {
-        return setReader(new BufferedReader(new StringReader(content)));
     }
 /*
 10 | 键入整数 | 0 |  | r3的值变为键入的整数
@@ -45,18 +33,16 @@ public class BufferedReaderInput {
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 10, b = 0)
     public void inputInt() throws IOException {
-        String line = reader.readLine();
-        r3.set((int) Float.parseFloat(line));
+        r3.set((int) Float.parseFloat(supplier.get()));
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 11, b = 0)
     public void inputString() throws IOException {
-        r3.set(reader.readLine());
+        r3.set(supplier.get());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 12, b = 0)
     public void inputFloat() throws IOException {
-        String line = reader.readLine();
-        r3.set(Float.parseFloat(line));
+        r3.set(Float.parseFloat(supplier.get()));
     }
 }

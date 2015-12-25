@@ -1,5 +1,6 @@
 package me.wener.bbvm.vm.res;
 
+import com.google.common.base.Throwables;
 import me.wener.bbvm.exception.ResourceMissingException;
 
 /**
@@ -12,7 +13,18 @@ public interface ResourceManager<M extends ResourceManager, R extends Resource> 
     /**
      * Close this resource, if the resource is not exists may not throw an exception
      */
-//    R close(int handler);
+    default R close(int handler) {
+        try {
+            R resource = getResource(handler);
+            resource.close();
+        } catch (ResourceMissingException e) {
+            // ignored
+        } catch (Exception e) {
+            Throwables.propagate(e);
+        }
+
+        return null;
+    }
 
     @SuppressWarnings("unchecked")
     default M reset() {

@@ -9,10 +9,10 @@ import java.util.function.Consumer;
  * @author wener
  * @since 15/12/22
  */
-public class PrintOutput {
+public class OutputInvoke {
     private final Consumer<String> consumer;
 
-    public PrintOutput(Consumer<String> consumer) {
+    public OutputInvoke(Consumer<String> consumer) {
         this.consumer = consumer;
     }
 

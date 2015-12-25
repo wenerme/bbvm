@@ -11,13 +11,13 @@ import me.wener.bbvm.asm.BBAsmParser;
 import me.wener.bbvm.asm.ParseException;
 import me.wener.bbvm.util.Dumper;
 import me.wener.bbvm.vm.*;
-import me.wener.bbvm.vm.invoke.BufferedReaderInput;
 import me.wener.bbvm.vm.invoke.GraphInvoke;
-import me.wener.bbvm.vm.invoke.PrintOutput;
+import me.wener.bbvm.vm.invoke.InputInvoke;
+import me.wener.bbvm.vm.invoke.OutputInvoke;
 import me.wener.bbvm.vm.res.ImageManager;
 import me.wener.bbvm.vm.res.PageManager;
 import me.wener.bbvm.vm.res.Resources;
-import me.wener.bbvm.vm.res.Swings;
+import me.wener.bbvm.vm.res.swing.Swings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +26,7 @@ import java.io.*;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.Scanner;
 
 import static org.junit.Assert.assertNull;
 
@@ -37,7 +38,7 @@ public class BasmTester {
     private final static Logger log = LoggerFactory.getLogger(BasmTester.class);
     private static final Config DEFAULT_CONFIG = ConfigFactory.parseString("charset=UTF-8");
     private final ByteArrayOutputStream out;
-    private final BufferedReaderInput in;
+    private final InputInvoke in;
     private final Charset charset;
     // Parse basm
     // Compare with bin
@@ -74,10 +75,10 @@ public class BasmTester {
         injector.injectMembers(this);
         injector.getInstance(ImageManager.class).getResourceDirectory().add("../bbvm-test/image");
         out = new ByteArrayOutputStream();
-        in = new BufferedReaderInput();
+        in = new InputInvoke();
         // TODO Need a way to makeup the input and output
         PageManager manager = injector.getInstance(PageManager.class);
-        systemInvokeManager.register(new PrintOutput((s) -> {
+        systemInvokeManager.register(new OutputInvoke((s) -> {
             try {
                 out.write(s.getBytes());
             } catch (IOException e) {
@@ -108,7 +109,8 @@ public class BasmTester {
 
     public void run() {
         out.reset();
-        in.setReader(io.output().toString());
+        Scanner scanner = new Scanner(io.output().toString());
+        in.setSupplier(scanner::nextLine);
         try {
             parser.Parse();
             parser.getAssemblies().stream().forEach(s -> printStream.printf("%02d %s\n", s.getLine(), s.toAssembly()));

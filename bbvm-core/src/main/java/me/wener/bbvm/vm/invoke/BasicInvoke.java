@@ -17,8 +17,8 @@ import java.util.Random;
  * @author wener
  * @since 15/12/13
  */
-public class BasicSystemInvoke {
-    private final static Logger log = LoggerFactory.getLogger(BasicSystemInvoke.class);
+public class BasicInvoke {
+    private final static Logger log = LoggerFactory.getLogger(BasicInvoke.class);
     private final VM vm;
     private final Register r3;
     private final Register r2;
@@ -30,7 +30,7 @@ public class BasicSystemInvoke {
     private int pointer;
 
     @Inject
-    public BasicSystemInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, EventBus eventBus, StringManager stringManager) {
+    public BasicInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, EventBus eventBus, StringManager stringManager) {
         this.vm = vm;
         this.r3 = r3;
         this.r2 = r2;

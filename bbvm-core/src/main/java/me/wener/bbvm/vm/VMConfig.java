@@ -6,13 +6,12 @@ import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Module;
 import com.typesafe.config.Config;
-import me.wener.bbvm.vm.invoke.BufferedReaderInput;
-import me.wener.bbvm.vm.invoke.PrintOutput;
+import me.wener.bbvm.vm.invoke.InputInvoke;
+import me.wener.bbvm.vm.invoke.OutputInvoke;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * @author wener
@@ -137,11 +136,12 @@ public class VMConfig {
         }
 
         public Builder invokeWithSystemInput() {
-            return invokeWith(new BufferedReaderInput(new BufferedReader(new InputStreamReader(System.in, charset))));
+            Scanner scanner = new Scanner(System.in);
+            return invokeWith(new InputInvoke().setSupplier(scanner::nextLine));
         }
 
         public Builder invokeWithSystemOutput() {
-            return invokeWith(new PrintOutput(System.out::print));
+            return invokeWith(new OutputInvoke(System.out::print));
         }
 
         public Builder invokeWith(Object handler) {

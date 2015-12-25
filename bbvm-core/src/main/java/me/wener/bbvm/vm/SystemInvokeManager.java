@@ -8,7 +8,15 @@ import com.google.common.base.Function;
  */
 public interface SystemInvokeManager {
 
+    /**
+     * Register all method with annotation {@link SystemInvoke}, if register a class will use {@linkplain com.google.inject.Injector Injector} to create new instance.
+     * If there is already have a handler for type,a,b will throw an exception.
+     *
+     * @param handlers Object or Class
+     */
     void register(Object... handlers);
+
+//    void register(boolean override,Object... handlers);
 
     void register(SystemInvoke.Type type, int a, int b, Function<Instruction, Object> handler);
 
