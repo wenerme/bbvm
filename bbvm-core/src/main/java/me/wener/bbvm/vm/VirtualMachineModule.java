@@ -4,7 +4,6 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.Provides;
-import com.google.inject.multibindings.OptionalBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +32,8 @@ public class VirtualMachineModule extends AbstractModule {
                 throw new UnsupportedOperationException("Current can not handle module class");
             }
         }
-        OptionalBinder.newOptionalBinder(binder(), SystemInvokeManager.class)
-                .setDefault().to(SystemInvokeManagerImpl.class).in(Singleton.class);
+//        OptionalBinder.newOptionalBinder(binder(), SystemInvokeManager.class)
+//                .setDefault().to(SystemInvokeManagerImpl.class).in(Singleton.class);
 
         bind(VM.class).in(Singleton.class);
 

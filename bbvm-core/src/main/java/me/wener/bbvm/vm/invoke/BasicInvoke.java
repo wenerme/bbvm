@@ -1,10 +1,12 @@
 package me.wener.bbvm.vm.invoke;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import me.wener.bbvm.dev.DeviceConstants;
 import me.wener.bbvm.dev.StringManager;
 import me.wener.bbvm.exception.ResourceMissingException;
 import me.wener.bbvm.vm.*;
+import me.wener.bbvm.vm.event.ResetEvent;
 import me.wener.bbvm.vm.event.VmTestEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,13 @@ public class BasicInvoke {
         this.r0 = r0;
         this.eventBus = eventBus;
         this.stringManager = stringManager;
+        eventBus.register(this);
+    }
+
+    @Subscribe
+    public void onReset(ResetEvent e) {
+        log.debug("On reset");
+        pointer = 0;
     }
 
     /*
@@ -63,7 +72,7 @@ public class BasicInvoke {
     }
 
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 3)
-    public void string2int( @Named("A") Operand o) {
+    public void string2int(@Named("A") Operand o) {
         try {
             o.set((int) Float.parseFloat(r3.getString("Nan")));
         } catch (NumberFormatException e) {

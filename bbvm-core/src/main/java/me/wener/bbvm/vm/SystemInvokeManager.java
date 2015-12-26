@@ -1,11 +1,13 @@
 package me.wener.bbvm.vm;
 
 import com.google.common.base.Function;
+import com.google.inject.ImplementedBy;
 
 /**
  * @author wener
  * @since 15/12/13
  */
+@ImplementedBy(SystemInvokeManagerImpl.class)
 public interface SystemInvokeManager {
 
     /**

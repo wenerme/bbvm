@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -26,6 +27,7 @@ import java.util.Map;
  * @author wener
  * @since 15/12/13
  */
+@Singleton
 class SystemInvokeManagerImpl implements SystemInvokeManager {
     final static Map<String, Function<Instruction, Object>> MAPPER_MAP;
     private final static Logger log = LoggerFactory.getLogger(SystemInvokeManager.class);
