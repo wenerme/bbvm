@@ -29,8 +29,8 @@ class SwingPage extends Draw implements PageResource {
         super(image);
         this.handler = handler;
         this.manager = manager;
-        Font font = new Font("楷体", Font.PLAIN, 12).deriveFont(12 * 0.8f);// Makes a 12 height
-        g.setFont(font);
+        Font font = new Font("楷体", Font.PLAIN, 12);// Makes a 12 height
+        g.setFont(deriveFont(font, 12));
         g.setColor(Color.BLACK);
         stringDrawer = new StringDrawer(g, getWidth(), getHeight());
         stringDrawer.setBackgroundVisible(true);// Default
@@ -38,6 +38,14 @@ class SwingPage extends Draw implements PageResource {
 
     SwingPage(int handler, SwingPageManager manager) {
         this(handler, manager, new BufferedImage(manager.getWidth(), manager.getHeight(), BufferedImage.TYPE_INT_RGB));
+    }
+
+    Font deriveFont(Font font, int lineHeight) {
+        float size = (font.getSize() * 1f / g.getFontMetrics().getHeight()) * lineHeight;
+        if (size == font.getSize()) {
+            return font;
+        }
+        return font.deriveFont(size);
     }
 
     @Override
@@ -55,7 +63,6 @@ class SwingPage extends Draw implements PageResource {
 
     @Override
     public PageResource draw(PageResource resource) {
-//            image.copyData(resource.unwrap(Draw.class).image.getRaster());
         g.drawImage(resource.unwrap(Draw.class).image, 0, 0, null);
         return this;
     }
@@ -173,8 +180,11 @@ class SwingPage extends Draw implements PageResource {
             log.warn("Font {} not found", font);
         } else {
             log.info("Set font to {}", type);
-            g.setFont(g.getFont().deriveFont((float) type.getSize()));
+            int height = g.getFontMetrics().getAscent();
+            g.setFont(deriveFont(g.getFont(), type.getSize()));
             stringDrawer.fontChanged();
+            // Adjust for next draw
+            stringDrawer.y += g.getFontMetrics().getAscent() - height;
         }
         return this;
     }

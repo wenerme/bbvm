@@ -1,7 +1,6 @@
 package me.wener.bbvm.dev.swing;
 
 import java.awt.*;
-import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -10,7 +9,7 @@ import java.awt.geom.Rectangle2D;
  */
 class StringDrawer {
     protected final Graphics2D g;
-    private int x, y, w, h;
+    int x, y, w, h;
     private FontMetrics metrics;
     private int fontHeight;
     private Color front = Color.WHITE;
@@ -83,7 +82,6 @@ class StringDrawer {
         if (x + width > w) {
             nextCursorLine();
         }
-        LineMetrics lineMetrics = fm.getLineMetrics(s, g);
         if (backgroundVisible) {
             Rectangle2D rect = fm.getStringBounds(s, g);
             g.setColor(back);
