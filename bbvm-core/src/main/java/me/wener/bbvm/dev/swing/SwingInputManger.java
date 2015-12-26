@@ -1,30 +1,68 @@
 package me.wener.bbvm.dev.swing;
 
+import me.wener.bbvm.dev.InputManager;
+import me.wener.bbvm.exception.ExecutionException;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.awt.event.*;
+import java.util.PrimitiveIterator;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * @author wener
  * @since 15/12/26
  */
 @Singleton
-class SwingInputManger extends QueuedInputManager implements MouseListener, KeyListener {
+class SwingInputManger implements InputManager, MouseListener, KeyListener {
+    private final static Logger log = LoggerFactory.getLogger(SwingInputManger.class);
+    final protected BlockingQueue<InputEvent> events;
+    private final PrimitiveIterator.OfInt keyCodeIterator;
+    SwingPage page;
+    private PrimitiveIterator.OfInt charIterator;
 
+    SwingInputManger(BlockingQueue<InputEvent> events) {
+        this.events = events;
+        keyCodeIterator = getKeyCodeStream().iterator();
+    }
 
     @Inject
     public SwingInputManger() {
-        super(new ArrayBlockingQueue<>(64));
+        this(new SynchronousQueue<>());
+        charIterator = getCharStream().iterator();
+    }
+
+    @Override
+    public boolean isKeyPressed(int key) {
+        return false;
+    }
+
+    @Override
+    public int waitKey() {
+        return keyCodeIterator.next();
+    }
+
+    @Override
+    public int getLastKeyCode() {
+        return 0;
+    }
+
+    @Override
+    public String getLastKeyString() {
+        return null;
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
         try {
-            events.put(new InputEvent(InputEvent.Type.CLICK, e.getX() | e.getY()));
+            events.put(e);
         } catch (InterruptedException e1) {
             e1.printStackTrace();
         }
@@ -52,37 +90,74 @@ class SwingInputManger extends QueuedInputManager implements MouseListener, KeyL
 
     @Override
     public void keyTyped(KeyEvent e) {
-
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
+        offer(e);
+    }
+
+    private void offer(KeyEvent e) {
         try {
-            if (e.getKeyChar() == KeyEvent.CHAR_UNDEFINED) {
-                events.put(new InputEvent(InputEvent.Type.DOWN, e.getKeyCode()));
-            } else {
-                events.put(new InputEvent(InputEvent.Type.DOWN, e.getKeyChar()));
+            if (!events.offer(e, 5, TimeUnit.MILLISECONDS) && log.isTraceEnabled()) {
+                log.trace("Dropped {}", e);
             }
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
+        } catch (InterruptedException ignored) {
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        try {
-            if (e.getKeyChar() == KeyEvent.CHAR_UNDEFINED) {
-                events.put(new InputEvent(InputEvent.Type.UP, e.getKeyCode()));
-            } else {
-                events.put(new InputEvent(InputEvent.Type.UP, e.getKeyChar()));
-            }
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        }
+        offer(e);
     }
 
     @Override
     public String readText() {
-        return null;
+        StringBuilder sb = new StringBuilder();
+
+        while (true) {
+            int c = charIterator.nextInt();
+            if (page != null) {
+                page.draw((char) c);
+            }
+            if (c == '\n') {
+                break;
+            }
+            sb.append((char) c);
+        }
+        return sb.toString();
+    }
+
+    @Inject
+    void init(SwingPageManager swingPageManager) {
+        page = swingPageManager.getScreen();
+    }
+
+    private IntStream getCharStream() {
+        return generator()
+                .filter(e -> e.getID() == KeyEvent.KEY_PRESSED && ((KeyEvent) e).getKeyChar() != KeyEvent.CHAR_UNDEFINED)
+                .mapToInt(e -> ((KeyEvent) e).getKeyChar());
+    }
+
+    private IntStream getKeyCodeStream() {
+        return generator()
+                .filter(e -> e.getID() == KeyEvent.KEY_PRESSED)
+                .mapToInt(e -> ((KeyEvent) e).getKeyCode());
+    }
+
+    @NotNull
+    private Stream<InputEvent> generator() {
+        return Stream
+                .generate(() -> {
+                    try {
+                        InputEvent e = events.take();
+                        if (log.isTraceEnabled()) {
+                            log.trace("Got {}", e);
+                        }
+                        return e;
+                    } catch (InterruptedException e) {
+                        throw new ExecutionException(e);
+                    }
+                });
     }
 }

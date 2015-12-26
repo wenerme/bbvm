@@ -1,6 +1,8 @@
 package me.wener.bbvm.dev.swing;
 
 import java.awt.*;
+import java.awt.font.LineMetrics;
+import java.awt.geom.Rectangle2D;
 
 /**
  * @author wener
@@ -10,28 +12,29 @@ class StringDrawer {
     protected final Graphics2D g;
     private int x, y, w, h;
     private FontMetrics metrics;
-    private int fontSize;
+    private int fontHeight;
     private Color front = Color.WHITE;
     private Color back = Color.BLACK;
     private boolean backgroundVisible;
-//        private Consumer<StringDrawer> nextPage = (d) -> d.g.fillRect(0, 0, w, h);
+    private FontMetrics fm;
+    //        private Consumer<StringDrawer> nextPage = (d) -> d.g.fillRect(0, 0, w, h);
 
     StringDrawer(Graphics2D g, int w, int h) {
         this.g = g;
         this.w = w;
         this.h = h;
-        getFontInfo();
+        fontChanged();
         locate(1, 1);
     }
 
+    /**
+     * Notify font changed
+     */
     public void fontChanged() {
-        getFontInfo();
-    }
-
-    private void getFontInfo() {
         metrics = g.getFontMetrics();
-        Font font = g.getFont();
-        fontSize = font.getSize();
+//        Font font = g.getFont();
+        fm = g.getFontMetrics();
+        fontHeight = fm.getHeight();
     }
 
     /**
@@ -75,26 +78,30 @@ class StringDrawer {
     }
 
     void drawNormal(int ch) {
+        String s = String.valueOf((char) ch);
         int width = metrics.charWidth(ch);
         if (x + width > w) {
             nextCursorLine();
         }
-
+        LineMetrics lineMetrics = fm.getLineMetrics(s, g);
         if (backgroundVisible) {
+            Rectangle2D rect = fm.getStringBounds(s, g);
             g.setColor(back);
-            g.fillRect(x, y - fontSize, width, fontSize);
+            g.fillRect(x,
+                    y - fm.getAscent(),
+                    (int) rect.getWidth(),
+                    fontHeight);
         }
-
         // Draw char
         g.setColor(front);
-        g.drawString(String.valueOf((char) ch), x, y);
+        g.drawString(s, x, y);
         advanceCursor(width);
     }
 
     void nextCursorLine() {
         x = 0;
-        y += fontSize;
-        if (y + fontSize > h) {// Not enough
+        y += fontHeight;
+        if (y + fontHeight > h) {// Not enough
             nextPage();
         }
     }

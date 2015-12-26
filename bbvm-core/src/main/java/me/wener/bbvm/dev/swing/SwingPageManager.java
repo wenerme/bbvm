@@ -52,7 +52,7 @@ class SwingPageManager implements PageManager {
     }
 
     @Override
-    public PageResource getScreen() {
+    public SwingPage getScreen() {
         SwingPage screen = resources.get(-1);
         if (screen == null) {
             throw new ExecutionException("Screen not found, may not initialize correctly.");

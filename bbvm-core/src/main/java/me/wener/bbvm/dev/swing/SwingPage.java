@@ -159,6 +159,13 @@ class SwingPage extends Draw implements PageResource {
         return this;
     }
 
+    public PageResource draw(char text) {
+        Color color = g.getColor();
+        stringDrawer.draw(text);
+        g.setColor(color);
+        return this;
+    }
+
     @Override
     public PageResource font(int font) {
         FontType type = IntEnums.fromInt(FontType.class, font);
