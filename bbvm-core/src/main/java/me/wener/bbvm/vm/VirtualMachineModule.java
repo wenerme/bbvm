@@ -5,10 +5,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.multibindings.OptionalBinder;
-import me.wener.bbvm.BeBasicVirtualMachine;
-import me.wener.bbvm.util.MoreModules;
-import me.wener.bbvm.vm.res.Resources;
-import me.wener.bbvm.vm.res.StringManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,20 +30,20 @@ public class VirtualMachineModule extends AbstractModule {
             if (o instanceof Module) {
                 install((Module) o);
             } else {
-                throw new UnsupportedOperationException("Current can not handle inject module");
+                throw new UnsupportedOperationException("Current can not handle module class");
             }
         }
         OptionalBinder.newOptionalBinder(binder(), SystemInvokeManager.class)
                 .setDefault().to(SystemInvokeManagerImpl.class).in(Singleton.class);
-        OptionalBinder.newOptionalBinder(binder(), StringManager.class)
-                .setDefault().to(Resources.stringManager()).in(Singleton.class);
 
         bind(VM.class).in(Singleton.class);
-        install(MoreModules.pluggingModule(BeBasicVirtualMachine.class.getPackage().getName(), getClass().getClassLoader(), input -> {
-            log.info("Module {} {}", input.getKey(), config.isModuleEnabled(input.getKey()) ? "enabled" : "disabled");
-            return config.isModuleEnabled(input.getKey());
-        }));
 
+//        install(MoreModules.pluggingModule(BeBasicVirtualMachine.class.getPackage().getName(), getClass().getClassLoader(), input -> {
+//            log.info("Module {} {}", input.getKey(), config.isModuleEnabled(input.getKey()) ? "enabled" : "disabled");
+//            return config.isModuleEnabled(input.getKey());
+//        }));
+
+        // Runtime charset
         bind(Charset.class).toInstance(config.getCharset());
     }
 
@@ -60,7 +56,7 @@ public class VirtualMachineModule extends AbstractModule {
     @Provides
     @Singleton
     public EventBus eventBus() {
-        return new EventBus();
+        return new EventBus("VM");
     }
 
     // region Generated Register

@@ -1,11 +1,11 @@
 package me.wener.bbvm.vm.invoke;
 
 import com.google.common.eventbus.EventBus;
-import me.wener.bbvm.dev.EnvType;
+import me.wener.bbvm.dev.DeviceConstants;
+import me.wener.bbvm.dev.StringManager;
 import me.wener.bbvm.exception.ResourceMissingException;
 import me.wener.bbvm.vm.*;
 import me.wener.bbvm.vm.event.VmTestEvent;
-import me.wener.bbvm.vm.res.StringManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -278,7 +278,7 @@ public class BasicInvoke {
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 25)
     public void getEnv(Operand o) {
-        o.set(EnvType.ENV_SIM.asInt());
+        o.set(DeviceConstants.ENV_SIM);
     }
 
     /*

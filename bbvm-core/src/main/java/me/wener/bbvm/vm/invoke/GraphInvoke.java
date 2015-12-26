@@ -1,11 +1,11 @@
 package me.wener.bbvm.vm.invoke;
 
+import me.wener.bbvm.dev.ImageManager;
+import me.wener.bbvm.dev.PageManager;
 import me.wener.bbvm.vm.Operand;
 import me.wener.bbvm.vm.Register;
 import me.wener.bbvm.vm.SystemInvoke;
 import me.wener.bbvm.vm.VM;
-import me.wener.bbvm.vm.res.ImageManager;
-import me.wener.bbvm.vm.res.PageManager;
 
 import javax.inject.Inject;
 import javax.inject.Named;

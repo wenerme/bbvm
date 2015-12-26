@@ -1,43 +1,33 @@
 package me.wener.bbvm.vm.invoke;
 
-import com.google.common.eventbus.EventBus;
+import me.wener.bbvm.dev.InputManager;
 import me.wener.bbvm.vm.Register;
 import me.wener.bbvm.vm.SystemInvoke;
-import me.wener.bbvm.vm.VM;
-import me.wener.bbvm.vm.res.InputManager;
-import me.wener.bbvm.vm.res.StringManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.Random;
 
 /**
  * @author wener
  * @since 15/12/20
  */
 public class KeyInvoke {
-    private final static Logger log = LoggerFactory.getLogger(BasicInvoke.class);
-    private final VM vm;
+    private final static Logger log = LoggerFactory.getLogger(KeyInvoke.class);
     private final Register r3;
     private final Register r2;
     private final Register r1;
     private final Register r0;
-    private final Random random = new Random(0);
-    private final EventBus eventBus;
-    private final StringManager stringManager;
     private InputManager inputManager;
 
     @Inject
-    public KeyInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, EventBus eventBus, StringManager stringManager) {
-        this.vm = vm;
+    public KeyInvoke(@Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, InputManager inputManager) {
         this.r3 = r3;
         this.r2 = r2;
         this.r1 = r1;
         this.r0 = r0;
-        this.eventBus = eventBus;
-        this.stringManager = stringManager;
+        this.inputManager = inputManager;
     }
 
     /*

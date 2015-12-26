@@ -9,15 +9,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import me.wener.bbvm.asm.BBAsmParser;
 import me.wener.bbvm.asm.ParseException;
+import me.wener.bbvm.dev.ImageManager;
+import me.wener.bbvm.dev.PageManager;
+import me.wener.bbvm.dev.swing.Swings;
 import me.wener.bbvm.util.Dumper;
 import me.wener.bbvm.vm.*;
-import me.wener.bbvm.vm.invoke.GraphInvoke;
-import me.wener.bbvm.vm.invoke.InputInvoke;
-import me.wener.bbvm.vm.invoke.OutputInvoke;
-import me.wener.bbvm.vm.res.ImageManager;
-import me.wener.bbvm.vm.res.PageManager;
-import me.wener.bbvm.vm.res.Resources;
-import me.wener.bbvm.vm.res.swing.Swings;
+import me.wener.bbvm.vm.invoke.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,16 +64,14 @@ public class BasmTester {
         }
         this.charset = Charset.forName(c.getString("charset"));
         VMConfig.Builder builder = new VMConfig.Builder()
-                .withModule(Resources.fileModule())
-                .withModule(Swings.graphModule())
-                .charset(charset)
-                .invokeWith(GraphInvoke.class);
+                .withModule(Swings.module())
+                .charset(charset);
         Injector injector = Guice.createInjector(new VirtualMachineModule(builder.build()));
         injector.injectMembers(this);
         injector.getInstance(ImageManager.class).getResourceDirectory().add("../bbvm-test/image");
         out = new ByteArrayOutputStream();
         in = new InputInvoke();
-        // TODO Need a way to makeup the input and output
+        // TODO Need a way to make up the input and output
         PageManager manager = injector.getInstance(PageManager.class);
         systemInvokeManager.register(new OutputInvoke((s) -> {
             try {
@@ -85,7 +80,7 @@ public class BasmTester {
                 Throwables.propagate(e);
             }
             manager.getScreen().draw(s);
-        }), in);
+        }), in, GraphInvoke.class, BasicInvoke.class, FileInvoke.class, KeyInvoke.class);
     }
 
     public BasmTester setPrintStream(PrintStream printStream) {

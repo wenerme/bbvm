@@ -5,12 +5,11 @@ import com.google.common.base.Throwables;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import io.netty.buffer.ByteBuf;
+import me.wener.bbvm.dev.StringManager;
 import me.wener.bbvm.exception.ExecutionException;
 import me.wener.bbvm.exception.ResourceMissingException;
 import me.wener.bbvm.util.IntEnums;
 import me.wener.bbvm.vm.event.ResetEvent;
-import me.wener.bbvm.vm.invoke.BasicInvoke;
-import me.wener.bbvm.vm.res.StringManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,7 +153,6 @@ public class VM {
 
     @Inject
     private void init(SystemInvokeManager systemInvokeManager) {
-        systemInvokeManager.register(BasicInvoke.class);
         config.getInvokeHandlers().forEach(systemInvokeManager::register);
     }
 
