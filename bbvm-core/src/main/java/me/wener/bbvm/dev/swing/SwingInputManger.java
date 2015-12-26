@@ -1,7 +1,10 @@
 package me.wener.bbvm.dev.swing;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import me.wener.bbvm.dev.InputManager;
 import me.wener.bbvm.exception.ExecutionException;
+import me.wener.bbvm.vm.event.ResetEvent;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,18 +28,20 @@ class SwingInputManger implements InputManager, MouseListener, KeyListener {
     private final static Logger log = LoggerFactory.getLogger(SwingInputManger.class);
     final protected BlockingQueue<InputEvent> events;
     private final PrimitiveIterator.OfInt keyCodeIterator;
+    private final PrimitiveIterator.OfInt charIterator;
     SwingPage page;
-    private PrimitiveIterator.OfInt charIterator;
+    @Inject
+    private SwingPageManager pageManager;
 
     SwingInputManger(BlockingQueue<InputEvent> events) {
         this.events = events;
         keyCodeIterator = getKeyCodeStream().iterator();
+        charIterator = getCharStream().iterator();
     }
 
     @Inject
     public SwingInputManger() {
         this(new SynchronousQueue<>());
-        charIterator = getCharStream().iterator();
     }
 
     @Override
@@ -129,8 +134,13 @@ class SwingInputManger implements InputManager, MouseListener, KeyListener {
     }
 
     @Inject
-    void init(SwingPageManager swingPageManager) {
-        page = swingPageManager.getScreen();
+    void init(EventBus eventBus) {
+        eventBus.register(this);
+    }
+
+    @Subscribe
+    public void onVmReset(ResetEvent e) {
+        page = pageManager.getScreen();
     }
 
     private IntStream getCharStream() {

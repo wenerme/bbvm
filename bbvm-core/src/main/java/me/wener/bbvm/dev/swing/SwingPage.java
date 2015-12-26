@@ -29,7 +29,7 @@ class SwingPage extends Draw implements PageResource {
         super(image);
         this.handler = handler;
         this.manager = manager;
-        Font font = new Font("楷体", Font.PLAIN, 12);
+        Font font = new Font("楷体", Font.PLAIN, 12).deriveFont(12 * 0.8f);// Makes a 12 height
         g.setFont(font);
         g.setColor(Color.BLACK);
         stringDrawer = new StringDrawer(g, getWidth(), getHeight());

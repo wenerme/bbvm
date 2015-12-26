@@ -91,7 +91,7 @@ public class SwingInputMangerTest extends AssertJSwingJUnitTestCase {
         window.show(); // shows the frame to test
     }
 
-    @Test(timeout = 20000)
+    @Test(timeout = 60000)
     public void testReadText() throws Exception {
         Thread thread = new Thread(() -> {
             assertThat(inputManger.readText()).isEqualTo("Wener is grate");
@@ -113,7 +113,7 @@ public class SwingInputMangerTest extends AssertJSwingJUnitTestCase {
         thread.join();
     }
 
-    @Test(timeout = 10000)
+    @Test(timeout = 60000)
     public void testWaitKey() throws Exception {
         Thread thread = new Thread(() -> {
             assertThat(inputManger.waitKey()).isEqualTo('A');
