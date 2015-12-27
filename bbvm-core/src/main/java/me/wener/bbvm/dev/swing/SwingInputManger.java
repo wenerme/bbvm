@@ -29,6 +29,7 @@ class SwingInputManger implements InputManager, MouseListener, KeyListener {
     final protected BlockingQueue<InputEvent> events;
     private final PrimitiveIterator.OfInt keyCodeIterator;
     private final PrimitiveIterator.OfInt charIterator;
+    private final KeyStateTracker tracker;
     SwingPage page;
     @Inject
     private SwingPageManager pageManager;
@@ -37,6 +38,7 @@ class SwingInputManger implements InputManager, MouseListener, KeyListener {
         this.events = events;
         keyCodeIterator = getKeyCodeStream().iterator();
         charIterator = getCharStream().iterator();
+        tracker = new KeyStateTracker();
     }
 
     @Inject
@@ -46,7 +48,7 @@ class SwingInputManger implements InputManager, MouseListener, KeyListener {
 
     @Override
     public boolean isKeyPressed(int key) {
-        return false;
+        return tracker.isPressed(key);
     }
 
     @Override
@@ -55,22 +57,47 @@ class SwingInputManger implements InputManager, MouseListener, KeyListener {
     }
 
     @Override
-    public int getLastKeyCode() {
+    public int inKey() {
+        try {
+            InputEvent e = events.poll(5, TimeUnit.MILLISECONDS);
+            if (e == null) {
+                return 0;
+            }
+            switch (e.getID()) {
+                case KeyEvent.KEY_PRESSED:
+                    return ((KeyEvent) e).getKeyCode();
+                case MouseEvent.MOUSE_CLICKED:
+                    return makeClickKey(((MouseEvent) e).getX(), ((MouseEvent) e).getY());
+            }
+        } catch (InterruptedException e) {
+            throw new ExecutionException(e);
+        }
         return 0;
     }
 
     @Override
-    public String getLastKeyString() {
-        return null;
+    public String inKeyString() {
+        try {
+            InputEvent e = events.poll(5, TimeUnit.MILLISECONDS);
+            if (e == null) {
+                return "";
+            }
+            if (e.getID() == KeyEvent.KEY_PRESSED) {
+                int c = ((KeyEvent) e).getKeyCode();
+                if (c == KeyEvent.CHAR_UNDEFINED) {
+                    return "";
+                }
+                return String.valueOf((char) c);
+            }
+        } catch (InterruptedException e) {
+            throw new ExecutionException(e);
+        }
+        return "";
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        try {
-            events.put(e);
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        }
+        offer(e);
     }
 
     @Override
@@ -102,10 +129,12 @@ class SwingInputManger implements InputManager, MouseListener, KeyListener {
         offer(e);
     }
 
-    private void offer(KeyEvent e) {
+    private void offer(InputEvent e) {
+        tracker.offer(e);
         try {
-            if (!events.offer(e, 5, TimeUnit.MILLISECONDS) && log.isTraceEnabled()) {
-                log.trace("Dropped {}", e);
+            boolean offer = events.offer(e, 5, TimeUnit.MILLISECONDS);
+            if (log.isTraceEnabled()) {
+                log.trace("{} {}", offer ? "Got" : "Drooped", e);
             }
         } catch (InterruptedException ignored) {
         }
@@ -151,8 +180,17 @@ class SwingInputManger implements InputManager, MouseListener, KeyListener {
 
     private IntStream getKeyCodeStream() {
         return generator()
-                .filter(e -> e.getID() == KeyEvent.KEY_PRESSED)
-                .mapToInt(e -> ((KeyEvent) e).getKeyCode());
+                .filter(e -> e.getID() == KeyEvent.KEY_PRESSED || e.getID() == MouseEvent.MOUSE_CLICKED)
+                .mapToInt(e -> {
+                    switch (e.getID()) {
+                        case KeyEvent.KEY_PRESSED:
+                            return ((KeyEvent) e).getKeyCode();
+                        case MouseEvent.MOUSE_CLICKED:
+                            return makeClickKey(((MouseEvent) e).getX(), ((MouseEvent) e).getY());
+                        default:
+                            throw new AssertionError();
+                    }
+                });
     }
 
     @NotNull
@@ -160,11 +198,7 @@ class SwingInputManger implements InputManager, MouseListener, KeyListener {
         return Stream
                 .generate(() -> {
                     try {
-                        InputEvent e = events.take();
-                        if (log.isTraceEnabled()) {
-                            log.trace("Got {}", e);
-                        }
-                        return e;
+                        return events.take();
                     } catch (InterruptedException e) {
                         throw new ExecutionException(e);
                     }

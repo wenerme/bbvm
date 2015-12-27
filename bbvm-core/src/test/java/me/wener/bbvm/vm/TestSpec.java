@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -97,7 +98,6 @@ public class TestSpec {
         }
 
         skipped.forEach(i -> actually.set(i, "skip"));
-
-        assertEquals(NL_JOINER.join(expected), NL_JOINER.join(actually));
+        assertThat(NL_JOINER.join(expected)).isEqualTo(NL_JOINER.join(actually));
     }
 }

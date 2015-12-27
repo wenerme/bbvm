@@ -65,7 +65,7 @@ public class BasmSpecTest {
 
                     // When test failed, we need the output
                     try {
-//                        out.reset();
+                        out.reset();
                         tester.init(p.toFile()).run();
                     } catch (Throwable e) {
                         System.out.println(out.toString());

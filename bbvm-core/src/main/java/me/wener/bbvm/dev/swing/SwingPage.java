@@ -217,4 +217,9 @@ class SwingPage extends Draw implements PageResource {
     public void close() {
         manager.close(this);
     }
+
+    public SwingPage fill(int c) {
+        fill(0, 0, getWidth(), getHeight(), c);
+        return this;
+    }
 }

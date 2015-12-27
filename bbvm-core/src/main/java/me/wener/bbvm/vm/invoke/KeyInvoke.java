@@ -51,12 +51,13 @@ public class KeyInvoke {
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 45, b = 0)
-    public void keyCode() {
-        r3.set(inputManager.getLastKeyCode());
+    public void keyString() {
+        r3.set(inputManager.inKeyString());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 46, b = 0)
-    public void keyString() {
-        r3.set(inputManager.getLastKeyString());
+    public void keyCode() {
+        r3.set(inputManager.inKey());
     }
+
 }
