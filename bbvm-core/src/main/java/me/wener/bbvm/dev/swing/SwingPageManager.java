@@ -72,6 +72,9 @@ class SwingPageManager implements PageManager {
 
     @Override
     public PageManager setSize(int w, int h) {
+        if (w < 0 || h < 0 || w > 640 || h > 480) {
+            throw new ExecutionException(String.format("Bad page size %s,%s", w, h));
+        }
         setSize0(w, h);
         return this;
     }

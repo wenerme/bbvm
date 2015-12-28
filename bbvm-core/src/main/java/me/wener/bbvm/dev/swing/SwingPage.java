@@ -199,7 +199,7 @@ class SwingPage extends Draw implements PageResource {
 
     @Override
     public PageResource setBackgroundMode(int mode) {
-        stringDrawer.setBackgroundVisible(mode == DeviceConstants.BackgroundMode.OPAQUE.asInt());
+        stringDrawer.setBackgroundVisible(mode == DeviceConstants.BACKGROUND_OPAQUE);
         return this;
     }
 

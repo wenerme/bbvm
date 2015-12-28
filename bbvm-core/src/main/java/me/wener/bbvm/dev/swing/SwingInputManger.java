@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.awt.event.*;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.PrimitiveIterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
@@ -24,7 +26,7 @@ import java.util.stream.Stream;
  * @since 15/12/26
  */
 @Singleton
-class SwingInputManger implements InputManager, MouseListener, KeyListener {
+class SwingInputManger implements InputManager {
     private final static Logger log = LoggerFactory.getLogger(SwingInputManger.class);
     final protected BlockingQueue<InputEvent> events;
     private final PrimitiveIterator.OfInt keyCodeIterator;
@@ -95,41 +97,10 @@ class SwingInputManger implements InputManager, MouseListener, KeyListener {
         return "";
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        offer(e);
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        offer(e);
-    }
-
-    private void offer(InputEvent e) {
+    /**
+     * This method is thread safe
+     */
+    public void offer(InputEvent e) {
         tracker.offer(e);
         try {
             boolean offer = events.offer(e, 5, TimeUnit.MILLISECONDS);
@@ -138,11 +109,6 @@ class SwingInputManger implements InputManager, MouseListener, KeyListener {
             }
         } catch (InterruptedException ignored) {
         }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        offer(e);
     }
 
     @Override

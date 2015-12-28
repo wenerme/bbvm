@@ -10,6 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import static java.awt.event.KeyEvent.*;
@@ -51,37 +55,26 @@ public class SwingInputMangerTest extends AssertJSwingJUnitTestCase {
         JFrame frame = GuiActionRunner.execute(new GuiQuery<JFrame>() {
             protected JFrame executeInEDT() {
                 BufferedImage image = new BufferedImage(240, 320, BufferedImage.TYPE_INT_RGB);
-                JFrame frame = new JFrame(SwingInputMangerTest.class.getSimpleName());
-                ImageIcon icon = new ImageIcon(image);
-                JLabel label = new JLabel(icon);
-                frame.setLocationRelativeTo(null);
-                frame.setFocusTraversalKeysEnabled(false);// Make VK_TAB works
-                label.setLocation(0, 0);
-                frame.getContentPane().add(label);
-                frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-                frame.setResizable(false);
-//                frame.setVisible(true);
-                frame.pack();
-                frame.repaint();
-//                page = new SwingPage(1, null, image);
-//                Graphics2D d = page.g;
-//                d.setColor(Color.DARK_GRAY);
+                MainFrame frame = new MainFrame(() -> image);
                 inputManger = new SwingInputManger();
-                frame.addKeyListener(inputManger);
-                frame.addMouseListener(inputManger);
+                frame.addKeyListener(new KeyAdapter() {
+                    @Override
+                    public void keyPressed(KeyEvent e) {
+                        inputManger.offer(e);
+                    }
+
+                    @Override
+                    public void keyReleased(KeyEvent e) {
+                        inputManger.offer(e);
+                    }
+                });
+                frame.getImagePanel().addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        inputManger.offer(e);
+                    }
+                });
                 inputManger.page = page;
-//                page.fill();
-//                page.draw("Hello\n");
-//                new Thread(() -> {
-//                    try {
-//                        while (true) {
-//                            label.repaint();
-//                            Thread.sleep(1000 / 60);
-//                        }
-//                    } catch (Exception e) {
-//                        Throwables.propagate(e);
-//                    }
-//                }).start();
                 return frame;
             }
         });

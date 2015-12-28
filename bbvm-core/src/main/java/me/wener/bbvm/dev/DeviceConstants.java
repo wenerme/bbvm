@@ -26,8 +26,19 @@ public interface DeviceConstants {
     int ENV_9388 = 9388;
     int ENV_9688 = 9688;
 
-    //    Draw mode
+    /**
+     * Draw image with key color
+     */
     int DRAW_KEY_COLOR = 1;
+    /**
+     * No font background
+     */
+    int BACKGROUND_TRANSPARENT = 1;
+
+    /**
+     * With font background
+     */
+    int BACKGROUND_OPAQUE = 2;
 
     enum FontType implements IsInt {
         FONT_12SONG(0, 12),
@@ -56,44 +67,25 @@ public interface DeviceConstants {
         }
     }
 
-    enum KeyCode implements IsInt {
-        KEY_UP(38),
-        KEY_DOWN(40),
-        KEY_LEFT(37),
-        KEY_RIGHT(39),
-        KEY_SPACE(32),
-        KEY_ESCAPE(27),
-        KEY_ENTER(13);
-        private final int value;
-
-        KeyCode(int value) {
-            this.value = value;
-        }
-
-        public int asInt() {
-            return value;
-        }
-    }
-
-    enum BackgroundMode implements IsInt {
-        /**
-         * 透明显示，即字体的背景颜色无效。
-         */
-        TRANSPARENT(1),
-        /**
-         * 不透明显示，即字体的背景颜色有效
-         */
-        OPAQUE(2);
-        private final int value;
-
-        BackgroundMode(int value) {
-            this.value = value;
-        }
-
-        public int asInt() {
-            return value;
-        }
-    }
+//    enum BackgroundMode implements IsInt {
+//        /**
+//         * 透明显示，即字体的背景颜色无效。
+//         */
+//        TRANSPARENT(1),
+//        /**
+//         * 不透明显示，即字体的背景颜色有效
+//         */
+//        OPAQUE(2);
+//        private final int value;
+//
+//        BackgroundMode(int value) {
+//            this.value = value;
+//        }
+//
+//        public int asInt() {
+//            return value;
+//        }
+//    }
 
     @MagicConstant(intValues = {ENV_SIM, ENV_9188, ENV_9288, ENV_9288S, ENV_9288T, ENV_9388, ENV_9688})
     @interface Env {
