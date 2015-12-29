@@ -93,7 +93,8 @@ class SwingPage extends Draw implements PageResource {
     }
 
     @Override
-    public PageResource fill() {
+    public PageResource clear() {
+        stringDrawer.locate(1, 1);
         g.fillRect(0, 0, getWidth(), getHeight());
         return this;
     }

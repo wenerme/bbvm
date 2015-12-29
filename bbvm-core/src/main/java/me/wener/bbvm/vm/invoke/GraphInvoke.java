@@ -137,7 +137,7 @@ public class GraphInvoke {
      */
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 35, b = 0)
     public void pageClear() throws Exception {
-        pages.getScreen().fill();
+        pages.getScreen().clear();
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 40)

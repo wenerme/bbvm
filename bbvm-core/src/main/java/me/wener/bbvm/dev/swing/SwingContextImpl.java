@@ -5,10 +5,6 @@ import me.wener.bbvm.dev.*;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.swing.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 /**
  * @author wener
@@ -69,23 +65,8 @@ class SwingContextImpl implements SwingContext {
 
     protected JFrame createFrame() {
         MainFrame frame = new MainFrame(() -> pageManager.getScreen().getImage());
-        frame.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                inputManger.offer(e);
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                inputManger.offer(e);
-            }
-        });
-        frame.getImagePanel().addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                inputManger.offer(e);
-            }
-        });
+        inputManger.bindKeyEvent(frame);
+        inputManger.bindMouseEvent(frame.getImagePanel());
         return frame;
     }
 }

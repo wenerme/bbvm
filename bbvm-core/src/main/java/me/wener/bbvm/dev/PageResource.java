@@ -24,9 +24,9 @@ public interface PageResource extends Resource, Drawable {
     int pixel(int x, int y);
 
     /**
-     * Fill page with pen color
+     * Clear page, fill with pen color, reset locate
      */
-    PageResource fill();
+    PageResource clear();
 
     PageResource draw(PageResource resource, int x, int y);
 

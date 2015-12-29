@@ -11,9 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.PrimitiveIterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
@@ -27,12 +26,15 @@ import java.util.stream.Stream;
  */
 @Singleton
 class SwingInputManger implements InputManager {
+    public static final int EVENT_TIMEOUT = 5;
     private final static Logger log = LoggerFactory.getLogger(SwingInputManger.class);
     final protected BlockingQueue<InputEvent> events;
     private final PrimitiveIterator.OfInt keyCodeIterator;
     private final PrimitiveIterator.OfInt charIterator;
     private final KeyStateTracker tracker;
     SwingPage page;
+    long lastEventTime;
+    InputEvent lastEvent;
     @Inject
     private SwingPageManager pageManager;
 
@@ -61,14 +63,14 @@ class SwingInputManger implements InputManager {
     @Override
     public int inKey() {
         try {
-            InputEvent e = events.poll(5, TimeUnit.MILLISECONDS);
+            InputEvent e = peekEvent();
             if (e == null) {
                 return 0;
             }
             switch (e.getID()) {
                 case KeyEvent.KEY_PRESSED:
                     return ((KeyEvent) e).getKeyCode();
-                case MouseEvent.MOUSE_CLICKED:
+                case MouseEvent.MOUSE_PRESSED:
                     return makeClickKey(((MouseEvent) e).getX(), ((MouseEvent) e).getY());
             }
         } catch (InterruptedException e) {
@@ -80,7 +82,7 @@ class SwingInputManger implements InputManager {
     @Override
     public String inKeyString() {
         try {
-            InputEvent e = events.poll(5, TimeUnit.MILLISECONDS);
+            InputEvent e = peekEvent();
             if (e == null) {
                 return "";
             }
@@ -97,15 +99,30 @@ class SwingInputManger implements InputManager {
         return "";
     }
 
+    private InputEvent peekEvent() throws InterruptedException {
+        InputEvent e = events.poll(EVENT_TIMEOUT, TimeUnit.MILLISECONDS);
+        if (e == null && lastEventTime - System.currentTimeMillis() < 4 * EVENT_TIMEOUT) {
+            e = lastEvent;
+        }
+        return e;
+    }
+
     /**
      * This method is thread safe
      */
     public void offer(InputEvent e) {
         tracker.offer(e);
         try {
-            boolean offer = events.offer(e, 5, TimeUnit.MILLISECONDS);
+            boolean offer = events.offer(e, EVENT_TIMEOUT, TimeUnit.MILLISECONDS);
             if (log.isTraceEnabled()) {
                 log.trace("{} {}", offer ? "Got" : "Drooped", e);
+            }
+            if (!offer) {
+                lastEventTime = System.currentTimeMillis();
+                lastEvent = e;
+            } else {
+                lastEventTime = -1;
+                lastEvent = null;
             }
         } catch (InterruptedException ignored) {
         }
@@ -146,12 +163,12 @@ class SwingInputManger implements InputManager {
 
     private IntStream getKeyCodeStream() {
         return generator()
-                .filter(e -> e.getID() == KeyEvent.KEY_PRESSED || e.getID() == MouseEvent.MOUSE_CLICKED)
+                .filter(e -> e.getID() == KeyEvent.KEY_PRESSED || e.getID() == MouseEvent.MOUSE_PRESSED)
                 .mapToInt(e -> {
                     switch (e.getID()) {
                         case KeyEvent.KEY_PRESSED:
                             return ((KeyEvent) e).getKeyCode();
-                        case MouseEvent.MOUSE_CLICKED:
+                        case MouseEvent.MOUSE_PRESSED:
                             return makeClickKey(((MouseEvent) e).getX(), ((MouseEvent) e).getY());
                         default:
                             throw new AssertionError();
@@ -169,5 +186,30 @@ class SwingInputManger implements InputManager {
                         throw new ExecutionException(e);
                     }
                 });
+    }
+
+    public SwingInputManger bindKeyEvent(Component component) {
+        component.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                offer(e);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                offer(e);
+            }
+        });
+        return this;
+    }
+
+    public SwingInputManger bindMouseEvent(Component component) {
+        component.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                offer(e);
+            }
+        });
+        return this;
     }
 }

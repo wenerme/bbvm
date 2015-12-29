@@ -10,10 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -52,23 +48,8 @@ public class SwingInputMangerTest extends AssertJSwingJUnitTestCase {
                 BufferedImage image = new BufferedImage(240, 320, BufferedImage.TYPE_INT_RGB);
                 MainFrame frame = new MainFrame(() -> image);
                 inputManger = new SwingInputManger();
-                frame.addKeyListener(new KeyAdapter() {
-                    @Override
-                    public void keyPressed(KeyEvent e) {
-                        inputManger.offer(e);
-                    }
-
-                    @Override
-                    public void keyReleased(KeyEvent e) {
-                        inputManger.offer(e);
-                    }
-                });
-                frame.getImagePanel().addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        inputManger.offer(e);
-                    }
-                });
+                inputManger.bindKeyEvent(frame);
+                inputManger.bindMouseEvent(frame.getImagePanel());
                 inputManger.page = page;
                 return frame;
             }
