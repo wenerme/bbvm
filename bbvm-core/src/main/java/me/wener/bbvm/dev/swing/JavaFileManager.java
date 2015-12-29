@@ -53,27 +53,12 @@ public class JavaFileManager extends AbstractFileManager {
 
         @Override
         public FileResource writeInt(int address, int v) throws IOException {
-            ByteBuffer buffer = ch().map(FileChannel.MapMode.READ_WRITE, address, 4);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
-            buffer.putInt(v);
-            return this;
-        }
-
-        @Override
-        public FileResource writeFloat(int address, float v) throws IOException {
-            ByteBuffer buffer = ch().map(FileChannel.MapMode.READ_WRITE, address, 4);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
-            buffer.putFloat(v);
-            return this;
+            return seek(address).writeInt(v);
         }
 
         @Override
         public FileResource writeString(int address, String v) throws IOException {
-            byte[] bytes = v.getBytes();
-            ByteBuffer buffer = ch().map(FileChannel.MapMode.READ_WRITE, address, bytes.length + 1);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
-            buffer.put(bytes).put((byte) 0);
-            return this;
+            return seek(address).writeString(v);
         }
 
         @Override
@@ -81,15 +66,6 @@ public class JavaFileManager extends AbstractFileManager {
             ByteBuffer buffer = ByteBuffer.allocate(4);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
             buffer.putInt(v).flip();
-            ch().write(buffer);
-            return this;
-        }
-
-        @Override
-        public FileResource writeFloat(float v) throws IOException {
-            ByteBuffer buffer = ByteBuffer.allocate(4);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
-            buffer.putFloat(v).flip();
             ch().write(buffer);
             return this;
         }
@@ -106,14 +82,18 @@ public class JavaFileManager extends AbstractFileManager {
 
         @Override
         public boolean isEof() throws IOException {
-            if (channel == null) {
-                log.info("File handler #{} not open yet", handler);
-                return true;
-            }
-            ByteBuffer buffer = ByteBuffer.allocate(1);
-            boolean eof = channel.read(buffer) < 0;
-            channel.position(channel.position() - 1);
-            return eof;
+//            if (channel == null) {
+//                log.info("File handler #{} not open yet", handler);
+//                return true;
+//            }
+//            ByteBuffer buffer = ByteBuffer.allocate(1);
+//            boolean eof = ch().read(buffer) < 0;
+//            if (!eof) {
+//                // Reverse position if we advance.
+//                channel.position(channel.position() - 1);
+//            }
+//            return eof;
+            return ch().position() == channel.size();
         }
 
         private FileChannel ch() throws IOException {
@@ -129,46 +109,12 @@ public class JavaFileManager extends AbstractFileManager {
         }
 
         @Override
-        public int readInt(int address) throws IOException {
-            return pos(address, this::readInt);
-        }
-
-        @Override
-        public float readFloat(int address) throws IOException {
-            return pos(address, this::readFloat);
-        }
-
-        @Override
-        public String readString(final int address) throws IOException {
-            return pos(address, this::readString);
-        }
-
-        <T> T pos(int pos, IoAction<T> c) throws IOException {
-            long old = ch().position();
-            ch().position(pos);
-            try {
-                return c.run();
-            } finally {
-                channel.position(old);
-            }
-        }
-
-        @Override
         public int readInt() throws IOException {
             ByteBuffer buffer = ByteBuffer.allocate(4);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
             ch().read(buffer);
             buffer.flip();
             return buffer.getInt();
-        }
-
-        @Override
-        public float readFloat() throws IOException {
-            ByteBuffer buffer = ByteBuffer.allocate(4);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
-            ch().read(buffer);
-            buffer.flip();
-            return buffer.getFloat();
         }
 
         @Override
@@ -220,10 +166,6 @@ public class JavaFileManager extends AbstractFileManager {
             }
             path = null;
             channel = null;
-        }
-
-        interface IoAction<T> {
-            T run() throws IOException;
         }
     }
 }

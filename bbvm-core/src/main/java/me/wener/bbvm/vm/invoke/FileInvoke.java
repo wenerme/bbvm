@@ -49,20 +49,12 @@ public class FileInvoke {
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 50, b = 16)
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 50, b = 17)
     public void readInt() throws IOException {
         if (r2.get() == CURRENT_ADDRESS) {
             r3.set(r1.get(manager).readInt());
         } else {
             r3.set(r1.get(manager).readInt(r2.get()));
-        }
-    }
-
-    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 50, b = 17)
-    public void readFloat() throws IOException {
-        if (r2.get() == CURRENT_ADDRESS) {
-            r3.set(r1.get(manager).readFloat());
-        } else {
-            r3.set(r1.get(manager).readFloat(r2.get()));
         }
     }
 
@@ -76,20 +68,12 @@ public class FileInvoke {
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 51, b = 16)
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 51, b = 17)
     public void writeInt() throws IOException {
         if (r2.get() == CURRENT_ADDRESS) {
             r1.get(manager).writeInt(r3.get());
         } else {
             r1.get(manager).writeInt(r2.get(), r3.get());
-        }
-    }
-
-    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 51, b = 17)
-    public void writeFloat() throws IOException {
-        if (r2.get() == CURRENT_ADDRESS) {
-            r1.get(manager).writeFloat(r3.getFloat());
-        } else {
-            r1.get(manager).writeFloat(r2.get(), r3.getFloat());
         }
     }
 

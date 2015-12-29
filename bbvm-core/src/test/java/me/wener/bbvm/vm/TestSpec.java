@@ -98,6 +98,6 @@ public class TestSpec {
         }
 
         skipped.forEach(i -> actually.set(i, "skip"));
-        assertThat(NL_JOINER.join(expected)).isEqualTo(NL_JOINER.join(actually));
+        assertThat(NL_JOINER.join(actually)).isEqualTo(NL_JOINER.join(expected));
     }
 }

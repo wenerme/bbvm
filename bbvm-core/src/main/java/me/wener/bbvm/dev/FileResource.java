@@ -13,27 +13,23 @@ public interface FileResource extends Resource {
 
     FileResource open(String string) throws IOException;
 
-    int readInt(int address) throws IOException;
+    default int readInt(int address) throws IOException {
+        return seek(address).readInt();
+    }
 
-    float readFloat(int address) throws IOException;
-
-    String readString(int address) throws IOException;
+    default String readString(int address) throws IOException {
+        return seek(address).readString();
+    }
 
     int readInt() throws IOException;
-
-    float readFloat() throws IOException;
 
     String readString() throws IOException;
 
     FileResource writeInt(int address, int v) throws IOException;
 
-    FileResource writeFloat(int address, float v) throws IOException;
-
     FileResource writeString(int address, String v) throws IOException;
 
     FileResource writeInt(int v) throws IOException;
-
-    FileResource writeFloat(float v) throws IOException;
 
     FileResource writeString(String v) throws IOException;
 
