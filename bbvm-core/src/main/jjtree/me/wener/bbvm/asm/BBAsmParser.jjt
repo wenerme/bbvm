@@ -86,7 +86,7 @@ TOKEN :
 <NEED_DATA_TYPE,DO_CAL> TOKEN:
 {
     // EXTENSION Add char to data type
-    <DATA_TYPE: "DWORD" | "WORD" | "BYTE" | "FLOAT" | "INT" | "CHAR"> {
+    <DATA_TYPE: "DWORD" | "WORD" | "BYTE" | "FLOAT" | "INT" | "CHAR" | "BIN"> {
         if(curLexState == DO_CAL){
             SwitchTo(NEED_CAL_OP);
         }else{
@@ -291,7 +291,7 @@ TOKEN :
       )*
       "\""
   >
-| < HEX_BYTES_LITERAL: "%" ((["0"-"9","a"-"f","A"-"F"]))+ "%" >
+| < HEX_BYTES_LITERAL: "%" ((["0"-"9","a"-"f","A"-"F"]))* "%" >
 }
 
 
