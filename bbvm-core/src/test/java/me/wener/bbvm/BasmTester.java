@@ -52,6 +52,8 @@ public class BasmTester {
     private String basmContent;
     private BBAsmParser parser;
     private TestSpec io = new TestSpec();
+    private Injector injector;
+    private boolean doTest = true;
 
     public BasmTester() {
         this(DEFAULT_CONFIG);
@@ -66,7 +68,7 @@ public class BasmTester {
         VMConfig.Builder builder = new VMConfig.Builder()
                 .withModule(Swings.module())
                 .charset(charset);
-        Injector injector = Guice.createInjector(new VirtualMachineModule(builder.build()));
+        injector = Guice.createInjector(new VirtualMachineModule(builder.build()));
         injector.injectMembers(this);
         injector.getInstance(ImageManager.class).getResourceDirectory().add("../bbvm-test/image");
         out = new ByteArrayOutputStream();
@@ -127,13 +129,24 @@ public class BasmTester {
                     .setMemory(Memory.load(buf))
                     .reset()
                     .run();
-            assertNull(vm.getLastError());
-            io.assertMatch(out.toString());
+            if (doTest) {
+                assertNull(vm.getLastError());
+                io.assertMatch(out.toString());
+            }
             printStream.printf("Output\n%s\n", out.toString());
         } catch (Throwable e) {
             throw e;
         } finally {
             System.err.flush();
         }
+    }
+
+    public BasmTester test(boolean doTest){
+        this.doTest = doTest;
+        return this;
+    }
+
+    public Injector getInjector() {
+        return injector;
     }
 }

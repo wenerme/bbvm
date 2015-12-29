@@ -31,7 +31,13 @@ class SwingPageManager implements PageManager {
     private int handler = 0;
     // TODO Need to reuse the page handler ?
 //        private NavigableSet<Integer> handlers;
-    private int width, height;
+    private int width = 240, height = 320;
+
+    public SwingPageManager() {
+        // Create a default screen
+        SwingPage page = new SwingPage(-1, this);
+        resources.put(-1, page);
+    }
 
     @Override
     public PageManager reset() {
@@ -81,7 +87,7 @@ class SwingPageManager implements PageManager {
 
     private boolean setSize0(int w, int h) {
         if (width == w && height == h) {
-            log.debug("{} manager size already in {},{}", w, h);
+            log.debug("{} manager size already in {},{}", getType(), w, h);
             return false;
         } else {
             log.info("{} set size to {},{}", getType(), w, h);

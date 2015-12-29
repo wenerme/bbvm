@@ -1,5 +1,8 @@
 package me.wener.bbvm.dev.swing;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -18,6 +21,7 @@ import java.util.function.Supplier;
 // Create a custom component to contain image and refresh ----  by using image panel
 // Handle image resize ---- by monitor image
 public class MainFrame extends JFrame {
+    private final static Logger log = LoggerFactory.getLogger(MainFrame.class);
     private final Supplier<BufferedImage> image;
     private ImagePanel imagePanel;
     private ScheduledExecutorService refresher;
@@ -41,12 +45,14 @@ public class MainFrame extends JFrame {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentShown(ComponentEvent e) {
+                log.debug("Show frame, start refresher thread.");
                 refresher = Executors.newSingleThreadScheduledExecutor();
                 refresher.scheduleAtFixedRate(imagePanel::refresh, 0, 1000 / 16, TimeUnit.MILLISECONDS);
             }
 
             @Override
             public void componentHidden(ComponentEvent e) {
+                log.debug("Hide frame, stop refresher thread.");
                 refresher.shutdownNow();
             }
         });

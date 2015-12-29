@@ -4,30 +4,27 @@ import me.wener.bbvm.dev.FileManager;
 import me.wener.bbvm.vm.Operand;
 import me.wener.bbvm.vm.Register;
 import me.wener.bbvm.vm.SystemInvoke;
-import me.wener.bbvm.vm.VM;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.IOException;
 
 /**
  * @author wener
  * @since 15/12/17
  */
 public class FileInvoke {
-    private final VM vm;
     private final Register r3;
     private final Register r2;
     private final Register r1;
-    private final Register r0;
     private final FileManager manager;
+    private final int CURRENT_ADDRESS = 0x7FFFFFFF;
 
     @Inject
-    public FileInvoke(VM vm, @Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, @Named("R0") Register r0, FileManager manager) {
-        this.vm = vm;
+    public FileInvoke(@Named("R3") Register r3, @Named("R2") Register r2, @Named("R1") Register r1, FileManager manager) {
         this.r3 = r3;
         this.r2 = r2;
         this.r1 = r1;
-        this.r0 = r0;
         this.manager = manager;
     }
 
@@ -42,7 +39,7 @@ public class FileInvoke {
 -	|  | 18:写入字符串 | r1:文件号<br>r2:位置偏移量<br>r3:字符串 |
      */
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 48, b = 0)
-    public void open() {
+    public void open() throws IOException {
         r1.get(manager).open(r3.getString());
     }
 
@@ -52,33 +49,57 @@ public class FileInvoke {
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 50, b = 16)
-    public void readInt() {
-        r3.set(r1.get(manager).readInt(r2.get()));
+    public void readInt() throws IOException {
+        if (r2.get() == CURRENT_ADDRESS) {
+            r3.set(r1.get(manager).readInt());
+        } else {
+            r3.set(r1.get(manager).readInt(r2.get()));
+        }
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 50, b = 17)
-    public void readFloat() {
-        r3.set(r1.get(manager).readFloat(r2.get()));
+    public void readFloat() throws IOException {
+        if (r2.get() == CURRENT_ADDRESS) {
+            r3.set(r1.get(manager).readFloat());
+        } else {
+            r3.set(r1.get(manager).readFloat(r2.get()));
+        }
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 50, b = 18)
-    public void readString() {
-        r3.set(r1.get(manager).readString(r2.get()));
+    public void readString() throws IOException {
+        if (r2.get() == CURRENT_ADDRESS) {
+            r3.set(r1.get(manager).readString());
+        } else {
+            r3.set(r1.get(manager).readString(r2.get()));
+        }
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 51, b = 16)
-    public void writeInt() {
-        r1.get(manager).writeInt(r2.get(), r3.get());
+    public void writeInt() throws IOException {
+        if (r2.get() == CURRENT_ADDRESS) {
+            r1.get(manager).writeInt(r3.get());
+        } else {
+            r1.get(manager).writeInt(r2.get(), r3.get());
+        }
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 51, b = 17)
-    public void writeFloat() {
-        r1.get(manager).writeFloat(r2.get(), r3.getFloat());
+    public void writeFloat() throws IOException {
+        if (r2.get() == CURRENT_ADDRESS) {
+            r1.get(manager).writeFloat(r3.getFloat());
+        } else {
+            r1.get(manager).writeFloat(r2.get(), r3.getFloat());
+        }
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 51, b = 18)
-    public void writeString() {
-        r1.get(manager).writeString(r2.get(), r3.getString());
+    public void writeString() throws IOException {
+        if (r2.get() == CURRENT_ADDRESS) {
+            r1.get(manager).writeString(r3.getString());
+        } else {
+            r1.get(manager).writeString(r2.get(), r3.getString());
+        }
     }
 
     /*
@@ -88,22 +109,22 @@ public class FileInvoke {
 55 | 定位文件位置指针 | 16 | r2:文件号<br>r3:目标位置 |
      */
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 52)
-    public void isEof(@Named("B") Operand b) {
+    public void isEof(@Named("B") Operand b) throws IOException {
         r3.set(r3.get(manager).isEof() ? 1 : 0);
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 53, b = 0)
-    public void fileLength(@Named("B") Operand b) {
+    public void fileLength(@Named("B") Operand b) throws IOException {
         r3.set(r3.get(manager).length());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 54, b = 0)
-    public void tell() {
+    public void tell() throws IOException {
         r3.set(r3.get(manager).tell());
     }
 
-    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 55, b = 0)
-    public void seek() {
+    @SystemInvoke(type = SystemInvoke.Type.OUT, a = 55, b = 16)
+    public void seek() throws IOException {
         r2.get(manager).seek(r3.get());
     }
 }
