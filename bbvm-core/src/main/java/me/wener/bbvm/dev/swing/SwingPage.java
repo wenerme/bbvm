@@ -9,13 +9,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.awt.image.*;
 
 /**
  * @author wener
  * @since 15/12/26
  */
 class SwingPage extends Draw implements PageResource {
+    public static final ImageFilter KEY_COLOR_FILTER = new RGBImageFilter() {
+        public final int filterRGB(int x, int y, int rgb) {
+            switch (rgb) {
+                case 0xffff00ff:
+                case 0xff00ff:
+                case 0xfff800f8:// RGB 565 - > RGB 888
+                case 0xf800f8:
+                    return 0;
+            }
+            return rgb;
+        }
+    };
     private final static Logger log = LoggerFactory.getLogger(PageResource.class);
     private final int handler;
     private final SwingPageManager manager;
@@ -50,8 +62,12 @@ class SwingPage extends Draw implements PageResource {
 
     @Override
     public PageResource draw(Drawable o, int dx, int dy, int w, int h, int x, int y, int mode) {
-        // TODO Ignore mode
-        g.drawImage(o.unwrap(Draw.class).image, dx, dy, dx + w, dy + h, x, y, x + w, y + h, null);
+        Image image = o.unwrap(Draw.class).image;
+        if (mode == DeviceConstants.DRAW_KEY_COLOR) {
+            ImageProducer filteredImgProd = new FilteredImageSource(image.getSource(), KEY_COLOR_FILTER);
+            image = Toolkit.getDefaultToolkit().createImage(filteredImgProd);
+        }
+        g.drawImage(image, dx, dy, dx + w, dy + h, x, y, x + w, y + h, null);
         return this;
     }
 
