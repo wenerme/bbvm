@@ -34,8 +34,8 @@ public class PseudoData extends Label implements Assembly {
     public String toAssembly() {
         StringBuilder sb = new StringBuilder();
         sb.append("DATA ")
-                .append(name)
-                .append(' ');
+            .append(name)
+            .append(' ');
         if (dataTypeToken != null) {
             sb.append(dataTypeToken.image).append(' ');
         }

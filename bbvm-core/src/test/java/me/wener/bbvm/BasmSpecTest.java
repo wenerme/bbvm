@@ -52,27 +52,27 @@ public class BasmSpecTest {
         test.setPrintStream(new PrintStream(out));
         Splitter.MapSplitter separator = Splitter.on('&').omitEmptyStrings().withKeyValueSeparator('=');
         Files.walk(Paths.get(first))
-                .filter(p -> !p.toFile().isDirectory())
-                .filter(p -> p.toFile().getName().endsWith(".basm"))
-                .forEach(p -> {
-                    BasmTester tester = test;
-                    String fn = com.google.common.io.Files.getNameWithoutExtension(p.toString());
-                    if (fn.contains("=")) {
-                        Config config = ConfigFactory.parseMap(separator.split(fn));
-                        tester = new BasmTester(config);
-                        log.info("Create BasmTester for {} -> {}", config, p);
-                    }
+            .filter(p -> !p.toFile().isDirectory())
+            .filter(p -> p.toFile().getName().endsWith(".basm"))
+            .forEach(p -> {
+                BasmTester tester = test;
+                String fn = com.google.common.io.Files.getNameWithoutExtension(p.toString());
+                if (fn.contains("=")) {
+                    Config config = ConfigFactory.parseMap(separator.split(fn));
+                    tester = new BasmTester(config);
+                    log.info("Create BasmTester for {} -> {}", config, p);
+                }
 
-                    // When test failed, we need the output
-                    try {
-                        out.reset();
-                        tester.init(p.toFile()).run();
-                    } catch (Throwable e) {
-                        System.out.println(out.toString());
-                        System.out.println("Test failed for " + p);
-                        e.printStackTrace();
-                        throw e;
-                    }
-                });
+                // When test failed, we need the output
+                try {
+                    out.reset();
+                    tester.init(p.toFile()).run();
+                } catch (Throwable e) {
+                    System.out.println(out.toString());
+                    System.out.println("Test failed for " + p);
+                    e.printStackTrace();
+                    throw e;
+                }
+            });
     }
 }

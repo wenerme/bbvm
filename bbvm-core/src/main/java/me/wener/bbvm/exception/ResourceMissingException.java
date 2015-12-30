@@ -24,9 +24,9 @@ public class ResourceMissingException extends ExecutionException {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("type", type)
-                .add("handler", handler)
-                .add("message", getMessage())
-                .toString();
+            .add("type", type)
+            .add("handler", handler)
+            .add("message", getMessage())
+            .toString();
     }
 }

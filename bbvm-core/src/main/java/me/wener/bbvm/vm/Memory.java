@@ -89,12 +89,12 @@ public class Memory {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("mem", mem)
-                .add("rs", rs)
-                .add("rb", rb)
-                .add("memorySize", memorySize)
-                .add("stackSize", stackSize)
-                .toString();
+            .add("mem", mem)
+            .add("rs", rs)
+            .add("rb", rb)
+            .add("memorySize", memorySize)
+            .add("stackSize", stackSize)
+            .toString();
     }
 
     public int read(int addr) {

@@ -269,17 +269,17 @@ public class VM {
         }
         if (log.isDebugEnabled()) {
             log.debug("{} ' A={} B={} {} @{} {}",
-                    inst.toAssembly(),
-                    inst.hasA() ? inst.getA().get() : "NaN",
-                    inst.hasB() ? inst.getB().get() : "NaN",
-                    debugAsm(), getLine(inst.getAddress()), inst.getAddress());
+                inst.toAssembly(),
+                inst.hasA() ? inst.getA().get() : "NaN",
+                inst.hasB() ? inst.getB().get() : "NaN",
+                debugAsm(), getLine(inst.getAddress()), inst.getAddress());
         }
         run(inst, inst.opcode, inst.a, inst.b);
     }
 
     String debugAsm() {
         return String.format("RP=%s RF=%s RS=%s RB=%s R0=%s R1=%s R2=%s R3=%s"
-                , rp.get(), rf.get(), rs.get(), rb.get(), r0.get(), r1.get(), r2.get(), r3.get());
+            , rp.get(), rf.get(), rs.get(), rb.get(), r0.get(), r1.get(), r2.get(), r3.get());
     }
 
     private void run(Instruction inst, Opcode opcode, Operand a, Operand b) {

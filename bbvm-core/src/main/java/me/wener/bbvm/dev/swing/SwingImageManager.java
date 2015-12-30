@@ -41,9 +41,9 @@ class SwingImageManager implements ImageManager {
             String fn = null;
             for (String directory : directories) {
                 Optional<String> first = Files.list(Paths.get(directory))
-                        .map((p) -> p.getFileName().toString())
-                        .filter((it) -> it.equalsIgnoreCase(file))
-                        .findFirst();
+                    .map((p) -> p.getFileName().toString())
+                    .filter((it) -> it.equalsIgnoreCase(file))
+                    .findFirst();
                 if (first.isPresent()) {
                     fn = Paths.get(directory, first.get()).toAbsolutePath().toString();
                 }

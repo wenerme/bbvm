@@ -134,13 +134,13 @@ public class Instruction {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("opcode", opcode)
-                .add("a", a)
-                .add("b", b)
-                .add("calculateType", calculateType)
-                .add("compareType", compareType)
-                .add("dataType", dataType)
-                .toString();
+            .add("opcode", opcode)
+            .add("a", a)
+            .add("b", b)
+            .add("calculateType", calculateType)
+            .add("compareType", compareType)
+            .add("dataType", dataType)
+            .toString();
     }
 
     /**
@@ -302,21 +302,21 @@ JPC指令 6byte
                 break;
             case CMP:
                 sb.append(' ').append(compareType)
-                        .append(' ').append(a.toAssembly())
-                        .append(", ").append(b.toAssembly())
+                    .append(' ').append(a.toAssembly())
+                    .append(", ").append(b.toAssembly())
                 ;
                 break;
             case LD:
                 sb.append(' ').append(dataType)
-                        .append(' ').append(a.toAssembly())
-                        .append(", ").append(b.toAssembly())
+                    .append(' ').append(a.toAssembly())
+                    .append(", ").append(b.toAssembly())
                 ;
                 break;
             case CAL:
                 sb.append(' ').append(dataType)
-                        .append(' ').append(calculateType)
-                        .append(' ').append(a.toAssembly())
-                        .append(", ").append(b.toAssembly())
+                    .append(' ').append(calculateType)
+                    .append(' ').append(a.toAssembly())
+                    .append(", ").append(b.toAssembly())
                 ;
                 break;
         }

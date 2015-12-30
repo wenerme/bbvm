@@ -128,13 +128,13 @@ public class SwingInputMangerTest extends AssertJSwingJUnitTestCase {
                     case 0:
                         if (inputManger.isKeyPressed('A')) {
                             step.incrementAndGet();
-                            log.debug("Step {}",step);
+                            log.debug("Step {}", step);
                         }
                         break;
                     case 1:
                         if (inputManger.isKeyPressed('B')) {
                             step.incrementAndGet();
-                            log.debug("Step {}",step);
+                            log.debug("Step {}", step);
                         }
                         break;
                     case 2:
@@ -144,11 +144,11 @@ public class SwingInputMangerTest extends AssertJSwingJUnitTestCase {
                         }
                         if (!inputManger.isKeyPressed('B')) {
                             step.incrementAndGet();
-                            log.debug("Step {}",step);
+                            log.debug("Step {}", step);
                         }
                         break;
                     default:
-                        log.debug("Step {} complete",step);
+                        log.debug("Step {} complete", step);
                         return;
                 }
             }

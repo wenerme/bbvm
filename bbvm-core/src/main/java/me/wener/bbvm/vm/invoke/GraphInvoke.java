@@ -80,10 +80,10 @@ public class GraphInvoke {
         // SHOWPIC(PAGE,PIC,DX,DY,W,H,X,Y,MODE)
         Params params = params(r3.get(), 9);
         pages.getResource(params.next()).draw(images.getResource(params.next()),
-                params.next(), params.next(),
-                params.next(), params.next(),
-                params.next(), params.next(),
-                params.next());
+            params.next(), params.next(),
+            params.next(), params.next(),
+            params.next(), params.next(),
+            params.next());
     }
 
     @SystemInvoke(type = SystemInvoke.Type.OUT, a = 21, b = 0)

@@ -76,8 +76,8 @@ class SystemInvokeManagerImpl implements SystemInvokeManager {
     public void register(SystemInvoke invoke, InvokeHandler handler) {
         if (log.isTraceEnabled()) {
             log.trace("Register {} {}, {} -> {}"
-                    , invoke.type(), invoke.a() == SystemInvoke.ANY ? "ANY" : invoke.a()
-                    , invoke.b() == SystemInvoke.ANY ? "ANY" : invoke.b(), handler);
+                , invoke.type(), invoke.a() == SystemInvoke.ANY ? "ANY" : invoke.a()
+                , invoke.b() == SystemInvoke.ANY ? "ANY" : invoke.b(), handler);
         }
         register(invoke.type(), invoke.a(), invoke.b(), handler);
     }
@@ -238,9 +238,9 @@ class SystemInvokeManagerImpl implements SystemInvokeManager {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this)
-                    .add("target", target)
-                    .add("method", method)
-                    .toString();
+                .add("target", target)
+                .add("method", method)
+                .toString();
         }
     }
 }

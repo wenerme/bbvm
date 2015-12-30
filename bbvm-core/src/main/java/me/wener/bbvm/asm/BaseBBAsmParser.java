@@ -81,7 +81,7 @@ class BaseBBAsmParser {
                 labels.put(label.name, label);
             } else {
                 throw new RuntimeException(String.format("Detect conflict label %s %s,%s <> %s,%s"
-                        , label.getName(), label.token.beginLine, label.token.beginColumn, old.token.beginLine, old.token.beginColumn));
+                    , label.getName(), label.token.beginLine, label.token.beginColumn, old.token.beginLine, old.token.beginColumn));
             }
         }
         assemblies.add(assembly);

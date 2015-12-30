@@ -123,9 +123,9 @@ public class Operand implements Value<Operand> {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("value", getInterval())
-                .add("mode", addressingMode)
-                .toString();
+            .add("value", getInterval())
+            .add("mode", addressingMode)
+            .toString();
     }
 
     @Override

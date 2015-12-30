@@ -108,8 +108,8 @@ public class Images {
 
                 ByteBuf header = Unpooled.wrappedBuffer(ch.map(FileChannel.MapMode.READ_ONLY, offset, 12)).order(order);
                 info.setSize(header.readInt() - 12)
-                        .setWidth(header.readUnsignedShort())
-                        .setHeight(header.readUnsignedShort());
+                    .setWidth(header.readUnsignedShort())
+                    .setHeight(header.readUnsignedShort());
 
                 if (expectedBits > 0 && info.getBits() != expectedBits) {
                     throw new UnsupportedOperationException("Expected bits " + expectedBits + " but got " + info.getBits());
@@ -416,16 +416,16 @@ public class Images {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this)
-                    .add("index", index)
-                    .add("width", width)
-                    .add("height", height)
-                    .add("size", size)
-                    .add("offset", offset)
-                    .add("bits", getBits())
-                    .add("name", name)
-                    .add("type", type)
-                    .add("filename", filename)
-                    .toString();
+                .add("index", index)
+                .add("width", width)
+                .add("height", height)
+                .add("size", size)
+                .add("offset", offset)
+                .add("bits", getBits())
+                .add("name", name)
+                .add("type", type)
+                .add("filename", filename)
+                .toString();
         }
     }
 }

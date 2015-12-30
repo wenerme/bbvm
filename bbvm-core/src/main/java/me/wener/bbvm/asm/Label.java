@@ -61,12 +61,12 @@ public class Label extends AbstractAssembly implements Symbol, Assembly {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("name", name)
-                .add("value", value)
-                .add("comment", comment)
-                .add("line", token != null ? token.beginLine : -1)
-                .add("column", token != null ? token.beginColumn : -1)
-                .toString();
+            .add("name", name)
+            .add("value", value)
+            .add("comment", comment)
+            .add("line", token != null ? token.beginLine : -1)
+            .add("column", token != null ? token.beginColumn : -1)
+            .toString();
     }
 
     public void addOperand(Token token, Operand operand) {

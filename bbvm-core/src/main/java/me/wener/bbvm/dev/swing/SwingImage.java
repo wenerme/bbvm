@@ -39,10 +39,10 @@ class SwingImage extends Draw implements ImageResource {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("handler", handler)
-                .add("width", getWidth())
-                .add("height", getHeight())
-                .add("name", name)
-                .toString();
+            .add("handler", handler)
+            .add("width", getWidth())
+            .add("height", getHeight())
+            .add("name", name)
+            .toString();
     }
 }
