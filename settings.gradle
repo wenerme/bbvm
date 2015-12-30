@@ -1,0 +1,7 @@
+rootProject.name = projectName
+
+include ':bbvm-core'
+include ':bbvm-swing'
+
+project(':bbvm-core').projectDir = "$rootDir/bbvm-core" as File
+project(':bbvm-swing').projectDir = "$rootDir/bbvm-swing" as File
