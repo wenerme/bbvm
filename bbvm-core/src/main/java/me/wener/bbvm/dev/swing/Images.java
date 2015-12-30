@@ -152,7 +152,13 @@ public class Images {
         @Override
         public boolean accept(Path path) {
             File file = path.toFile();
-            return !file.isDirectory() && Files.getFileExtension(file.getName()).equalsIgnoreCase("LIB");
+            // Use RLB when env type is SIM
+            switch (Files.getFileExtension(file.getName()).toUpperCase()) {
+                case "LIB":
+                case "RLB":
+                    return true;
+            }
+            return false;
         }
 
         @Override

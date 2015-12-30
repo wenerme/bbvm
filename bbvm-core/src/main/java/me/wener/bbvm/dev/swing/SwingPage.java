@@ -180,7 +180,7 @@ class SwingPage extends Draw implements PageResource {
         if (type == null) {
             log.warn("Font {} not found", font);
         } else {
-            log.info("Set font to {}", type);
+            log.debug("Set font to {}", type);
             int height = g.getFontMetrics().getAscent();
             g.setFont(deriveFont(g.getFont(), type.getSize()));
             stringDrawer.fontChanged();

@@ -41,7 +41,7 @@ class SwingPageManager implements PageManager {
 
     @Override
     public PageManager reset() {
-        log.info("Reset {} resource", getType());
+        log.debug("Reset {} resource", getType());
         handler = 0;
         resources.forEach((k, v) -> v.close());
         checkState(resources.size() == 0, "%s resources should be cleared", getType());
