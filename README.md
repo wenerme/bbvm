@@ -29,7 +29,7 @@ EXIT
 
 | 中文 | English |
 |:----:|:----:|
-| [README](#内容)/[WIKI](https://github.com/wenerme/bbvm/wiki/主页) | [README](#Contents)/[WIKI](https://github.com/wenerme/bbvm/wiki/Home) |
+| [README](#内容)/[WIKI](https://github.com/wenerme/bbvm/wiki/主页) | [README](#contents)/[WIKI](https://github.com/wenerme/bbvm/wiki/Home) |
 
 ![大富翁](doc/image/bbvm-monopoly-demo.png)
 

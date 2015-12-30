@@ -6,7 +6,7 @@
 
     <groupId>me.wener.bbvm</groupId>
     <artifactId>bbvm</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
     <modules>
         <module>bbvm-core</module>
         <module>bbvm-swing</module>
@@ -14,7 +14,6 @@
     <packaging>pom</packaging>
 
     <properties>
-        <bbvm.version>0.1.0</bbvm.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
