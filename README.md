@@ -29,9 +29,40 @@ EXIT
 
 | 中文 | English |
 |:----:|:----:|
-| [README](https://github.com/wenerme/bbvm/blob/master/README.md)/[WIKI]((https://github.com/wenerme/bbvm/wiki/主页)) | [README](https://github.com/wenerme/bbvm)/[WIKI](https://github.com/wenerme/bbvm/wiki/Home) |
+| [README](#内容)/[WIKI](https://github.com/wenerme/bbvm/wiki/主页) | [README](#Contents)/[WIKI](https://github.com/wenerme/bbvm/wiki/Home) |
 
+# Contents
+BBvm is a simple easy virtual machine that run bbin compile from bbasm which is a simple assembly too.
 
+## Main feature
+BBvm has a lot built-in system invoke with a default screen enabled device.
+
+* Graphic draw
+* Image load
+* File read/write
+* String op
+
+# 内容
+BBvm 是一个简单的虚拟机,其汇编码为 BBasm.
+
+## 主要功能
+BBvm 包含了大量的内建系统调用,并且运行于一个有屏幕的设备上.
+
+* 图形操作
+* 图像操作
+* 文件操作
+* 字符串操作
+
+## BBasic
+[BBasic](http://www.baike.com/wiki/BBASIC) 是一种掌上学习机的编程平台.BBK BBASIC,简称BB,最早由通宵虫于2006年开发,是由VMBASIC结合QuickBASIC开发而成. 运行于早期步步高学习机平台.
+
+该项目为原步步高 BBasic 虚拟机的一个仿照实现.并在原来的基础上进行了扩展.
+
+* 做到和 BBasic 的汇编码兼容
+* 做到和 BBasic 的二进制兼容
+* 实现编译 Vasm 的编译器
+* 实现 BB 的虚拟机,包括图形界面等所有功能
+* 对 BBAsm 进行扩展
 
 参考
 ====
@@ -42,29 +73,4 @@ EXIT
  [bbasm-g4]:https://github.com/wenerme/bbvm/blob/master/doc/grammar/BBAsm.g4
  [bbvm-spec]:https://github.com/wenerme/bbvm/wiki/vm-spec
 
-
-
-NOTE
-====
-
-该项目为原步步高BBasic的一个仿照实现.并在原来的基础上进行了扩展.
-
-主要目标
-
-* 做到和 BBasic 的汇编码兼容
-* 做到和 BBasic 的二进制兼容
-* 实现编译 BBAsm 的编译器
-* 实现 BB 的虚拟机,包括图形界面等所有功能
-* 对 BBAsm 进行扩展
-
-
-
-
-第三版实现,第一次实现做到了图像处理,基本实现了功能,但难以扩展.
-第二次尝试使用事件处理,使实现过于复杂.
-第三次实现尽量保持简洁,按照实际逻辑进行分类,保持 CPU, Memory 等概念,做到可扩展.
-
-目前主要是第四版实现.
-完全重写的一个实现,首先基于 JavaCC 实现了解析和编译,使用依赖注入来解耦系统调用和相关的资源管理.
-实现简洁,层级简单.测试完全基于自身的解析编译执行,去掉了对原生编译器的依赖.
 
