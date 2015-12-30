@@ -7,19 +7,35 @@ BBVM - BeBasic Virtual Machine
 [![GitHub license](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/wenerme/bbvm/master/LICENSE)
 [![Twitter](https://img.shields.io/twitter/url/https/github.com/wenerme/bbvm.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https://github.com/wenerme/bbvm/)
 
-该项目为原步步高BBasic的一个仿照实现.并在原来的基础上进行了扩展.
+```
+; ____________________
+; \______   \______   \___  _______
+;  |    |  _/|    |  _/\  \/ /     \
+;  |    |   \|    |   \ \   /  Y Y  \
+;  |______  /|______  /  \_/|__|_|  /
+;         \/        \/            \/
 
-主要目标
+JMP CODE
+DATA STR CHAR "Hello, BBvm",0
+CODE:
 
-* 做到和 BBasic 的汇编码兼容
-* 做到和 BBasic 的二进制兼容
-* 实现编译 BBAsm 的编译器
-* 实现 BB 的虚拟机,包括图形界面等所有功能
-* 对 BBAsm 进行扩展
+OUT 1, STR
+EXIT
+```
+
+```
+>Hello, BBvm
+```
+
+| 中文 | English |
+|:----:|:----:|
+| [README](https://github.com/wenerme/bbvm/blob/master/README.md)/[WIKI]((https://github.com/wenerme/bbvm/wiki/主页)) | [README](https://github.com/wenerme/bbvm)/[WIKI](https://github.com/wenerme/bbvm/wiki/Home) |
+
+
 
 参考
 ====
-
+* [开发进度/Roadmap](https://trello.com/b/ZBl8mVYa/bbvm)
 * BBAsm 语法参考[这里][bbasm-g4]
 * BB 虚拟机规范参考[这里][bbvm-spec]
 
@@ -30,6 +46,19 @@ BBVM - BeBasic Virtual Machine
 
 NOTE
 ====
+
+该项目为原步步高BBasic的一个仿照实现.并在原来的基础上进行了扩展.
+
+主要目标
+
+* 做到和 BBasic 的汇编码兼容
+* 做到和 BBasic 的二进制兼容
+* 实现编译 BBAsm 的编译器
+* 实现 BB 的虚拟机,包括图形界面等所有功能
+* 对 BBAsm 进行扩展
+
+
+
 
 第三版实现,第一次实现做到了图像处理,基本实现了功能,但难以扩展.
 第二次尝试使用事件处理,使实现过于复杂.
