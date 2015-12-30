@@ -49,6 +49,7 @@ public class VM {
     private Throwable lastError;
     @Inject
     private EventBus eventBus;
+    private int envType;
 
     @Inject
     private VM() {
@@ -397,6 +398,10 @@ public class VM {
 
     public Symbol getSymbol(int address) {
         return symbolTable != null ? symbolTable.getSymbol(address) : null;
+    }
+
+    public int getEnvType() {
+        return config.getEnvType();
     }
 
     /**

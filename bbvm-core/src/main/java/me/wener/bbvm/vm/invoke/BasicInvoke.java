@@ -2,7 +2,6 @@ package me.wener.bbvm.vm.invoke;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import me.wener.bbvm.dev.DeviceConstants;
 import me.wener.bbvm.dev.StringManager;
 import me.wener.bbvm.exception.ResourceMissingException;
 import me.wener.bbvm.vm.*;
@@ -287,14 +286,14 @@ public class BasicInvoke {
      */
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 25)
     public void getEnv(Operand o) {
-        o.set(DeviceConstants.ENV_SIM);
+        o.set(vm.getEnvType());
     }
 
     /*
 32 | 整数转换为字符串 | r3的值 | r1:整数<br>r3:目标字符串 | r3所代表字符串的内容被修改
 33 | 字符串转换为整数 | 整数 | r3:字符串 |
 34 | 获取字符第一个字符的ASCII码 | ASCII码 | r3:字符串 |
-35 | 左取字符串 | r3的值 | r1:截取长度<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改 （此端口似乎不正常）
+35 | 左取字符串 | r3的值 | r2:截取长度<br>r3:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改 （此端口似乎不正常）
 36 | 右取字符串 | r3的值 | r1:截取长度<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改
 37 | 中间取字符串 | r0截取长度 | r0:截取长度<br>r1:截取位置<br>r2:源字符串<br>r3:目标字符串 | r3所代表字符串的内容被修改
 38 | 查找字符串 | 位置 | r1:起始位置<br>r2:子字符串<br>r3:父字符串 |
@@ -316,8 +315,7 @@ public class BasicInvoke {
     @SystemInvoke(type = SystemInvoke.Type.IN, b = 35)
     public void stringLeft(Operand o) {
         //TODO Exceptions
-        r3.set(r2.getString().substring(0, r1.get()));
-
+        r3.set(r3.getString().substring(0, r2.get()));
         o.set(r3.get());
     }
 

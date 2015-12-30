@@ -79,7 +79,8 @@ public class Value {
                 if (c.length() % 2 != 0) {
                     throw new RuntimeException(String.format("%s:%s Hex bytes length value (%s)'%s'", token.beginLine, token.beginColumn, c.length(), c));
                 }
-                return new Value().setToken(token).setValue(BaseEncoding.base16().decode(c));
+                // BaseEncoding expected uppercase
+                return new Value().setToken(token).setValue(BaseEncoding.base16().decode(c.toUpperCase()));
             default:
                 throw new AssertionError();
         }

@@ -17,11 +17,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
+import java.util.Optional;
 
 /**
  * @author wener
@@ -40,9 +40,12 @@ class SwingImageManager implements ImageManager {
         try {
             String fn = null;
             for (String directory : directories) {
-                Path path = Paths.get(directory, file);
-                if (Files.exists(path)) {
-                    fn = path.toAbsolutePath().toString();
+                Optional<String> first = Files.list(Paths.get(directory))
+                        .map((p) -> p.getFileName().toString())
+                        .filter((it) -> it.equalsIgnoreCase(file))
+                        .findFirst();
+                if (first.isPresent()) {
+                    fn = Paths.get(directory, first.get()).toAbsolutePath().toString();
                 }
             }
             if (fn == null) {

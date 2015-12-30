@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Module;
 import com.typesafe.config.Config;
+import me.wener.bbvm.dev.DeviceConstants;
 import me.wener.bbvm.vm.invoke.InputInvoke;
 import me.wener.bbvm.vm.invoke.OutputInvoke;
 
@@ -23,6 +24,7 @@ public class VMConfig {
     private final Config config;
     private final List<Object> invokeHandlers;
     private final List<Object> modules;
+    private final int envType;
 
     private VMConfig(Builder builder) {
         charset = builder.charset;
@@ -30,6 +32,7 @@ public class VMConfig {
         config = builder.config;
         invokeHandlers = builder.invokeHandlers;
         modules = builder.modules;
+        envType = builder.envType;
     }
 
     public static Builder newBuilder() {
@@ -74,8 +77,13 @@ public class VMConfig {
         return errorHandler;
     }
 
+    public int getEnvType() {
+        return envType;
+    }
+
     public static final class Builder {
         private final List<Object> modules = Lists.newArrayList();
+        private int envType = DeviceConstants.ENV_SIM;
         private List<Object> invokeHandlers = Lists.newArrayList();
         private Charset charset = Charset.forName("UTF-8");
         private Predicate<Exception> errorHandler = e -> {
@@ -113,6 +121,11 @@ public class VMConfig {
 
         public Builder invokeHandlers(List<Object> val) {
             invokeHandlers = val;
+            return this;
+        }
+
+        public Builder envType(int val) {
+            envType = val;
             return this;
         }
 

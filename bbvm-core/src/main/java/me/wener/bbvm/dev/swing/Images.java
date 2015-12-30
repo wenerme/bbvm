@@ -61,8 +61,10 @@ public class Images {
                     if (infos != null) {
                         return infos;
                     }
-                } catch (UnsupportedOperationException | IOException e) {
-                    log.debug("Load {} use {} failed with {}", file, codec.getType(), e.getMessage());
+                } catch (IOException e) {
+                    log.debug("Load {} use {} failed with {}", file, codec.getType(), e.getMessage(), e);
+                } catch (UnsupportedOperationException e) {
+                    log.debug("Unsupported by {} cause {}", codec.getType(), e.getMessage());
                 }
             }
         }
@@ -81,12 +83,13 @@ public class Images {
 
     private static List<ImageInfo> loadInfos(Path file, String type, boolean hasName, ByteOrder order, int expectedBits) throws IOException {
         try (FileChannel ch = FileChannel.open(file, StandardOpenOption.READ)) {
-            int n = ch.map(FileChannel.MapMode.READ_ONLY, 0, 4).order(order).getInt();
+            final int n = ch.map(FileChannel.MapMode.READ_ONLY, 0, 4).order(order).getInt();
             // Never reach this size
-            if (n > 65535) {
-                throw new UnsupportedOperationException();
+            if (n > 65535 | n < 0) {
+                throw new UnsupportedOperationException(String.format("Got %s pictures by %s", n, order));
             }
-            ByteBuf buf = Unpooled.wrappedBuffer(ch.map(FileChannel.MapMode.READ_ONLY, 4, n * (4 + 32))).order(order);
+            // Load all offset
+            final ByteBuf buf = Unpooled.wrappedBuffer(ch.map(FileChannel.MapMode.READ_ONLY, 4, n * (4 + (hasName ? 32 : 0)))).order(order);
             List<ImageInfo> list = new ArrayList<>(n);
             for (int i = 0; i < n; i++) {
                 int offset = buf.readInt();
@@ -103,10 +106,10 @@ public class Images {
                 }
                 ImageInfo info = new ImageInfo(i, name, offset, file.toString(), type);
 
-                buf = Unpooled.wrappedBuffer(ch.map(FileChannel.MapMode.READ_ONLY, offset, 12)).order(order);
-                info.setSize(buf.readInt() - 12)
-                        .setWidth(buf.readUnsignedShort())
-                        .setHeight(buf.readUnsignedShort());
+                ByteBuf header = Unpooled.wrappedBuffer(ch.map(FileChannel.MapMode.READ_ONLY, offset, 12)).order(order);
+                info.setSize(header.readInt() - 12)
+                        .setWidth(header.readUnsignedShort())
+                        .setHeight(header.readUnsignedShort());
 
                 if (expectedBits > 0 && info.getBits() != expectedBits) {
                     throw new UnsupportedOperationException("Expected bits " + expectedBits + " but got " + info.getBits());
@@ -156,10 +159,10 @@ public class Images {
         public BufferedImage read(ImageInfo info) throws IOException {
             try (FileChannel ch = FileChannel.open(Paths.get(info.getFilename()), StandardOpenOption.READ)) {
                 // + 4 to skip length
-                ByteBuf buf = Unpooled.wrappedBuffer(ch.map(FileChannel.MapMode.READ_ONLY, info.getOffset() + 4, 8)).order(ByteOrder.LITTLE_ENDIAN);
+                final ByteBuf buf = Unpooled.wrappedBuffer(ch.map(FileChannel.MapMode.READ_ONLY, info.getOffset() + 4, 8)).order(ByteOrder.LITTLE_ENDIAN);
                 int w = buf.readUnsignedShort(), h = buf.readUnsignedShort();
                 ByteBuffer buffer = ByteBuffer.allocate(w * h * 2).order(ByteOrder.LITTLE_ENDIAN);
-                ch.read(buffer);
+                ch.read(buffer, info.getOffset() + 12);
                 BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_USHORT_565_RGB);
                 // Fast way to load the data
                 buffer.flip();
@@ -303,7 +306,11 @@ public class Images {
             FileInputStream is = new FileInputStream(new File(info.getFilename()));
             long skipped = is.skip(info.getOffset() + 4);
             assert skipped == info.getOffset() + 4;
-            return ImageIO.read(is);
+            BufferedImage image = ImageIO.read(is);
+            if (image == null) {
+                throw new IOException(String.format("%s can not read %s", getType(), info));
+            }
+            return image;
         }
     }
 
@@ -327,13 +334,13 @@ public class Images {
 
     static class ImageInfo {
         private int index;
-        private String name;
-        private int offset;
-        private String filename;
-        private String type;
         private int width = -1;
         private int height = -1;
         private int size = -1;
+        private int offset;
+        private String name;
+        private String type;
+        private String filename;
 
         public ImageInfo() {
         }
@@ -404,13 +411,14 @@ public class Images {
         public String toString() {
             return MoreObjects.toStringHelper(this)
                     .add("index", index)
-                    .add("name", name)
-                    .add("offset", offset)
-                    .add("filename", filename)
-                    .add("type", type)
                     .add("width", width)
                     .add("height", height)
                     .add("size", size)
+                    .add("offset", offset)
+                    .add("bits", getBits())
+                    .add("name", name)
+                    .add("type", type)
+                    .add("filename", filename)
                     .toString();
         }
     }

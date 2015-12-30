@@ -10,6 +10,7 @@ import io.netty.buffer.Unpooled;
 import me.wener.bbvm.asm.BBAsmParser;
 import me.wener.bbvm.asm.ParseException;
 import me.wener.bbvm.dev.ImageManager;
+import me.wener.bbvm.dev.InputManager;
 import me.wener.bbvm.dev.PageManager;
 import me.wener.bbvm.dev.swing.Swings;
 import me.wener.bbvm.util.Dumper;
@@ -33,7 +34,7 @@ import static org.junit.Assert.assertNull;
  */
 public class BasmTester {
     private final static Logger log = LoggerFactory.getLogger(BasmTester.class);
-    private static final Config DEFAULT_CONFIG = ConfigFactory.parseString("charset=UTF-8");
+    private static final Config DEFAULT_CONFIG = ConfigFactory.parseString("charset=UTF-8,test-io=true");
     private final ByteArrayOutputStream out;
     private final InputInvoke in;
     private final Charset charset;
@@ -75,14 +76,21 @@ public class BasmTester {
         in = new InputInvoke();
         // TODO Need a way to make up the input and output
         PageManager manager = injector.getInstance(PageManager.class);
-        systemInvokeManager.register(new OutputInvoke((s) -> {
-            try {
-                out.write(s.getBytes());
-            } catch (IOException e) {
-                Throwables.propagate(e);
-            }
-            manager.getScreen().draw(s);
-        }), in, GraphInvoke.class, BasicInvoke.class, FileInvoke.class, KeyInvoke.class);
+        if (c.getBoolean("test-io")) {
+            systemInvokeManager.register(new OutputInvoke((s) -> {
+                try {
+                    out.write(s.getBytes());
+                } catch (IOException e) {
+                    Throwables.propagate(e);
+                }
+                manager.getScreen().draw(s);
+            }), in);
+        } else {
+            systemInvokeManager.register(new OutputInvoke((s) -> {
+                manager.getScreen().draw(s);
+            }), new InputInvoke().setSupplier(() -> injector.getInstance(InputManager.class).readText()));
+        }
+        systemInvokeManager.register(GraphInvoke.class, BasicInvoke.class, FileInvoke.class, KeyInvoke.class);
     }
 
     public BasmTester setPrintStream(PrintStream printStream) {
@@ -141,7 +149,7 @@ public class BasmTester {
         }
     }
 
-    public BasmTester test(boolean doTest){
+    public BasmTester test(boolean doTest) {
         this.doTest = doTest;
         return this;
     }
