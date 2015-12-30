@@ -62,7 +62,7 @@ public class BasmTester {
 
     public BasmTester(Config config) {
         this.c = config;
-        if (c == DEFAULT_CONFIG) {
+        if (c != DEFAULT_CONFIG) {
             c = c.withFallback(DEFAULT_CONFIG);
         }
         this.charset = Charset.forName(c.getString("charset"));
