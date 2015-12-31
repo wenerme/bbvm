@@ -3,19 +3,19 @@ package me.wener.bbvm;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.HexDump;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-@Slf4j
 public class TestUtil {
     public static final Pattern MATCH_HEX_DATA = Pattern
             .compile("\\s{2,}([^ \r\n]*[^0-9a-fA-F]+[^ \r\n]*)$", Pattern.MULTILINE);
@@ -27,6 +27,7 @@ public class TestUtil {
             return !Strings.isNullOrEmpty(input);
         }
     };
+    private final static Logger log = LoggerFactory.getLogger(TestUtil.class);
     protected static boolean logDump = false;
 
     public static ByteBuf fromDumpBytes(String dump) {
@@ -38,7 +39,7 @@ public class TestUtil {
         dump = MATCH_HEX_DATA.matcher(dump).replaceAll("");
         String[] lines = dump.split("[\n\r]+");
         for (String line : lines) {
-            Iterable<String> iterable = Iterables.filter(Lists.newArrayList(line.split("\\s+")), NON_NULL_OR_EMPTY);
+            Iterable<String> iterable = Lists.newArrayList(line.split("\\s+")).stream().filter(NON_NULL_OR_EMPTY::apply).collect(Collectors.toList());
             List<String> split = Lists.newArrayList(iterable);
             // 一行最多16个
             for (int i = 0; i < split.size() && i < 16; i++) {
