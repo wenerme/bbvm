@@ -1,0 +1,59 @@
+; 测试端口 in22, out13,out14,out15
+jmp CODES
+data FDATA int 1, "wener",%00%, 2,"xiao",%00%
+data SDATA int 3, "WENER",%00%, 1082388382,"XIAO",%00%
+CODES:
+
+
+ld int r2, FDATA
+ld int r3, 235
+IN r0,22
+; 返回值为r3
+out 0, r0;>235
+out 0, r2;>5
+in r1,2; r1 存放一个临时的字符串句柄
+out 13, 0; 读取整数
+out 0, r3;>1
+ld int r3, r1
+out 14, 0; 读取字符串
+out 1, r3;>wener
+
+out 13, 0
+out 0, r3;>2
+ld int r3, r1
+out 14, 0
+out 1, r3;>xiao
+
+; restore
+ld int r2, FDATA
+ld int r0, 235
+IN r0,22
+
+out 13, 0
+out 0, r3;>1
+ld int r3, r1
+out 14, 0
+out 1, r3;>wener
+
+
+; restore
+ld int r2, SDATA
+ld int r0, 235
+IN r0,22
+
+out 13, 0
+out 0, r3;>3
+ld int r3, r1
+out 14, 0
+out 1, r3;>WENER
+
+out 15, 0; 读取浮点数与读取整数相同
+out 5, r3;>4.123000
+out 4, 10
+out 0, r3;>1082388382
+ld int r3, r1
+out 14, 0
+out 1, r3;>XIAO
+
+
+
