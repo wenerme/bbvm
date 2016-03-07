@@ -10,6 +10,7 @@ before_install:
   - git clone --depth=1 https://github.com/wenerme/bbvm-test.git
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
+  - cd jbbvm
 after_success:
   - ./gradlew test jacocoTestReport coveralls
 #  - mvn clean test jacoco:report coveralls:report -DrepoToken=$REPO_TOKEN
