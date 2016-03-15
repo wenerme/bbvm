@@ -1,11 +1,10 @@
 package image
+
 import (
+	bc "github.com/wenerme/bbvm/libbbvm/image/color"
 	"image"
 	"image/color"
-	bc "github.com/wenerme/bbvm/image/color"
 )
-
-
 
 // RGB565 is an in-memory image whose At method returns RGB565 values.
 type RGB565 struct {
@@ -18,15 +17,15 @@ type RGB565 struct {
 	Rect image.Rectangle
 }
 
-func (*RGB565)ColorModel() color.Model {
+func (*RGB565) ColorModel() color.Model {
 	return bc.RGB565Model
 }
 
-func (i *RGB565)Bounds() image.Rectangle {
+func (i *RGB565) Bounds() image.Rectangle {
 	return i.Rect
 }
 
-func (i *RGB565)At(x, y int) color.Color {
+func (i *RGB565) At(x, y int) color.Color {
 	return i.RGB565At(x, y)
 }
 
@@ -47,9 +46,8 @@ func (p *RGB565) PixOffset(x, y int) int {
 func NewRGB565(r image.Rectangle) *RGB565 {
 	w, h := r.Dx(), r.Dy()
 	buf := make([]uint8, 2*w*h)
-	return &RGB565{buf, 2*w, r}
+	return &RGB565{buf, 2 * w, r}
 }
-
 
 // Gray2 is an in-memory image whose At method returns color.Gray2 values.
 type Gray2 struct {
@@ -62,13 +60,13 @@ type Gray2 struct {
 	Rect image.Rectangle
 }
 
-func (*Gray2)ColorModel() color.Model { return bc.Gray2Model }
+func (*Gray2) ColorModel() color.Model { return bc.Gray2Model }
 
-func (i *Gray2)Bounds() image.Rectangle {
+func (i *Gray2) Bounds() image.Rectangle {
 	return i.Rect
 }
 
-func (i *Gray2)At(x, y int) color.Color { return i.Gray2At(x, y) }
+func (i *Gray2) At(x, y int) color.Color { return i.Gray2At(x, y) }
 
 func (p *Gray2) Gray2At(x, y int) bc.Gray2 {
 	if !(image.Point{x, y}.In(p.Rect)) {
@@ -77,7 +75,7 @@ func (p *Gray2) Gray2At(x, y int) bc.Gray2 {
 	i := p.PixOffset(x, y)
 
 	l := p.Pix[i]
-	l = l >> uint((x % 4)*2)
+	l = l >> uint((x%4)*2)
 	return bc.Gray2{l & 0x3}
 }
 
@@ -89,8 +87,10 @@ func (i *Gray2) PixOffset(x, y int) int {
 
 func NewGray2(r image.Rectangle) *Gray2 {
 	w, h := r.Dx(), r.Dy()
-	w4 := w/4
-	if w % 4 != 0 {w4+=1}
+	w4 := w / 4
+	if w%4 != 0 {
+		w4 += 1
+	}
 	buf := make([]uint8, w4*h)
 	return &Gray2{buf, w4, r}
 }

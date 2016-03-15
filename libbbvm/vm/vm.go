@@ -1,12 +1,14 @@
 package vm
+
 import (
 	"fmt"
+	"github.com/wenerme/bbvm/libbbvm/asm"
 	"math"
 )
 
-type InstHandler func(*Inst)
-const HANDLE_ALL = math.MaxInt32
+type InstHandler func(*asm.Inst)
 
+const HANDLE_ALL = math.MaxInt32
 
 type VM interface {
 	SetOut(int, int, InstHandler)
@@ -15,6 +17,8 @@ type VM interface {
 	MustGetStr(int) string
 	Attr() map[string]interface{}
 	GetInt(int) int
+	SetInt(int) int
+	Register(asm.RegisterType) Register
 }
 
 type Register interface {
@@ -25,31 +29,31 @@ type Register interface {
 }
 type register struct {
 	Val int
-	VM *vm
+	VM  *vm
 }
 
-func (r *register)Get() int {
+func (r *register) Get() int {
 	return r.Val
 }
-func (r *register)Set(v int) {
+func (r *register) Set(v int) {
 	r.Val = v
 }
-func (o *register)Float32() float32 {
+func (o *register) Float32() float32 {
 	return math.Float32frombits(uint32(o.Get()))
 }
-func (o *register)SetFloat32(v float32) {
+func (o *register) SetFloat32(v float32) {
 	o.Set(int(math.Float32bits(v)))
 }
-func (o *register)StrRes() Res {
+func (o *register) StrRes() Res {
 	return o.VM.StrPool().Get(o.Get())
 }
-func (o *register)Str() string {
+func (o *register) Str() string {
 	return o.VM.MustGetStr(o.Val)
 }
-func (o *register)SetStr(v string) {
-	if r := o.StrRes(); r!= nil {
+func (o *register) SetStr(v string) {
+	if r := o.StrRes(); r != nil {
 		o.StrRes().Set(v)
-	}else {
+	} else {
 		log.Error("Register string res %d not exists", o.Get())
 	}
 }
@@ -59,19 +63,18 @@ type monitorRegister struct {
 	Changed bool
 }
 
-func (r *monitorRegister)Set(v int) {
-	r.Val=v
+func (r *monitorRegister) Set(v int) {
+	r.Val = v
 	r.Changed = true
 }
 
-func (r *monitorRegister)Get() int {
+func (r *monitorRegister) Get() int {
 	return r.Val
 }
 
-
 type vm struct {
 	mem []byte
-	in map[string]InstHandler
+	in  map[string]InstHandler
 	out map[string]InstHandler
 
 	rp monitorRegister
@@ -83,7 +86,7 @@ type vm struct {
 	r2 register
 	r3 register
 
-	inst Inst
+	inst asm.Inst
 
 	exited bool
 
@@ -93,7 +96,8 @@ type vm struct {
 	// 存储各个模块的上下文信息
 	attr map[string]interface{}
 }
-func (v *vm)Load(rom []byte) {
+
+func (v *vm) Load(rom []byte) {
 	log.Info("Load ROM. size: %d", len(rom))
 	v.Reset()
 	v.mem = make([]byte, len(rom))
@@ -105,7 +109,7 @@ func (v *vm)Load(rom []byte) {
 	v.mem = append(v.mem, make([]byte, 1024)...)
 	v.stack = v.mem[len(rom):]
 }
-func (v *vm)Reset() {
+func (v *vm) Reset() {
 	v.r0.Set(0)
 	v.r1.Set(0)
 	v.r2.Set(0)
@@ -115,78 +119,85 @@ func (v *vm)Reset() {
 	v.rp.Set(0)
 	v.rf.Set(0)
 }
-func (v *vm)SetIn(a, b int, h InstHandler) {
+func (v *vm) SetIn(a, b int, h InstHandler) {
 	v.in[multiPortKey(a, b)] = h
 }
-func (v *vm)SetOut(a, b int, h InstHandler) {
+func (v *vm) SetOut(a, b int, h InstHandler) {
 	v.out[multiPortKey(a, b)] = h
 }
-func (v *vm)In(a, b int) InstHandler {
+func (v *vm) In(a, b int) InstHandler {
 	return multiPortHandler(a, b, v.in)
 }
-func (v *vm)Out(a, b int) InstHandler {
+func (v *vm) Out(a, b int) InstHandler {
 	return multiPortHandler(a, b, v.out)
 }
 
-
-func (v *vm)Register(t RegisterType) Register {
-	switch t{
-	case REG_RP: return &v.rp
-	case REG_RF: return &v.rf
-	case REG_RS: return &v.rs
-	case REG_RB: return &v.rb
-	case REG_R0: return &v.r0
-	case REG_R1: return &v.r1
-	case REG_R2: return &v.r2
-	case REG_R3: return &v.r3
+func (v *vm) Register(t asm.RegisterType) Register {
+	switch t {
+	case asm.REG_RP:
+		return &v.rp
+	case asm.REG_RF:
+		return &v.rf
+	case asm.REG_RS:
+		return &v.rs
+	case asm.REG_RB:
+		return &v.rb
+	case asm.REG_R0:
+		return &v.r0
+	case asm.REG_R1:
+		return &v.r1
+	case asm.REG_R2:
+		return &v.r2
+	case asm.REG_R3:
+		return &v.r3
 	}
 	return nil
 }
-func (v *vm)Loop() {
+func (v *vm) Loop() {
 	v.rp.Changed = false
 
-	if v.rp.Get() >= len(v.mem) - len(v.stack) {
+	if v.rp.Get() >= len(v.mem)-len(v.stack) {
 		log.Info("Run over, exit")
 		v.Exit()
 		return
 	}
 
 	err := v.inst.UnmarshalBinary(v.mem[v.rp.Get():])
-	if err != nil { panic(err)}
+	if err != nil {
+		panic(err)
+	}
 	v.Proc()
 	if !v.rp.Changed {
 		v.rp.Set(v.rp.Get() + v.inst.Opcode.Len())
 	}
 }
 
-func (v *vm)Report() string {
+func (v *vm) Report() string {
 	s := fmt.Sprintf("%s 'rp:%d rf:%d rs:%d rb:%d r0:%d r1:%d r2:%d r3:%d",
 		v.inst, v.rp.Get(), v.rf.Get(), v.rs.Get(), v.rb.Get(),
-		v.r0.Get(), v.r1.Get(), v.r2.Get(), v.r3.Get(), )
+		v.r0.Get(), v.r1.Get(), v.r2.Get(), v.r3.Get())
 	return s
 }
-func (v *vm)Exit() {
+func (v *vm) Exit() {
 	v.exited = true
 }
-func (v *vm)IsExited() bool {
+func (v *vm) IsExited() bool {
 	return v.exited
 }
 
-func (v *vm)StrPool() ResPool {
+func (v *vm) StrPool() ResPool {
 	return v.strPool
 }
 
-func (v *vm)Attr() map[string]interface{} {
+func (v *vm) Attr() map[string]interface{} {
 	return v.attr
 }
-
-
 
 func NewVM() *vm {
 	v := &vm{
 		attr: make(map[string]interface{}),
-		in:make(map[string]InstHandler),
-		out:make(map[string]InstHandler),
+		in:   make(map[string]InstHandler),
+		out:  make(map[string]InstHandler),
 	}
 	v.strPool = newStrPool()
 	v.inst.VM = v
@@ -204,6 +215,3 @@ func NewVM() *vm {
 
 	return v
 }
-
-
-
