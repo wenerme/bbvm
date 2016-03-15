@@ -17,16 +17,16 @@ cal word add [r0], [10]
 in 10, r0
 out [0],BALABALA
 
-:LAB
+LAB :
 
 JPC A XY
 JPC NZ YH
 
-: LAC ; This the comment on label
+LAC: ; This the comment on label
 
 .BLOCK 10 20
 
-:INT
+INT:
 
 LD INT r1,INT
 CAL INT ADD [ADD],r0

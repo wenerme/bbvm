@@ -19,7 +19,7 @@ Line <- ( Comment
         / Pseudo ){p.PopAssembly()} (Comment {p.PopAssembly();p.AddComment()})?
 
 Comment <- SEMICOLON <(!NL .)*> {p.Push(&asm.Comment{});p.Push(text)}
-Label <- COLON <Identifier> {p.Push(&asm.Label{});p.Push(text)}
+Label <- <Identifier> {p.Push(&asm.Label{});p.Push(text)} Spacing COLON
 
 Inst <-  EXIT
 		/ RET
@@ -97,7 +97,7 @@ LBRK            <-  '['        Spacing
 RBRK            <-  ']'        Spacing
 #RPAR            <-  ')'        Spacing
 COMMA           <-  ','        Spacing
-SEMICOLON <- ";"
+SEMICOLON <- ";" Spacing
 COLON <- ':' Spacing
 NL              <-  '\n'
 EOT             <-  !.
