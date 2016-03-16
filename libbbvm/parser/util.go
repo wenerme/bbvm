@@ -1,8 +1,16 @@
 package parser
 
-import "strconv"
+import (
+	"github.com/juju/errors"
+	"strconv"
+	"strings"
+)
 
-func parseInt(val string) (ret int32, e error) {
+func trim(s string) string {
+	return strings.Trim(s, " \t\r")
+}
+func parseInt(s string) (ret int32, e error) {
+	val := trim(s)
 	var i int64
 	if len(val) > 2 && val[0] == '0' {
 		switch val[0:2] {
@@ -15,6 +23,10 @@ func parseInt(val string) (ret int32, e error) {
 		}
 	} else {
 		i, e = strconv.ParseInt(val, 10, 32)
+	}
+
+	if e != nil {
+		e = errors.Trace(e)
 	}
 
 	ret = int32(i)

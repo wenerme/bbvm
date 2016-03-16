@@ -31,7 +31,7 @@ Inst <-  EXIT
         / CMP <DATA_TYPE>{p.Push(lookup(asm.T_INT,text))} Operand COMMA Operand
         / JPC <CMP_OP>{p.Push(lookup(asm.CMP_A,text))}  Operand
 
-Pseudo <- BLOCK <IntegerLiteral>{p.Push(text)} Space <IntegerLiteral>{p.Push(text)}
+Pseudo <- BLOCK <IntegerLiteral>{p.Push(trim(text))} <IntegerLiteral>{p.Push(trim(text))}
 
 Operand <- (<Identifier> 				{p.Push(CreateOperand(text,false,true))}
         / LBRK <Identifier> RBRK 		{p.Push(CreateOperand(text,false,false))}
@@ -121,7 +121,7 @@ IntegerLiteral
 	/ BinaryNumeral
 	/ OctalNumeral            # May be a prefix of HexNumeral or BinaryNumeral
 	/ DecimalNumeral          # May be a prefix of OctalNumeral
-	)
+	) Spacing
 
 DecimalNumeral <- '0' / [1-9] ([_]* [0-9])*
 

@@ -622,9 +622,9 @@ func (p *BBAsm) Execute() {
 		case ruleAction9:
 			p.Push(lookup(asm.CMP_A, text))
 		case ruleAction10:
-			p.Push(text)
+			p.Push(trim(text))
 		case ruleAction11:
-			p.Push(text)
+			p.Push(trim(text))
 		case ruleAction12:
 			p.Push(CreateOperand(text, false, true))
 		case ruleAction13:
@@ -892,9 +892,6 @@ func (p *BBAsm) Init() {
 											}
 											{
 												add(ruleAction10, position)
-											}
-											if !_rules[ruleSpace]() {
-												goto l4
 											}
 											{
 												position29 := position
@@ -2370,7 +2367,7 @@ func (p *BBAsm) Init() {
 		nil,
 		/* 4 Inst <- <(((PUSH / ((&('J' | 'j') JMP) | (&('P' | 'p') POP) | (&('C' | 'c') CALL))) Operand) / (CAL <DATA_TYPE> Action5 <CAL_OP> Action6 Operand COMMA Operand) / ((&('J' | 'j') (JPC <CMP_OP> Action9 Operand)) | (&('C' | 'c') (CMP <DATA_TYPE> Action8 Operand COMMA Operand)) | (&('L' | 'l') (LD <DATA_TYPE> Action7 Operand COMMA Operand)) | (&('N' | 'n') NOP) | (&('R' | 'r') RET) | (&('E' | 'e') EXIT) | (&('I' | 'O' | 'i' | 'o') ((IN / OUT) Operand COMMA Operand))))> */
 		nil,
-		/* 5 Pseudo <- <(BLOCK <IntegerLiteral> Action10 Space <IntegerLiteral> Action11)> */
+		/* 5 Pseudo <- <(BLOCK <IntegerLiteral> Action10 <IntegerLiteral> Action11)> */
 		nil,
 		/* 6 Operand <- <(((LBRK <Identifier> RBRK Action13) / (<IntegerLiteral> Action14) / ((&('"' | '\'' | '-' | '.' | '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9') Literal) | (&('[') (LBRK <IntegerLiteral> RBRK Action15)) | (&('$' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z' | '_' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z') (<Identifier> Action12)))) Spacing)> */
 		func() bool {
@@ -3713,7 +3710,7 @@ func (p *BBAsm) Init() {
 		nil,
 		/* 37 Literal <- <((FloatLiteral / ((&('"') StringLiteral) | (&('\'') CharLiteral) | (&('-' | '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9') IntegerLiteral))) Spacing)> */
 		nil,
-		/* 38 IntegerLiteral <- <(MINUS? (HexNumeral / BinaryNumeral / OctalNumeral / DecimalNumeral))> */
+		/* 38 IntegerLiteral <- <(MINUS? (HexNumeral / BinaryNumeral / OctalNumeral / DecimalNumeral) Spacing)> */
 		func() bool {
 			position407, tokenIndex407, depth407 := position, tokenIndex, depth
 			{
@@ -3922,6 +3919,9 @@ func (p *BBAsm) Init() {
 					}
 				}
 			l412:
+				if !_rules[ruleSpacing]() {
+					goto l407
+				}
 				depth--
 				add(ruleIntegerLiteral, position408)
 			}
@@ -4332,9 +4332,9 @@ func (p *BBAsm) Init() {
 		nil,
 		/* 68 Action9 <- <{p.Push(lookup(asm.CMP_A,text))}> */
 		nil,
-		/* 69 Action10 <- <{p.Push(text)}> */
+		/* 69 Action10 <- <{p.Push(trim(text))}> */
 		nil,
-		/* 70 Action11 <- <{p.Push(text)}> */
+		/* 70 Action11 <- <{p.Push(trim(text))}> */
 		nil,
 		/* 71 Action12 <- <{p.Push(CreateOperand(text,false,true))}> */
 		nil,

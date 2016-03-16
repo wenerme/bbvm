@@ -67,6 +67,8 @@ func TestLK(t *testing.T) {
 }
 
 func TestParseCase(t *testing.T) {
+	log.SetFlags(log.Ltime | log.Llongfile)
+	log.SetOutput(os.Stderr)
 	assert := assert.New(t)
 	parseWholeDir("../testdata/case", assert)
 }

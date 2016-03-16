@@ -12,7 +12,8 @@ jmp b
 call 1
 
 cal dword mul r0, 10
-cal word add [r0], [10]
+cal word add [r0], [ r1 ] ; Test spacing
+cal word add 11 , [ 12 ]
 
 in 10, r0
 out [0],BALABALA
@@ -31,5 +32,5 @@ INT:
 LD INT r1,INT
 CAL INT ADD [ADD],r0
 
-.BLOCK 10 -20
+.BLOCK 10 -20 ; 	Comment on block
 lD byte r1, -10001

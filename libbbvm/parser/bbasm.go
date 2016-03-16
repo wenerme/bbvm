@@ -72,12 +72,16 @@ func (p *parser) PopAssembly() asm.Assembly {
 }
 
 func (p *parser) AddComment() {
-	if m, ok := p.assemblies[len(p.assemblies)-2].(interface {
+	a := p.assemblies[len(p.assemblies)-2]
+	c := p.assemblies[len(p.assemblies)-1]
+	// Pop Comment out
+	p.assemblies = p.assemblies[:len(p.assemblies)-1]
+	if m, ok := a.(interface {
 		SetComment(string)
 	}); ok {
-		m.SetComment(p.assemblies[len(p.assemblies)-1].(*asm.Comment).Content)
+		m.SetComment(c.(*asm.Comment).Content)
 	} else {
-		panic(errors.New("Can not add comment for last assembly"))
+		panic(errors.Errorf("Can not add comment try add %#v to %#v", c, a))
 	}
 }
 func CreateOperand(val string, num bool, direct bool) *asm.Operand {

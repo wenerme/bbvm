@@ -2,6 +2,7 @@ package parser
 
 import (
 	"github.com/juju/errors"
+	"github.com/ngaut/log"
 	"github.com/wenerme/bbvm/libbbvm/asm"
 	"strconv"
 	"strings"
@@ -69,7 +70,10 @@ func buildPseudoBlock(a *asm.PseudoBlock, v ...interface{}) error {
 	}
 
 	a.Size = int(i)
-	i64, e := strconv.ParseInt(v[1].(string), 10, 8)
+	i64, e := strconv.ParseInt(v[1].(string), 10, 32)
+	if int32(i64%0xff) != int32(i64) {
+		log.Warnf("Convert %v to byte", i64)
+	}
 	if e != nil {
 		return e
 	}

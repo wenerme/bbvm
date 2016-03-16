@@ -25,7 +25,7 @@ func commentString(Comment string) string {
 	if Comment == "" {
 		return ""
 	}
-	return "; " + Comment
+	return " ; " + Comment
 }
 
 type Inst struct {
@@ -86,7 +86,7 @@ func (a *Label) Len() int {
 	return 0
 }
 func (a *Label) Assembly() string {
-	return fmt.Sprintf(":%s %s", a.Name, commentString(a.Comment))
+	return fmt.Sprintf(":%s%s", a.Name, commentString(a.Comment))
 }
 
 type PseudoData struct {
@@ -104,7 +104,7 @@ func (a *PseudoBlock) Len() int {
 	return a.Size
 }
 func (a PseudoBlock) Assembly() string {
-	return fmt.Sprintf(".BLOCK %v %v %v", a.Size, a.Byte, commentString(a.Comment))
+	return fmt.Sprintf(".BLOCK %v %v%s", a.Size, a.Byte, commentString(a.Comment))
 }
 func (a *PseudoBlock) MarshalBinary() (data []byte, err error) {
 	data = make([]byte, a.Size)

@@ -81,24 +81,30 @@ func (i *Inst) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
-func (i Inst) Assembly() string {
+func (i Inst) Assembly() (s string) {
+
 	switch i.Opcode.Len() {
 	case 1:
-		return fmt.Sprint(i.Opcode)
+		s = fmt.Sprint(i.Opcode)
 	case 5:
-		return fmt.Sprintf("%s %s", i.Opcode, i.A)
+		s = fmt.Sprintf("%s %s", i.Opcode, i.A)
 	case 10:
 		switch i.Opcode {
 		case OP_CAL:
-			return fmt.Sprintf("%s %s %s %s, %s", i.Opcode, i.DataType, i.CalculateType, i.A, i.B)
+			s = fmt.Sprintf("%s %s %s %s, %s", i.Opcode, i.DataType, i.CalculateType, i.A, i.B)
 		case OP_LD:
-			return fmt.Sprintf("%s %s %s, %s", i.Opcode, i.DataType, i.A, i.B)
+			s = fmt.Sprintf("%s %s %s, %s", i.Opcode, i.DataType, i.A, i.B)
 		case OP_CMP:
-			return fmt.Sprintf("%s %s %s, %s", i.Opcode, i.CompareType, i.A, i.B)
+			s = fmt.Sprintf("%s %s %s, %s", i.Opcode, i.CompareType, i.A, i.B)
 		}
-		return fmt.Sprintf("%s %s, %s", i.Opcode, i.A, i.B)
+		s = fmt.Sprintf("%s %s, %s", i.Opcode, i.A, i.B)
 	case 6:
-		return fmt.Sprintf("%s %s %s", i.Opcode, i.CompareType, i.A)
+		s = fmt.Sprintf("%s %s %s", i.Opcode, i.CompareType, i.A)
+	default:
+		panic(ErrWrongInst.New("Unknown opcode len"))
 	}
-	panic(ErrWrongInst.New("Unknown opcode len"))
+	if i.Comment != "" {
+		s += " ; " + i.Comment
+	}
+	return
 }
