@@ -166,7 +166,6 @@ func (a *PseudoData) GetComment() string {
 func (a *PseudoData) SetComment(v string) {
 	a.Comment = v
 }
-
 func (a *Comment) GetComment() string {
 	return a.Content
 }

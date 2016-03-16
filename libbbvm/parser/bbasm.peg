@@ -2,8 +2,6 @@ package parser
 
 import "github.com/wenerme/bbvm/libbbvm/asm"
 
-# TODO Negative integer
-# TODO Pseudo data instruction
 type BBAsm Peg {
 	parser
 }
@@ -11,18 +9,22 @@ type BBAsm Peg {
 #-------------------------------------------------------------------------
 # Instructions
 #-------------------------------------------------------------------------
-Start <- ( Spacing Line? NL{p.line++} )* EOT
+Start <- ( Spacing Assembly? NL{p.line++} )* EOT
 	Literal? # Unused
 
-Line <- ( Comment
-        / Label
+Assembly
+	<- (  Comment
+		/ Label
         / Inst
         / Pseudo ){p.AddAssembly()} (Comment {p.AddAssembly();p.AddComment()})?
 
-Comment <- SEMICOLON <(!NL .)*> {p.Push(&asm.Comment{});p.Push(text)}
-Label <- {p.Push(&asm.Label{})} Identifier Spacing COLON
+Comment
+	<- SEMICOLON <(!NL .)*> {p.Push(&asm.Comment{});p.Push(text)}
+Label
+	<- {p.Push(&asm.Label{})} Identifier Spacing COLON
 
-Inst <-  EXIT
+Inst
+	<-  EXIT
 		/ RET
 		/ NOP
         / ( CALL / PUSH / POP / JMP ) Operand
@@ -31,7 +33,6 @@ Inst <-  EXIT
         / LD	<DATA_TYPE>{p.Push(lookup(asm.T_INT,text))} Operand COMMA Operand
         / CMP	<DATA_TYPE>{p.Push(lookup(asm.T_INT,text))} Operand COMMA Operand
         / JPC	<CMP_OP>{p.Push(lookup(asm.CMP_A,text))}  Operand
-
 Pseudo <- BLOCK IntegerLiteral IntegerLiteral
 		/ DATA Identifier PSEUDO_DATA_TYPE? PseudoDataValue ( COMMA PseudoDataValue )*
 
@@ -41,15 +42,15 @@ PseudoDataValue
 	/	StringLiteral	{p.AddPseudoDataValue()}
 	/	<'%' HexDigits '%'> Spacing {p.Push(text);p.AddPseudoDataValue()}
 
+# Compatible with old version
 PSEUDO_DATA_TYPE
-	<-	DATA_TYPE
-		/ ( "CHAR" / "BIN" ) Space
+	<- DATA_TYPE
+	 / ( "CHAR" / "BIN" ) Space
 
 Operand <- (Identifier 					{p.AddOperand(true)}
         / LBRK Identifier RBRK 			{p.AddOperand(false)}
         / IntegerLiteral 				{p.AddOperand(true)}
         / LBRK IntegerLiteral RBRK		{p.AddOperand(false)}
-        #/ FloatLiteral
         ) Spacing
 
 #=========================================================================
@@ -58,17 +59,15 @@ Operand <- (Identifier 					{p.AddOperand(true)}
 #-------------------------------------------------------------------------
 #  Spacing
 #-------------------------------------------------------------------------
-Spacing           <-  [ \t\r\f]*
+Spacing        	<-  [ \t\r\f]*
 Space           <-  [ \t\r\f]+
 
 #-------------------------------------------------------------------------
 #  Identifiers
 #-------------------------------------------------------------------------
-Identifier <- <Letter LetterOrDigit*> Spacing {p.Push(text)}
-
-Letter <- [a-z] / [A-Z] / [_$]
-
-LetterOrDigit <- [a-z] / [A-Z] / [0-9] / [_$]
+Identifier 		<- <Letter LetterOrDigit*> Spacing {p.Push(text)}
+Letter 			<- [a-z] / [A-Z] / [_$]
+LetterOrDigit 	<- [a-z] / [A-Z] / [0-9] / [_$]
 
 #-------------------------------------------------------------------------
 # Keyword
@@ -77,28 +76,22 @@ LetterOrDigit <- [a-z] / [A-Z] / [0-9] / [_$]
 EXIT 	<- "EXIT" 	Spacing	{p.PushInst(asm.OP_EXIT)}
 RET 	<- "RET" 	Spacing {p.PushInst(asm.OP_RET)}
 NOP 	<- "NOP" 	Spacing {p.PushInst(asm.OP_NOP)}
-
 CALL 	<- "CALL" 	Space 	{p.PushInst(asm.OP_CALL)}
 PUSH 	<- "PUSH" 	Space 	{p.PushInst(asm.OP_PUSH)}
 POP 	<- "POP" 	Space 	{p.PushInst(asm.OP_POP)}
 JMP 	<- "JMP" 	Space 	{p.PushInst(asm.OP_JMP)}
-
 IN 		<- "IN" 	Space 	{p.PushInst(asm.OP_IN)}
 OUT 	<- "OUT" 	Space 	{p.PushInst(asm.OP_OUT)}
-
 CAL 	<- "CAL" 	Space 	{p.PushInst(asm.OP_CAL)}
-
 LD 		<- "LD" 	Space 	{p.PushInst(asm.OP_LD)}
 CMP 	<- "CMP" 	Space 	{p.PushInst(asm.OP_CMP)}
-
 JPC 	<- "JPC" 	Space 	{p.PushInst(asm.OP_JPC)}
 
 BLOCK 	<- ".BLOCK" Space	{p.Push(&asm.PseudoBlock{})}
 DATA 	<- "DATA" 	Space	{p.Push(&asm.PseudoData{})}
 
-CAL_OP <- ( "ADD" / "SUB" / "MUL" / "DIV" / "MOD" ) Space
-CMP_OP <- ( "Z" / "BE" / "B" / "AE" / "A" / "NZ" ) Space
-
+CAL_OP 			<- 	( "ADD" / "SUB" / "MUL" / "DIV" / "MOD" ) 		Space
+CMP_OP 			<-	( "Z" / "BE" / "B" / "AE" / "A" / "NZ" ) 		Space
 DATA_TYPE       <-  ( "DWORD" / "WORD" / "BYTE" / "FLOAT" / "INT" ) Space
 
 #-------------------------------------------------------------------------
@@ -146,14 +139,13 @@ OctalNumeral   <- '0' ([_]* [0-7])+
 FloatLiteral   <- HexFloat / DecimalFloat
 
 DecimalFloat
-   <- Digits '.' Digits?  Exponent? [fFdD]?
-    / '.' Digits Exponent? [fFdD]?
-    / Digits Exponent [fFdD]?
-    / Digits Exponent? [fFdD]
+	<- Digits '.' Digits?  Exponent?
+	/ '.' Digits Exponent?
+	/ Digits Exponent?
 
 Exponent <- [eE] [+\-]? Digits
 
-HexFloat <- HexSignificand BinaryExponent [fFdD]?
+HexFloat <- HexSignificand BinaryExponent
 
 HexSignificand
    <- ('0x' / '0X') HexDigits? '.' HexDigits
