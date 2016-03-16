@@ -12,6 +12,7 @@ type BBAsm Peg {
 # Instructions
 #-------------------------------------------------------------------------
 Start <- ( Spacing Line? NL{p.line++} )* EOT
+	Literal? # Unused
 
 Line <- ( Comment
         / Label
@@ -26,10 +27,10 @@ Inst <-  EXIT
 		/ NOP
         / ( CALL / PUSH / POP / JMP ) Operand
         / ( IN / OUT ) Operand COMMA Operand
-        / CAL <DATA_TYPE>{p.Push(lookup(asm.T_INT,text))} <CAL_OP>{p.Push(lookup(asm.CAL_ADD,text))} Operand COMMA Operand
-        / LD <DATA_TYPE>{p.Push(lookup(asm.T_INT,text))} Operand COMMA Operand
-        / CMP <DATA_TYPE>{p.Push(lookup(asm.T_INT,text))} Operand COMMA Operand
-        / JPC <CMP_OP>{p.Push(lookup(asm.CMP_A,text))}  Operand
+        / CAL	<DATA_TYPE>{p.Push(lookup(asm.T_INT,text))} <CAL_OP>{p.Push(lookup(asm.CAL_ADD,text))} Operand COMMA Operand
+        / LD	<DATA_TYPE>{p.Push(lookup(asm.T_INT,text))} Operand COMMA Operand
+        / CMP	<DATA_TYPE>{p.Push(lookup(asm.T_INT,text))} Operand COMMA Operand
+        / JPC	<CMP_OP>{p.Push(lookup(asm.CMP_A,text))}  Operand
 
 Pseudo <- BLOCK IntegerLiteral IntegerLiteral
 		/ DATA Identifier DATA_TYPE? PseudoDataValue ( COMMA PseudoDataValue )*
@@ -45,7 +46,6 @@ Operand <- (Identifier 					{p.AddOperand(true)}
         / IntegerLiteral 				{p.AddOperand(true)}
         / LBRK IntegerLiteral RBRK		{p.AddOperand(false)}
         #/ FloatLiteral
-        / Literal
         ) Spacing
 
 #=========================================================================
@@ -89,11 +89,11 @@ CMP 	<- "CMP" 	Space 	{p.PushInst(asm.OP_CMP)}
 
 JPC 	<- "JPC" 	Space 	{p.PushInst(asm.OP_JPC)}
 
-BLOCK 	<- ".BLOCK" Space {p.Push(&asm.PseudoBlock{})}
-DATA 	<- "DATA" 	Space {p.Push(&asm.PseudoData{})}
+BLOCK 	<- ".BLOCK" Space	{p.Push(&asm.PseudoBlock{})}
+DATA 	<- "DATA" 	Space	{p.Push(&asm.PseudoData{})}
 
 CAL_OP <- ( "ADD" / "SUB" / "MUL" / "DIV" / "MOD" ) Space
-CMP_OP <- ( "Z" / "B" / "BE" / "A" / "AE" / "NZ" ) Space
+CMP_OP <- ( "Z" / "BE" / "B" / "AE" / "A" / "NZ" ) Space
 
 DATA_TYPE       <-  ( "DWORD" / "WORD" / "BYTE" / "FLOAT" / "INT" ) Space
 

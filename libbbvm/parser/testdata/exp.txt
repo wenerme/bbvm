@@ -38,3 +38,7 @@ lD byte r1, -10001
 DATA X INT 1001 ; Optional Date type
 DATA Y 1002, 1003
 DATA Z "Good c\"har",0
+
+jpc AE 10
+Jpc A [10]
+Jpc BE [ r1 ]
