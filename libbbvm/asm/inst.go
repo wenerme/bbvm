@@ -96,8 +96,9 @@ func (i Inst) Assembly() (s string) {
 			s = fmt.Sprintf("%s %s %s, %s", i.Opcode, i.DataType, i.A, i.B)
 		case OP_CMP:
 			s = fmt.Sprintf("%s %s %s, %s", i.Opcode, i.CompareType, i.A, i.B)
+		default:
+			s = fmt.Sprintf("%s %s, %s", i.Opcode, i.A, i.B)
 		}
-		s = fmt.Sprintf("%s %s, %s", i.Opcode, i.A, i.B)
 	case 6:
 		s = fmt.Sprintf("%s %s %s", i.Opcode, i.CompareType, i.A)
 	default:

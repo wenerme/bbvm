@@ -23,12 +23,15 @@ func (p *parser) Push(v interface{}) {
 	p.stack = append(p.stack, v)
 }
 func (p *parser) Pop() interface{} {
+	if len(p.stack) == 0 {
+		panic(errors.Errorf("Stack underflow"))
+	}
 	v := p.stack[len(p.stack)-1]
 	p.stack = p.stack[:len(p.stack)-1]
 	return v
 }
 
-func (p *parser) PopAssembly() asm.Assembly {
+func (p *parser) AddAssembly() asm.Assembly {
 	for i := len(p.stack) - 1; i >= 0; i-- {
 		v := p.stack[i]
 
@@ -37,20 +40,23 @@ func (p *parser) PopAssembly() asm.Assembly {
 			switch a.(type) {
 			case *asm.Inst:
 				a := a.(*asm.Inst)
-				a.Line = p.line
+				//a.Line = p.line
 				e = buildInst(a, p.stack[i+1:]...)
 			case *asm.Label:
 				a := a.(*asm.Label)
-				a.Line = p.line
+				//a.Line = p.line
 				e = buildLabel(a, p.stack[i+1:]...)
 			case *asm.Comment:
 				a := a.(*asm.Comment)
-				a.Line = p.line
+				//a.Line = p.line
 				e = buildComment(a, p.stack[i+1:]...)
 			case *asm.PseudoBlock:
 				a := a.(*asm.PseudoBlock)
-				a.Line = p.line
+				//a.Line = p.line
 				e = buildPseudoBlock(a, p.stack[i+1:]...)
+			case *asm.PseudoData:
+				a := a.(*asm.PseudoData)
+				e = buildPseudoData(a, p.stack[i+1:]...)
 			}
 			//e := build(a, p.stack[i + 1:]...)
 			if e != nil {
@@ -84,48 +90,34 @@ func (p *parser) AddComment() {
 		panic(errors.Errorf("Can not add comment try add %#v to %#v", c, a))
 	}
 }
-func CreateOperand(val string, num bool, direct bool) *asm.Operand {
+func (p *parser) PushInst(op asm.Opcode) {
+	p.Push(&asm.Inst{Opcode: op})
+}
+
+func (p *parser) AddOperand(direct bool) {
+	v := p.Pop()
 	op := &asm.Operand{}
 	var am asm.AddressMode = math.MaxUint8
 
-	if num {
-		i, e := parseInt(val)
-		if e != nil {
-			panic(e)
-		}
-		op.Val = i
-	} else {
-		var r asm.RegisterType = math.MaxUint8
-		switch strings.ToUpper(val) {
-		case "RP":
-			r = asm.REG_RP
-		case "RF":
-			r = asm.REG_RF
-		case "RS":
-			r = asm.REG_RS
-		case "RB":
-			r = asm.REG_RB
-		case "R0":
-			r = asm.REG_R0
-		case "R1":
-			r = asm.REG_R1
-		case "R2":
-			r = asm.REG_R2
-		case "R3":
-			r = asm.REG_R3
-		default:
-			// Symbol
-			op.Symbol = val
-		}
-		if r != math.MaxUint8 {
-			op.Val = int32(r)
+	switch v.(type) {
+	case string:
+		r := asm.Lookup(asm.REG_R0, v.(string))
+		if r != nil {
+			op.Val = int32(r.(asm.RegisterType))
 			if direct {
 				am = asm.AM_REGISTER
 			} else {
 				am = asm.AM_REGISTER_DEFERRED
 			}
+		} else {
+			op.Symbol = v.(string)
 		}
+	case int:
+		op.Val = int32(v.(int))
+	default:
+		panic(errors.Errorf("Can not add operand with %#v", v))
 	}
+
 	if am == math.MaxUint8 {
 		if direct {
 			am = asm.AM_IMMEDIATE
@@ -134,10 +126,25 @@ func CreateOperand(val string, num bool, direct bool) *asm.Operand {
 		}
 	}
 	op.AddressMode = am
-	return op
+	p.Push(op)
 }
-func (p *parser) PushInst(op asm.Opcode) {
-	p.Push(&asm.Inst{Opcode: op})
+
+func (p *parser) AddPseudoDataValue() {
+	v := p.Pop()
+	v, e := createPseudoDataValue(v)
+	if e != nil {
+		panic(errors.Trace(e))
+	}
+	p.Push(v)
+}
+
+func (p *parser) AddInteger() {
+	v := p.Pop()
+	i, e := parseInt(v.(string))
+	if e != nil {
+		panic(errors.Trace(e))
+	}
+	p.Push(int(i))
 }
 
 func lookup(t interface{}, v string) interface{} {

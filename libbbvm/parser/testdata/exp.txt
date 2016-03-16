@@ -34,3 +34,7 @@ CAL INT ADD [ADD],r0
 
 .BLOCK 10 -20 ; 	Comment on block
 lD byte r1, -10001
+
+DATA X INT 1001 ; Optional Date type
+DATA Y 1002, 1003
+DATA Z "Good c\"har",0

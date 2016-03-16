@@ -3,6 +3,7 @@ package asm
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 var lookTable = make(map[reflect.Type]map[string]interface{})
@@ -39,6 +40,9 @@ func putLookTable(v interface{}) {
 	m[v.(fmt.Stringer).String()] = v
 }
 
+// Lookup type t by string v, will upper case v.
+//
+// Return nil if not found
 func Lookup(t interface{}, v string) (ret interface{}) {
 	var lookType reflect.Type
 	if ty, ok := t.(reflect.Type); ok {
@@ -48,7 +52,7 @@ func Lookup(t interface{}, v string) (ret interface{}) {
 	}
 	m := lookTable[lookType]
 	if m != nil {
-		ret = m[v]
+		ret = m[strings.ToUpper(v)]
 	}
 	return
 }

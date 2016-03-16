@@ -16,10 +16,10 @@ Start <- ( Spacing Line? NL{p.line++} )* EOT
 Line <- ( Comment
         / Label
         / Inst
-        / Pseudo ){p.PopAssembly()} (Comment {p.PopAssembly();p.AddComment()})?
+        / Pseudo ){p.AddAssembly()} (Comment {p.AddAssembly();p.AddComment()})?
 
 Comment <- SEMICOLON <(!NL .)*> {p.Push(&asm.Comment{});p.Push(text)}
-Label <- <Identifier> {p.Push(&asm.Label{});p.Push(text)} Spacing COLON
+Label <- {p.Push(&asm.Label{})} Identifier Spacing COLON
 
 Inst <-  EXIT
 		/ RET
@@ -31,12 +31,19 @@ Inst <-  EXIT
         / CMP <DATA_TYPE>{p.Push(lookup(asm.T_INT,text))} Operand COMMA Operand
         / JPC <CMP_OP>{p.Push(lookup(asm.CMP_A,text))}  Operand
 
-Pseudo <- BLOCK <IntegerLiteral>{p.Push(trim(text))} <IntegerLiteral>{p.Push(trim(text))}
+Pseudo <- BLOCK IntegerLiteral IntegerLiteral
+		/ DATA Identifier DATA_TYPE? PseudoDataValue ( COMMA PseudoDataValue )*
 
-Operand <- (<Identifier> 				{p.Push(CreateOperand(text,false,true))}
-        / LBRK <Identifier> RBRK 		{p.Push(CreateOperand(text,false,false))}
-        / <IntegerLiteral> 				{p.Push(CreateOperand(text,true,true))}
-        / LBRK <IntegerLiteral> RBRK 	{p.Push(CreateOperand(text,true,false))}
+PseudoDataValue
+	<-	IntegerLiteral	{p.AddPseudoDataValue()}
+	/	Identifier		{p.AddPseudoDataValue()}
+	/	StringLiteral	{p.AddPseudoDataValue()}
+
+
+Operand <- (Identifier 					{p.AddOperand(true)}
+        / LBRK Identifier RBRK 			{p.AddOperand(false)}
+        / IntegerLiteral 				{p.AddOperand(true)}
+        / LBRK IntegerLiteral RBRK		{p.AddOperand(false)}
         #/ FloatLiteral
         / Literal
         ) Spacing
@@ -53,7 +60,7 @@ Space           <-  [ \t\r\f]+
 #-------------------------------------------------------------------------
 #  Identifiers
 #-------------------------------------------------------------------------
-Identifier <- Letter LetterOrDigit* Spacing
+Identifier <- <Letter LetterOrDigit*> Spacing {p.Push(text)}
 
 Letter <- [a-z] / [A-Z] / [_$]
 
@@ -82,7 +89,8 @@ CMP 	<- "CMP" 	Space 	{p.PushInst(asm.OP_CMP)}
 
 JPC 	<- "JPC" 	Space 	{p.PushInst(asm.OP_JPC)}
 
-BLOCK 	<- ".BLOCK" 	Space {p.Push(&asm.PseudoBlock{})}
+BLOCK 	<- ".BLOCK" Space {p.Push(&asm.PseudoBlock{})}
+DATA 	<- "DATA" 	Space {p.Push(&asm.PseudoData{})}
 
 CAL_OP <- ( "ADD" / "SUB" / "MUL" / "DIV" / "MOD" ) Space
 CMP_OP <- ( "Z" / "B" / "BE" / "A" / "AE" / "NZ" ) Space
@@ -116,12 +124,12 @@ Literal
       ) Spacing
 
 IntegerLiteral
-   <- MINUS?
+   <- <MINUS?
 	( HexNumeral
 	/ BinaryNumeral
 	/ OctalNumeral            # May be a prefix of HexNumeral or BinaryNumeral
 	/ DecimalNumeral          # May be a prefix of OctalNumeral
-	) Spacing
+	)> Spacing{p.Push(text);p.AddInteger()}
 
 DecimalNumeral <- '0' / [1-9] ([_]* [0-9])*
 
@@ -157,7 +165,7 @@ HexDigit <- [a-f] / [A-F] / [0-9]
 
 CharLiteral <- ['] (Escape / !['\\] .) [']
 
-StringLiteral <- '\"' (Escape / !["\\\n\r] .)* '\"'
+StringLiteral <- <'\"' (Escape / !["\\\n\r] .)* '\"'> {p.Push(text)}
 
 Escape <- '\\' ([btnfr"'\\] / OctalEscape / UnicodeEscape)
 
