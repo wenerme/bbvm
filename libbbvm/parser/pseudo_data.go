@@ -2,6 +2,7 @@ package parser
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"github.com/juju/errors"
 	"github.com/wenerme/bbvm/libbbvm/asm"
@@ -35,14 +36,36 @@ func (v pseudoDataStr) Assembly() string {
 	return fmt.Sprintf(`"%s"`, string(v))
 }
 
+type pseudoDataBytes []byte
+
+func (v pseudoDataBytes) MarshalBinary() (data []byte, err error) {
+	data = []byte(v)
+	return
+}
+func (v pseudoDataBytes) Len() int {
+	return len(v)
+}
+func (v pseudoDataBytes) Assembly() string {
+	return fmt.Sprintf(`%%%s%%`, hex.EncodeToString(v))
+}
+
 func createPseudoDataValue(v interface{}) (d asm.PseudoDataValue, e error) {
 	switch v.(type) {
 	case int:
 		d = pseudoDataInt(v.(int))
 	case string:
 		b := []byte(v.(string))
-		if b[0] == '"' {
+		switch b[0] {
+		case '"':
 			d = pseudoDataStr([]byte(b[1 : len(b)-1]))
+		case '%':
+			b, e := hex.DecodeString(string(b[1 : len(b)-1]))
+			if e != nil {
+				return nil, e
+			}
+			d = pseudoDataBytes(b)
+		default:
+			e = errors.Errorf("Currently can not create pseudo data value by %#v", v)
 		}
 	// TODO Symbol reference
 	default:

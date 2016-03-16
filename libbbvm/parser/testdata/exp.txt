@@ -42,3 +42,5 @@ DATA Z "Good c\"har",0
 jpc AE 10
 Jpc A [10]
 Jpc BE [ r1 ]
+
+DATA LAB CHAR %00ABcdEf% ; Support hex data format

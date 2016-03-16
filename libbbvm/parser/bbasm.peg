@@ -33,13 +33,17 @@ Inst <-  EXIT
         / JPC	<CMP_OP>{p.Push(lookup(asm.CMP_A,text))}  Operand
 
 Pseudo <- BLOCK IntegerLiteral IntegerLiteral
-		/ DATA Identifier DATA_TYPE? PseudoDataValue ( COMMA PseudoDataValue )*
+		/ DATA Identifier PSEUDO_DATA_TYPE? PseudoDataValue ( COMMA PseudoDataValue )*
 
 PseudoDataValue
 	<-	IntegerLiteral	{p.AddPseudoDataValue()}
 	/	Identifier		{p.AddPseudoDataValue()}
 	/	StringLiteral	{p.AddPseudoDataValue()}
+	/	<'%' HexDigits '%'> Spacing {p.Push(text);p.AddPseudoDataValue()}
 
+PSEUDO_DATA_TYPE
+	<-	DATA_TYPE
+		/ ( "CHAR" / "BIN" ) Space
 
 Operand <- (Identifier 					{p.AddOperand(true)}
         / LBRK Identifier RBRK 			{p.AddOperand(false)}
