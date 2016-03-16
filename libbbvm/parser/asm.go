@@ -3,6 +3,7 @@ package parser
 import (
 	"github.com/juju/errors"
 	"github.com/wenerme/bbvm/libbbvm/asm"
+	"strconv"
 	"strings"
 )
 
@@ -60,7 +61,7 @@ func buildLabel(a *asm.Label, v ...interface{}) error {
 
 func buildPseudoBlock(a *asm.PseudoBlock, v ...interface{}) error {
 	if len(v) != 2 {
-		panic(errors.Errorf(".BLOCK size byte got %v", v))
+		return errors.Errorf(".BLOCK size byte got %v", v)
 	}
 	i, e := parseInt(v[0].(string))
 	if e != nil {
@@ -68,9 +69,10 @@ func buildPseudoBlock(a *asm.PseudoBlock, v ...interface{}) error {
 	}
 
 	a.Size = int(i)
-	i, e = parseInt(v[1].(string))
-	if e != nil && i&0xff == i {
-		a.Byte = byte(i)
+	i64, e := strconv.ParseInt(v[1].(string), 10, 8)
+	if e != nil {
+		return e
 	}
+	a.Byte = byte(i64)
 	return nil
 }

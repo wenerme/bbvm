@@ -5,7 +5,6 @@ import (
 	"github.com/juju/errors"
 	"github.com/wenerme/bbvm/libbbvm/asm"
 	"math"
-	"strconv"
 	"strings"
 )
 
@@ -86,25 +85,11 @@ func CreateOperand(val string, num bool, direct bool) *asm.Operand {
 	var am asm.AddressMode = math.MaxUint8
 
 	if num {
-		var i int64
-		var e error
-		if len(val) > 2 && val[0] == '0' {
-			switch val[0:2] {
-			case "0x", "0X":
-				i, e = strconv.ParseInt(val[2:], 16, 32)
-			case "0b", "0B":
-				i, e = strconv.ParseInt(val[2:], 2, 32)
-			default:
-				i, e = strconv.ParseInt(val[1:], 8, 32)
-			}
-		} else {
-			i, e = strconv.ParseInt(val, 10, 32)
-		}
-
+		i, e := parseInt(val)
 		if e != nil {
 			panic(e)
 		}
-		op.Val = uint32(i)
+		op.Val = i
 	} else {
 		var r asm.RegisterType = math.MaxUint8
 		switch strings.ToUpper(val) {
@@ -129,7 +114,7 @@ func CreateOperand(val string, num bool, direct bool) *asm.Operand {
 			op.Symbol = val
 		}
 		if r != math.MaxUint8 {
-			op.Val = uint32(r)
+			op.Val = int32(r)
 			if direct {
 				am = asm.AM_REGISTER
 			} else {

@@ -92,16 +92,17 @@ DATA_TYPE       <-  ( "DWORD" / "WORD" / "BYTE" / "FLOAT" / "INT" ) Space
 #-------------------------------------------------------------------------
 # Separators, Operators
 #-------------------------------------------------------------------------
-LBRK            <-  '['        Spacing
-#LPAR            <-  '('        Spacing
-RBRK            <-  ']'        Spacing
-#RPAR            <-  ')'        Spacing
-COMMA           <-  ','        Spacing
-SEMICOLON <- ";" Spacing
-COLON <- ':' Spacing
+LBRK            <-  '['        	Spacing
+#LPAR           <-  '('        	Spacing
+RBRK            <-  ']'        	Spacing
+#RPAR           <-  ')'        	Spacing
+COMMA           <-  ','        	Spacing
+SEMICOLON		<- 	";" 		Spacing
+COLON			<- 	':'			Spacing
+MINUS			<-	'-' 		Spacing
+
 NL              <-  '\n'
 EOT             <-  !.
-
 
 #-------------------------------------------------------------------------
 # Literals
@@ -115,10 +116,12 @@ Literal
       ) Spacing
 
 IntegerLiteral
-   <- HexNumeral
-      / BinaryNumeral
-      / OctalNumeral            # May be a prefix of HexNumeral or BinaryNumeral
-      / DecimalNumeral          # May be a prefix of OctalNumeral
+   <- MINUS?
+	( HexNumeral
+	/ BinaryNumeral
+	/ OctalNumeral            # May be a prefix of HexNumeral or BinaryNumeral
+	/ DecimalNumeral          # May be a prefix of OctalNumeral
+	)
 
 DecimalNumeral <- '0' / [1-9] ([_]* [0-9])*
 

@@ -30,3 +30,6 @@ INT:
 
 LD INT r1,INT
 CAL INT ADD [ADD],r0
+
+.BLOCK 10 -20
+lD byte r1, -10001

@@ -10,7 +10,7 @@ var ErrWrongInst = errors.NewClass("ErrWrongInst")
 
 type Operand struct {
 	// Address or Immediate value
-	Val         uint32
+	Val         int32
 	AddressMode AddressMode
 	// Symbol associated to this operand
 	Symbol string

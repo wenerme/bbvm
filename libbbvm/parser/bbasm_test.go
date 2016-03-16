@@ -10,15 +10,18 @@ import (
 	"log"
 	"os"
 	"path"
-	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 )
 
 func TestTypeMatch(t *testing.T) {
-	v := reflect.ValueOf(buildInst)
-	spew.Dump(v, v.Kind() == reflect.Func)
-	spew.Dump(reflect.TypeOf(buildInst))
+	assert := assert.New(t)
+
+	i, e := strconv.ParseInt("-10", 10, 32)
+	assert.NoError(e)
+	fmt.Println(i, int32(i))
+
 }
 
 func TestBBAsm(t *testing.T) {
