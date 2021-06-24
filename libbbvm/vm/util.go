@@ -1,11 +1,11 @@
 package vm
-import (
-	"golang.org/x/image/bmp"
-	"os"
-	"image"
-	"github.com/op/go-logging"
-)
 
+import (
+	"github.com/op/go-logging"
+	"golang.org/x/image/bmp"
+	"image"
+	"os"
+)
 
 var log = logging.MustGetLogger("vm")
 
@@ -21,7 +21,11 @@ func init() {
 
 func saveImage(i image.Image, fn string) {
 	p, err := os.Create(fn)
-	if err != nil {panic(err)}
+	if err != nil {
+		panic(err)
+	}
 	err = bmp.Encode(p, i)
-	if err != nil {panic(err)}
+	if err != nil {
+		panic(err)
+	}
 }

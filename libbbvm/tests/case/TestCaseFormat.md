@@ -1,8 +1,7 @@
 Contrast
 --------
 
-每个 basm 对应一个 bin
-其中 basm 在注释中表示了所需的输入和需要的输出,
+每个 basm 对应一个 bin 其中 basm 在注释中表示了所需的输入和需要的输出,
 
 ```
 ;<Input with \n

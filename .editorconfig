@@ -1,6 +1,3 @@
-# This file is for unifying the coding style for different editors and IDEs
-# editorconfig.org
-
 root = true
 
 [*]
@@ -21,3 +18,16 @@ indent_size = 4
 [**.gradle]
 indent_style = space
 indent_size = 4
+
+[**.g4]
+indent_style = space
+indent_size = 4
+
+
+[**.go]
+indent_style = tab
+indent_size = 2
+
+[**.md]
+indent_style = space
+indent_size = 2

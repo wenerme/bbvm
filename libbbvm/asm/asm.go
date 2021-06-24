@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding"
 	"fmt"
+	"github.com/wenerme/bbvm/libbbvm/vm"
 )
 
 type Assembly interface {
@@ -42,6 +43,7 @@ type Inst struct {
 
 	Line    int
 	Comment string
+	VM      vm.VM
 }
 
 func (a *Inst) Len() int {

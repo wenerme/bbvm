@@ -1,25 +1,28 @@
 package image
+
 import (
-	"testing"
-	"io/ioutil"
 	"bytes"
-	"os"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/image/bmp"
 	"image"
 	"image/draw"
+	"io/ioutil"
+	"os"
+	"testing"
 )
-
-
 
 func TestReadLibConfig(t *testing.T) {
 	b, err := ioutil.ReadFile("../tests/9688-wener.lib")
 	//	b, err := ioutil.ReadFile("../tests/case/9288-wener.lib")
-	if err != nil {panic(err)}
+	if err != nil {
+		panic(err)
+	}
 	r := bytes.NewReader(b)
 	configs, err := DecodeConfig(r)
 	_ = configs
-	if err != nil {panic(err)}
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TestDetectImageFormat(t *testing.T) {
@@ -28,24 +31,31 @@ func TestDetectImageFormat(t *testing.T) {
 		"../tests/9688-wener.lib": libRGB565Format,
 		"../tests/9188-wener.lib": libGray2BEFormat,
 		"../tests/9288-wener.lib": libGray2LEFormat,
-		"../tests/wener.rlb": rlbFormat,
+		"../tests/wener.rlb":      rlbFormat,
 	}
-
 
 	for fn, fe := range tests {
 		fp, err := os.Open(fn)
-		if err != nil {panic(err)}
+		if err != nil {
+			panic(err)
+		}
 		f, err := detectImageFormat(fp)
-		if err != nil {panic(err)}
+		if err != nil {
+			panic(err)
+		}
 		assert.EqualValues(fe, f)
 	}
 }
 
 func saveTemp(i image.Image) {
 	p, err := os.Create("temp.bmp")
-	if err != nil {panic(err)}
+	if err != nil {
+		panic(err)
+	}
 	err = bmp.Encode(p, i)
-	if err != nil {panic(err)}
+	if err != nil {
+		panic(err)
+	}
 }
 
 func imageConvert(src image.Image, dest draw.Image) draw.Image {

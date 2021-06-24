@@ -1,10 +1,10 @@
 package color
+
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
 	"image/color"
+	"testing"
 )
-
 
 func TestColor(t *testing.T) {
 	assert := assert.New(t)
@@ -15,5 +15,5 @@ func TestColor(t *testing.T) {
 
 	cb := BGR565{46584}
 	r, g, b, a := color.RGBAModel.Convert(cb).RGBA()
-	assert.EqualValues([]uint32{192, 188, 176, 255}, []uint32{r>>8, g>>8, b>>8, a>>8})
+	assert.EqualValues([]uint32{192, 188, 176, 255}, []uint32{r >> 8, g >> 8, b >> 8, a >> 8})
 }

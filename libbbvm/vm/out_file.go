@@ -1,8 +1,11 @@
 package vm
-import "os"
 
+import (
+	"github.com/wenerme/bbvm/libbbvm/asm"
+	"os"
+)
 
-func (out)File(v VM) {
+func (out) File(v VM) {
 	v.Attr()["file-pool"] = newFilePool()
 	v.SetOut(48, HANDLE_ALL, outFileFunc)
 	v.SetOut(49, HANDLE_ALL, outFileFunc)
@@ -34,11 +37,11 @@ func (out)File(v VM) {
 //55 | 定位文件位置指针 | 0 | r2:文件号<br>r3:目标位置 |
 
 // 负责文件打开关闭
-func outFileFunc(i *Inst) {
+func outFileFunc(i *asm.Inst) {
 	v, p, o := i.VM, i.A.Get(), i.B // port and param
 	r0, r1, r2, r3 := &v.r0, &v.r1, &v.r2, &v.r3
 	fp := v.attr["file-pool"].(ResPool)
-	switch p{
+	switch p {
 	case 48:
 		mode, fd, fn := r0.Get(), r1.Get(), r3.Str()
 		log.Debug("Open file '%s' as #%d mode %d", fn, fd, mode)
@@ -59,10 +62,10 @@ func outFileFunc(i *Inst) {
 		}
 		res.Set(nil)
 
-		f, err := os.OpenFile(fn, os.O_RDWR | os.O_CREATE, os.ModePerm)
+		f, err := os.OpenFile(fn, os.O_RDWR|os.O_CREATE, os.ModePerm)
 		if err != nil {
 			log.Error("Open file '%s' faied: %s", fn, err.Error())
-		}else {
+		} else {
 			res.Set(f)
 		}
 	case 49:
@@ -77,64 +80,82 @@ func outFileFunc(i *Inst) {
 		f := res.Get().(*os.File)
 		if f == nil {
 			log.Warning("No open file for %d", fd)
-		}else {
+		} else {
 			err := f.Close()
 			if err != nil {
 				log.Error("Close file '%s' as #%d with error:%s", f.Name(), fd, err)
 			}
 		}
-	case 50:// READ
+	case 50: // READ
 		var err error
 		fd := r1.Get()
 		f := getFile(fd, fp)
-		if f == nil {break}
+		if f == nil {
+			break
+		}
 		// TODO 是否可以直接使用 ReadAt 来避免 SEEK
 		pos := r2.Get()
 		_, err = f.Seek(int64(pos), os.SEEK_SET)
-		if err != nil {goto READ_FAILED}
-		switch o.Get(){
-		case 16, 17:// float 和 int 操作相同
+		if err != nil {
+			goto READ_FAILED
+		}
+		switch o.Get() {
+		case 16, 17: // float 和 int 操作相同
 			b := make([]byte, 4)
 			_, err = f.Read(b)
-			if err != nil {goto READ_FAILED}
+			if err != nil {
+				goto READ_FAILED
+			}
 			r3.Set(int(int32(Codec.Uint32(b))))
 		case 18:
 			b := make([]byte, 1)
 			str := make([]byte, 0)
 			for {
 				_, err = f.Read(b)
-				if err != nil {goto READ_FAILED}
-				if b[0] == 0 {break}
+				if err != nil {
+					goto READ_FAILED
+				}
+				if b[0] == 0 {
+					break
+				}
 				str = append(str, b[0])
 			}
 			r3.SetStr(string(str))
 		}
 		break
-		READ_FAILED:
+	READ_FAILED:
 		log.Error("Read failed '%s' as #%d at %d:%s", f.Name(), fd, pos, err.Error())
-	case 51:// WRITE
+	case 51: // WRITE
 		var err error
 		fd := r1.Get()
 		f := getFile(fd, fp)
-		if f == nil {break}
+		if f == nil {
+			break
+		}
 		// TODO 是否可以直接使用 ReadAt 来避免 SEEK
 		pos := r2.Get()
 		_, err = f.Seek(int64(pos), os.SEEK_SET)
-		if err != nil {goto WRITE_FAILED}
-		switch o.Get(){
-		case 16, 17:// float 和 int 操作相同
+		if err != nil {
+			goto WRITE_FAILED
+		}
+		switch o.Get() {
+		case 16, 17: // float 和 int 操作相同
 			b := make([]byte, 4)
 			Codec.PutUint32(b, uint32(r3.Get()))
 			_, err = f.Write(b)
-			if err != nil {goto WRITE_FAILED}
+			if err != nil {
+				goto WRITE_FAILED
+			}
 		case 18:
 			b := []byte(r3.Str())
 			b = append(b, 0)
 			_, err = f.Write(b)
-			if err != nil {goto WRITE_FAILED}
+			if err != nil {
+				goto WRITE_FAILED
+			}
 		}
 		break
-		WRITE_FAILED:
+	WRITE_FAILED:
 		log.Error("Write failed '%s' as #%d at %d:%s", f.Name(), fd, pos, err.Error())
 	case 52:
 		fd := r3.Get()
@@ -199,7 +220,7 @@ func outFileFunc(i *Inst) {
 		}
 	}
 }
-func getFile(fd int, fp ResPool) (*os.File) {
+func getFile(fd int, fp ResPool) *os.File {
 	res := fp.Get(fd)
 	if res == nil {
 		log.Error("File number %d invalid", fd)
@@ -216,9 +237,9 @@ func getFile(fd int, fp ResPool) (*os.File) {
 	return f
 }
 func newFilePool() ResPool {
-	p := &resPool{pool: make(map[int]Res), start:1, step:1, reuse:false, limit:10}
+	p := &resPool{pool: make(map[int]Res), start: 1, step: 1, reuse: false, limit: 10}
 	// 预申请资源
-	for i := 0; i < 10; i +=1 {
+	for i := 0; i < 10; i += 1 {
 		p.Acquire()
 	}
 	return p

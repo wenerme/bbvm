@@ -1,6 +1,0 @@
-package bbvm
-
-
-func main() {
-
-}

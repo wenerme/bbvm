@@ -2,7 +2,7 @@ package vm
 
 var Codec codec
 
-type codec struct {}
+type codec struct{}
 
 func (codec) Uint16(b []byte) uint16 { return uint16(b[0]) | uint16(b[1])<<8 }
 
@@ -44,7 +44,7 @@ func (c codec) PutInt(b []byte, v int) {
 
 func (codec) Uint64(b []byte) uint64 {
 	return uint64(b[0]) | uint64(b[1])<<8 | uint64(b[2])<<16 | uint64(b[3])<<24 |
-	uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56
+		uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56
 }
 
 func (codec) PutUint64(b []byte, v uint64) {

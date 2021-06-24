@@ -1,7 +1,8 @@
 package vm
+
 import (
-	"io"
 	"github.com/spacemonkeygo/errors"
+	"io"
 )
 
 var ErrPoolLimitReached = errors.NewClass("No more resource can be acquired")
@@ -23,30 +24,31 @@ type ResPool interface {
 	Creator() ResValCreator
 }
 type res struct {
-	id int
+	id  int
 	val interface{}
 }
-func (r *res)Get() interface{} {
+
+func (r *res) Get() interface{} {
 	return r.val
 }
-func (r *res)Set(v interface{}) {
+func (r *res) Set(v interface{}) {
 	r.val = v
 }
-func (r *res)Id() int {
+func (r *res) Id() int {
 	return r.id
 }
+
 type resPool struct {
-	pool  map[int]Res
-	start int
-	step  int
+	pool    map[int]Res
+	start   int
+	step    int
 	current int
-	reuse bool
-	limit int
+	reuse   bool
+	limit   int
 	creator ResValCreator
 }
 
-
-func (p *resPool)Acquire() (Res, error) {
+func (p *resPool) Acquire() (Res, error) {
 	if len(p.pool) >= p.limit {
 		return nil, ErrPoolLimitReached.New("Can not acquire %v", p)
 	}
@@ -54,7 +56,7 @@ func (p *resPool)Acquire() (Res, error) {
 	if p.reuse {
 		c = p.start
 	}
-	for ;; c += p.step {
+	for ; ; c += p.step {
 		if p.pool[c] == nil {
 			p.current = c
 			return p.create(), nil
@@ -62,7 +64,7 @@ func (p *resPool)Acquire() (Res, error) {
 	}
 	panic("Unreachable")
 }
-func (p *resPool)create() Res {
+func (p *resPool) create() Res {
 	r := &res{p.current, nil}
 	if p.creator != nil {
 		r.val = p.creator(p)
@@ -71,7 +73,7 @@ func (p *resPool)create() Res {
 	return r
 }
 
-func (p *resPool)Release(r Res) {
+func (p *resPool) Release(r Res) {
 	if c, ok := r.(io.Closer); ok {
 		if err := c.Close(); err != nil {
 			log.Error("Release resource failed: %s", err.Error())
@@ -80,12 +82,12 @@ func (p *resPool)Release(r Res) {
 
 	delete(p.pool, r.Id())
 }
-func (p *resPool)Get(i int) Res {
+func (p *resPool) Get(i int) Res {
 	return p.pool[i]
 }
-func (p *resPool)SetCreator(c ResValCreator) {
+func (p *resPool) SetCreator(c ResValCreator) {
 	p.creator = c
 }
-func (p *resPool)Creator() ResValCreator {
+func (p *resPool) Creator() ResValCreator {
 	return p.creator
 }

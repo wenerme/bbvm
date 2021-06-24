@@ -1,4 +1,5 @@
 package vm
+
 import (
 	"image"
 	"image/color"
@@ -43,7 +44,7 @@ import (
 */
 type (
 	PenStyle int
-	Page interface {
+	Page     interface {
 		Drawer
 		//	SetBrushStyle(BrushStyle)
 		SetPen(PenStyle, int, color.Color)
@@ -67,20 +68,20 @@ type (
 		// 设置前景色和背景色
 		SetFontStyle(color.Color, color.Color)
 		SetBackgroundMode(BackgroundMode)
-		Print(string, ... interface{})
+		Print(string, ...interface{})
 		Locate(int, int)
 		LocatePixel(int, int)
 		Screen() Page
 	}
 
 	KeyEventType int
-	KeyEvent struct {
+	KeyEvent     struct {
 		Type KeyEventType
 		Code KeyCode
 		Char rune
 	}
 	MouseEventType int
-	MouseEvent struct {
+	MouseEvent     struct {
 		Type MouseEventType
 	}
 
@@ -89,9 +90,7 @@ type (
 		Height() int
 		Width() int
 	}
-
 )
-
 
 const (
 	KeyUp KeyEventType = iota
@@ -102,7 +101,6 @@ const (
 	MouseUp
 	MouseMove
 )
-
 
 type Device interface {
 	// File IO

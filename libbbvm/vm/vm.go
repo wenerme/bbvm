@@ -17,7 +17,7 @@ type VM interface {
 	MustGetStr(int) string
 	Attr() map[string]interface{}
 	GetInt(int) int
-	SetInt(int) int
+	SetInt(int, int)
 	Register(asm.RegisterType) Register
 }
 
