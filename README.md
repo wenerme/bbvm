@@ -27,16 +27,32 @@ EXIT
 >Hello, BBvm
 ```
 
+---
+
+```bash
+go get github.com/wenerme/bbvm/cmd/bb             # Install bb command tool
+bb run examples/hello.bbasm                       # Directly run bbasm
+
+bb compile -o hello.bbin -i examples/hello.bbasm  # Compile bbasm to bbin
+bb run hello.bbin                                 # Run bbin
+hexdump -C hello.bbin
+
+go get github.com/wenerme/bbvm/cmd/bbin           # Bundled bbin
+bbin                                              # Should output: Hello BBvm
+```
+
 | 中文 | English |
 |:----:|:----:|
-| [README](#内容)/[WIKI](https://github.com/wenerme/bbvm/wiki/主页) | [README](#contents)/[WIKI](https://github.com/wenerme/bbvm/wiki/Home) |
+| [README](#BB虚拟机)/[WIKI](https://github.com/wenerme/bbvm/wiki/主页) | [README](#bbvm)/[WIKI](https://github.com/wenerme/bbvm/wiki/Home) |
 
 ![大富翁](doc/image/bbvm-monopoly-demo.png)
 
-# Contents
+# BBvm
+
 BBvm is a simple easy virtual machine that run bbin compile from bbasm which is a simple assembly too.
 
-## Main feature
+## Features
+
 BBvm has a lot built-in system invoke with a default screen enabled device.
 
 * Graphic draw
@@ -44,10 +60,14 @@ BBvm has a lot built-in system invoke with a default screen enabled device.
 * File read/write
 * String op
 
-# 内容
+---
+
+# BB虚拟机
+
 BBvm 是一个简单的虚拟机,其汇编码为 BBasm.
 
 ## 主要功能
+
 BBvm 包含了大量的内建系统调用,并且运行于一个有屏幕的设备上.
 
 * 图形操作
@@ -56,7 +76,9 @@ BBvm 包含了大量的内建系统调用,并且运行于一个有屏幕的设�
 * 字符串操作
 
 ## BBasic
-[BBasic](http://www.baike.com/wiki/BBASIC) 是一种掌上学习机的编程平台.BBK BBASIC,简称BB,最早由通宵虫于2006年开发,是由VMBASIC结合QuickBASIC开发而成. 运行于早期步步高学习机平台.
+
+[BBasic](http://www.baike.com/wiki/BBASIC) 是一种掌上学习机的编程平台.BBK BBASIC,简称BB,最早由通宵虫于2006年开发,是由VMBASIC结合QuickBASIC开发而成.
+运行于早期步步高学习机平台.
 
 该项目为原步步高 BBasic 虚拟机的一个仿照实现.并在原来的基础上进行了扩展.
 
@@ -68,7 +90,9 @@ BBvm 包含了大量的内建系统调用,并且运行于一个有屏幕的设�
 
 参考
 ====
-* [开发进度/Roadmap](https://trello.com/b/ZBl8mVYa/bbvm)
+
+<!-- * [开发进度/Roadmap](https://trello.com/b/ZBl8mVYa/bbvm) -->
+
 * BBAsm 语法参考[这里][bbasm-g4]
 * BB 虚拟机规范参考[这里][bbvm-spec]
 
