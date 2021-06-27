@@ -24,9 +24,8 @@ func (v pseudoDataInt) Assembly() string {
 
 type pseudoDataStr []byte
 
-func (v pseudoDataStr) MarshalBinary() (data []byte, err error) {
-	data = []byte(v)
-	return
+func (v pseudoDataStr) MarshalBinary() ([]byte, error) {
+	return v, nil
 }
 func (v pseudoDataStr) Len() int {
 	return len(v)
@@ -37,9 +36,8 @@ func (v pseudoDataStr) Assembly() string {
 
 type pseudoDataBytes []byte
 
-func (v pseudoDataBytes) MarshalBinary() (data []byte, err error) {
-	data = []byte(v)
-	return
+func (v pseudoDataBytes) MarshalBinary() ([]byte, error) {
+	return v, nil
 }
 func (v pseudoDataBytes) Len() int {
 	return len(v)

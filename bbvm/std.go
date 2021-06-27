@@ -143,7 +143,11 @@ type Std struct {
 	PageOf       func(ctx context.Context, hdr int) PageHandler
 	ResOf        func(ctx context.Context, hdr int) ResourceHandler
 
-	VmTest func(ctx context.Context) `out:"255,0"`
+	VmTest func(ctx context.Context)
+
+	// extra
+	BytesToString func(b []byte) (string, error)
+	StringToBytes func(s string) ([]byte, error)
 }
 
 func (std *Std) in(ctx context.Context, rt bbasm.Runtime, inst *bbasm.Inst) {

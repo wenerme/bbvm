@@ -2,7 +2,9 @@
 
 package parser
 
-import "fmt"
+import (
+	"fmt"
+)
 
 /*
 A parser has a context
@@ -47,6 +49,26 @@ While running
 	add to context
 */
 
+func Compile(s string) ([]byte, error) {
+	assemblies, err := Parse(s)
+
+	if err != nil {
+		return nil, err
+	}
+	asm := &Assembler{Lines: assemblies}
+	return asm.Assemble()
+}
+
+func ParseLine(s string) (Assembly, error) {
+	assemblies, err := Parse(s)
+	if err != nil {
+		return nil, err
+	}
+	if len(assemblies) != 1 {
+		return nil, fmt.Errorf("expect one line got: %v", len(assemblies))
+	}
+	return assemblies[0], nil
+}
 func Parse(s string) ([]Assembly, error) {
 	p := &BBAsm{Buffer: s}
 	p.Init()

@@ -42,6 +42,11 @@ func StdStringRes(rt bbasm.Runtime, std *Std) *Std {
 			hdr.(*StringHdr).V = v
 		},
 		StringOf: func(ctx context.Context, hdr int) StringHandler {
+			if hdr >= 0 {
+				return &StringHdr{
+					V: rt.GetString(hdr),
+				}
+			}
 			h := hdrs[hdr]
 			// handle address
 			if h == nil {

@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"github.com/juju/errors"
 	"github.com/wenerme/bbvm/bbasm"
+	"go.uber.org/zap"
 	"math"
 )
 
@@ -22,8 +23,6 @@ type Instance struct {
 	R1 bbasm.Register
 	R2 bbasm.Register
 	R3 bbasm.Register
-
-	BytesToString func(b []byte) (string, error)
 
 	Inst *bbasm.Inst
 	Std  *Std
@@ -56,10 +55,11 @@ func (rt *Instance) GetString(addr int) string {
 			break
 		}
 	}
-	s, err := rt.BytesToString(slice[:l])
+	s, err := rt.Std.BytesToString(slice[:l])
 	if err != nil {
 		panic(err)
 	}
+	zap.S().Debugf("GetString %v+%v -> %v", addr, l, s)
 	return s
 }
 func (rt *Instance) Push(val int) {
@@ -112,17 +112,16 @@ func (rt *Instance) Out(ctx context.Context, a int, b int) {
 
 func NewInstance() *Instance {
 	sr := &Instance{
-		Order:         binary.LittleEndian,
-		RP:            &Register{Label: "RP"},
-		RF:            &Register{Label: "RF"},
-		RS:            &Register{Label: "RS"},
-		RB:            &Register{Label: "RB"},
-		R0:            &Register{Label: "R0"},
-		R1:            &Register{Label: "R1"},
-		R2:            &Register{Label: "R2"},
-		R3:            &Register{Label: "R3"},
-		Inst:          &bbasm.Inst{},
-		BytesToString: GBKToString,
+		Order: binary.LittleEndian,
+		RP:    &Register{Label: "RP"},
+		RF:    &Register{Label: "RF"},
+		RS:    &Register{Label: "RS"},
+		RB:    &Register{Label: "RB"},
+		R0:    &Register{Label: "R0"},
+		R1:    &Register{Label: "R1"},
+		R2:    &Register{Label: "R2"},
+		R3:    &Register{Label: "R3"},
+		Inst:  &bbasm.Inst{},
 	}
 	sr.Inst.A.RT = sr
 	sr.Inst.B.RT = sr

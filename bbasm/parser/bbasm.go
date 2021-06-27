@@ -1,22 +1,24 @@
 package parser
 
 import (
-	"fmt"
 	"github.com/juju/errors"
 	"github.com/wenerme/bbvm/bbasm"
 	"math"
 	"strings"
 )
 
+func NewParser(s string) *BBAsm {
+	return &BBAsm{Buffer: s}
+}
+
 type parser struct {
 	line       int
 	stack      []interface{}
 	assemblies []Assembly
-	symbols    map[string]interface{}
 }
 
 func (p *parser) Push(v interface{}) {
-	fmt.Printf("PUSH %#v\n", v)
+	// fmt.Printf("PUSH %#v\n", v)
 	if v == nil {
 		panic(errors.Errorf("Can not push nil"))
 	}

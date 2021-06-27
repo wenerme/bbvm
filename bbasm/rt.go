@@ -26,5 +26,5 @@ type Memory interface {
 	SetInt(int, int)
 	GetFloat(int) float32
 	SetFloat(int, float32)
-	// GetString(int) string
+	GetString(int) string
 }
